@@ -40,7 +40,7 @@ export const sections = [
 export const content = {
   about: {
     title: 'Hakkımda',
-    kicker: 'Senior · Front & Full-Stack',
+    kicker: 'Full-Stack Developer',
     body: "Erciyes Üniversitesi Bilgisayar Mühendisliği 6. dönem öğrencisiyim. JavaScript ve MERN Stack (MongoDB, Express, React, Node.js) teknolojilerine odaklanan bir Full-Stack Geliştiriciyim. Modern web mimarileri, 3D / WebGL deneyimleri ve AI entegrasyonları üzerine çalışıyorum.",
     highlights: [
       'Erciyes Üniversitesi — Bilgisayar Mühendisliği',

@@ -51,6 +51,8 @@ function buildPanelData(sectionId, live) {
       date: p.created_at,
       tag: (p.tags && p.tags[0]) || 'Yazı',
       excerpt: p.excerpt || '',
+      slug: p.slug,
+      kind: p.kind || 'blog',
     }))
     return {
       title: 'Blog',
@@ -314,6 +316,12 @@ function Blog({ data }) {
   const fmtDate = (iso) =>
     new Date(iso).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' })
 
+  const handleClick = (p) => {
+    if (p.slug) {
+      window.location.href = `/${p.kind || 'blog'}/${p.slug}`
+    }
+  }
+
   return (
     <div style={{ display: 'grid', gap: 14 }}>
       {data.posts.map((p, i) => (
@@ -327,9 +335,10 @@ function Blog({ data }) {
             background:
               'linear-gradient(135deg, rgba(196,181,253,0.18) 0%, rgba(167,139,250,0.08) 100%)',
             color: '#3a2a4a',
-            cursor: 'pointer',
+            cursor: p.slug ? 'pointer' : 'default',
           }}
           whileHover={{ y: -2, borderColor: 'rgba(167,139,250,0.5)' }}
+          onClick={() => handleClick(p)}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span
@@ -349,6 +358,11 @@ function Blog({ data }) {
             {p.title}
           </h3>
           <p style={{ fontSize: 13, lineHeight: 1.55, color: 'rgba(58,42,74,0.7)' }}>{p.excerpt}</p>
+          {p.slug && (
+            <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: '#7c3aed' }}>
+              Yazıyı Oku →
+            </div>
+          )}
         </motion.article>
       ))}
     </div>
@@ -382,11 +396,6 @@ function Contact({ data }) {
       name: 'Yahoo Mail',
       icon: '📮',
       url: `https://compose.mail.yahoo.com/?to=${mailAddress}`,
-    },
-    {
-      name: 'Varsayılan Uygulama',
-      icon: '💻',
-      url: `mailto:${mailAddress}`,
     },
   ]
 
