@@ -356,6 +356,40 @@ function Blog({ data }) {
 }
 
 function Contact({ data }) {
+  const [showMailPicker, setShowMailPicker] = useState(false)
+  const [mailAddress, setMailAddress] = useState('')
+
+  const handleLinkClick = (e, l) => {
+    if (l.icon === 'mail' && l.href?.startsWith('mailto:')) {
+      e.preventDefault()
+      setMailAddress(l.href.replace('mailto:', ''))
+      setShowMailPicker(true)
+    }
+  }
+
+  const mailOptions = [
+    {
+      name: 'Gmail',
+      icon: '📧',
+      url: `https://mail.google.com/mail/?view=cm&to=${mailAddress}`,
+    },
+    {
+      name: 'Outlook',
+      icon: '📬',
+      url: `https://outlook.live.com/mail/0/deeplink/compose?to=${mailAddress}`,
+    },
+    {
+      name: 'Yahoo Mail',
+      icon: '📮',
+      url: `https://compose.mail.yahoo.com/?to=${mailAddress}`,
+    },
+    {
+      name: 'Varsayılan Uygulama',
+      icon: '💻',
+      url: `mailto:${mailAddress}`,
+    },
+  ]
+
   return (
     <div>
       <motion.p {...fade(0)} style={bodyStyle}>
@@ -372,6 +406,7 @@ function Contact({ data }) {
               href={href}
               target="_blank"
               rel="noreferrer"
+              onClick={(e) => handleLinkClick(e, l)}
               whileHover={{ x: 4, borderColor: 'rgba(249,168,212,0.45)' }}
               style={linkCardStyle}
             >
@@ -397,6 +432,86 @@ function Contact({ data }) {
           )
         })}
       </div>
+
+      {/* E-posta sağlayıcı seçim popup'ı */}
+      <AnimatePresence>
+        {showMailPicker && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowMailPicker(false)}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 50,
+              background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: 20,
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: '#fff', borderRadius: 16, padding: 28,
+                maxWidth: 340, width: '100%',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+              }}
+            >
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#3a2a4a', marginBottom: 4 }}>
+                E-posta Gönder
+              </h3>
+              <p style={{ fontSize: 13, color: '#888', marginBottom: 18 }}>
+                <strong>{mailAddress}</strong> adresine hangi uygulama ile göndermek istersin?
+              </p>
+              <div style={{ display: 'grid', gap: 8 }}>
+                {mailOptions.map((opt) => (
+                  <a
+                    key={opt.name}
+                    href={opt.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => setShowMailPicker(false)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '12px 16px', borderRadius: 10,
+                      border: '1px solid rgba(167,139,250,0.2)',
+                      background: 'rgba(250,248,255,0.8)',
+                      textDecoration: 'none', color: '#3a2a4a',
+                      fontSize: 14, fontWeight: 500,
+                      transition: 'all 0.15s',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(124,58,237,0.08)'
+                      e.currentTarget.style.borderColor = 'rgba(124,58,237,0.3)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(250,248,255,0.8)'
+                      e.currentTarget.style.borderColor = 'rgba(167,139,250,0.2)'
+                    }}
+                  >
+                    <span style={{ fontSize: 22 }}>{opt.icon}</span>
+                    {opt.name}
+                  </a>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowMailPicker(false)}
+                style={{
+                  marginTop: 14, width: '100%', padding: '10px',
+                  borderRadius: 8, border: '1px solid #e0dce8',
+                  background: 'transparent', color: '#888',
+                  cursor: 'pointer', fontSize: 13,
+                }}
+              >
+                İptal
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
