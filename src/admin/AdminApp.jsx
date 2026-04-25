@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom'
-import { FileText, FolderGit2, User, Phone, LogOut, Loader2 } from 'lucide-react'
+import { FileText, FolderGit2, User, Phone, LogOut, Loader2, Settings } from 'lucide-react'
 
 import './admin.css'
 import { useAuth, signOut } from './AuthProvider.jsx'
@@ -102,6 +102,7 @@ export default function AdminApp() {
           <Route path="projects" element={<PostsList filterKind="project" />} />
           <Route path="about" element={<AboutEditor />} />
           <Route path="contact" element={<ContactEditor />} />
+          <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="posts" replace />} />
         </Routes>
       </main>
@@ -137,6 +138,9 @@ function Sidebar() {
       <NavLink to="/admin/contact" className={navItem}>
         <Phone size={17} /> İletişim
       </NavLink>
+      <NavLink to="/admin/settings" className={navItem}>
+        <Settings size={17} /> Ayarlar
+      </NavLink>
 
       <div className="bottom">
         <div>{user?.email}</div>
@@ -147,4 +151,104 @@ function Sidebar() {
       </div>
     </aside>
   )
+}
+
+function SettingsPage() {
+  const [pw, setPw] = useState('')
+  const [pw2, setPw2] = useState('')
+  const [msg, setMsg] = useState(null)
+  const [err, setErr] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setMsg(null)
+    setErr(null)
+
+    if (pw.length < 6) {
+      setErr('Şifre en az 6 karakter olmalı.')
+      return
+    }
+    if (pw !== pw2) {
+      setErr('Şifreler eşleşmiyor.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const { supabase } = await import('../lib/supabase.js')
+      const { error } = await supabase.auth.updateUser({ password: pw })
+      if (error) throw error
+      setMsg('Şifre başarıyla güncellendi! Artık şifre ile giriş yapabilirsin.')
+      setPw('')
+      setPw2('')
+    } catch (e) {
+      setErr(e.message || 'Şifre güncellenemedi.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Ayarlar</h1>
+
+      <div style={{
+        maxWidth: 420, padding: 28, borderRadius: 14,
+        background: '#fff', border: '1px solid #e8e5f0',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+      }}>
+        <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>Şifre Belirle</h2>
+        <p style={{ fontSize: 13, color: '#888', marginBottom: 16 }}>
+          Şifre belirleyerek magic link yerine şifre ile giriş yapabilirsin.
+        </p>
+
+        {msg && <div style={{ padding: '10px 14px', borderRadius: 8, background: '#ecfdf5', color: '#065f46', fontSize: 13, marginBottom: 12 }}>{msg}</div>}
+        {err && <div style={{ padding: '10px 14px', borderRadius: 8, background: '#fef2f2', color: '#991b1b', fontSize: 13, marginBottom: 12 }}>{err}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <label style={{ display: 'block', marginBottom: 12 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, display: 'block', marginBottom: 4 }}>Yeni Şifre</span>
+            <input
+              type="password"
+              value={pw}
+              onChange={(e) => setPw(e.target.value)}
+              placeholder="En az 6 karakter"
+              required
+              style={inputStyle}
+            />
+          </label>
+          <label style={{ display: 'block', marginBottom: 16 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, display: 'block', marginBottom: 4 }}>Şifre Tekrar</span>
+            <input
+              type="password"
+              value={pw2}
+              onChange={(e) => setPw2(e.target.value)}
+              placeholder="Aynı şifreyi tekrar gir"
+              required
+              style={inputStyle}
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              padding: '10px 24px', borderRadius: 8,
+              background: '#7c3aed', color: '#fff', border: 'none',
+              cursor: 'pointer', fontWeight: 600, fontSize: 14,
+              opacity: loading ? 0.6 : 1,
+            }}
+          >
+            {loading ? 'Kaydediliyor...' : 'Şifreyi Kaydet'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+const inputStyle = {
+  width: '100%', padding: '10px 12px', borderRadius: 8,
+  border: '1px solid #d4d0e0', fontSize: 14,
+  outline: 'none', boxSizing: 'border-box',
 }
