@@ -47,7 +47,8 @@ export default function AdminApp() {
     }
   }, [])
 
-  const { session, loading } = useAuth()
+  const ADMIN_EMAIL = 'emekberat19@gmail.com'
+  const { session, user, loading } = useAuth()
 
   if (loading) {
     return (
@@ -59,6 +60,35 @@ export default function AdminApp() {
   }
 
   if (!session) return <Login />
+
+  // Sadece izinli e-posta admin paneline erişebilir
+  if (user?.email !== ADMIN_EMAIL) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', background: '#f7f6fb',
+        color: '#1c1633', fontFamily: "'Inter', sans-serif", gap: 16, padding: 24,
+        textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 48 }}>🚫</div>
+        <h1 style={{ fontSize: 24, fontWeight: 700 }}>Yetkisiz Erişim</h1>
+        <p style={{ color: '#666', maxWidth: 360 }}>
+          Bu panel yalnızca site yöneticisine açıktır.<br />
+          <strong>{user?.email}</strong> hesabının erişim yetkisi yok.
+        </p>
+        <button
+          onClick={async () => { await signOut(); window.location.reload() }}
+          style={{
+            marginTop: 8, padding: '10px 24px', borderRadius: 8,
+            background: '#7c3aed', color: '#fff', border: 'none',
+            cursor: 'pointer', fontWeight: 600, fontSize: 14,
+          }}
+        >
+          Çıkış Yap
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="admin-shell">
