@@ -2,6 +2,8 @@ body.admin-mode {
   overflow: auto;
   background: #f7f6fb;
   color: #1c1633;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .admin-shell {
@@ -131,6 +133,8 @@ body.admin-mode {
   font-size: 14px;
   color: #1c1633;
   transition: border-color 0.15s;
+  -webkit-user-select: text;
+  user-select: text;
 }
 .admin-form input:focus, .admin-form textarea:focus, .admin-form select:focus {
   outline: none;
@@ -245,6 +249,8 @@ body.admin-mode {
   color: #1c1633;
   background: #ffffff;
   caret-color: #7c3aed;
+  -webkit-user-select: text;
+  user-select: text;
 }
 .tiptap-editor .ProseMirror * {
   color: inherit;
