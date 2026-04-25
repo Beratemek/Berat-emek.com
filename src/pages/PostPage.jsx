@@ -218,34 +218,20 @@ const excerptStyle = {
 function renderContent(content) {
   if (!content) return ''
 
-  // String ise direkt kullan (eski kayıtlar veya düz metin)
-  if (typeof content === 'string') {
-    return content
-  }
+  // String ise direkt kullan
+  if (typeof content === 'string') return content
 
-  // TipTap JSON formatını kontrol et
-  if (typeof content === 'object') {
-    // Geçerli TipTap doc formatı: { type: 'doc', content: [...] }
-    if (content.type === 'doc' && Array.isArray(content.content)) {
-      // Boş döküman kontrolü
-      if (content.content.length === 0) return ''
-      try {
-        return generateHTML(content, [
-          StarterKit,
-          TiptapLink.configure({ openOnClick: true }),
-          TiptapImage,
-        ])
-      } catch (e) {
-        console.error('[PostPage] generateHTML error:', e)
-        return ''
-      }
-    }
-
-    // Başka bir obje formatı — JSON string olarak düz göster
+  // TipTap JSON: { type: 'doc', content: [...] }
+  if (typeof content === 'object' && content.type === 'doc' && Array.isArray(content.content)) {
+    if (content.content.length === 0) return ''
     try {
-      const json = JSON.stringify(content, null, 2)
-      return `<pre style="font-size:13px;color:#888">${json}</pre>`
-    } catch {
+      return generateHTML(content, [
+        StarterKit,
+        TiptapLink.configure({ openOnClick: true }),
+        TiptapImage,
+      ])
+    } catch (e) {
+      console.error('[PostPage] generateHTML error:', e)
       return ''
     }
   }
