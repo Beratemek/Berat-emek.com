@@ -1,15 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
 const url = import.meta.env.VITE_SUPABASE_URL
-const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!url || !publishableKey) {
+if (!url || !anonKey) {
   console.warn(
-    '[supabase] .env.local içinde VITE_SUPABASE_URL ve VITE_SUPABASE_PUBLISHABLE_KEY tanımlı olmalı.'
+    '[supabase] .env içinde VITE_SUPABASE_URL ve VITE_SUPABASE_ANON_KEY tanımlı olmalı.'
   )
 }
 
-export const supabase = createClient(url, publishableKey, {
+export const supabase = createClient(url, anonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
