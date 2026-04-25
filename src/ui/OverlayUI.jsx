@@ -333,7 +333,7 @@ function Projects({ data }) {
             onClick={() => setSelected(null)}
             style={{
               position: 'fixed', inset: 0, zIndex: 60,
-              background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)',
+              background: 'rgba(0,0,0,0.65)', /* Performans için backdropFilter kaldırıldı */
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               padding: 20,
             }}
@@ -351,8 +351,10 @@ function Projects({ data }) {
                 borderRadius: 20, padding: 0,
                 maxWidth: 580, width: '100%',
                 maxHeight: '85vh', overflowY: 'auto',
-                boxShadow: '0 24px 80px rgba(100,60,180,0.25)',
+                boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
                 border: '1px solid rgba(167,139,250,0.2)',
+                willChange: 'transform, opacity', /* GPU Hızlandırma */
+                position: 'relative', /* Kapat butonu için referans */
               }}
             >
               {/* Kapak görseli */}
@@ -373,22 +375,27 @@ function Projects({ data }) {
                 }} />
               )}
 
-              <div style={{ padding: '28px 32px 32px' }}>
-                {/* Kapat butonu */}
-                <button
-                  onClick={() => setSelected(null)}
-                  style={{
-                    position: 'absolute', top: selected.cover ? 212 : 20, right: 20,
-                    width: 36, height: 36, borderRadius: 18,
-                    background: 'rgba(58,42,74,0.08)', border: '1px solid rgba(58,42,74,0.12)',
-                    color: '#3a2a4a', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 18, fontWeight: 700,
-                  }}
-                >
-                  ✕
-                </button>
+              {/* Kapat butonu - Her zaman sağ üstte, görselin veya arka planın üzerinde */}
+              <button
+                onClick={() => setSelected(null)}
+                style={{
+                  position: 'absolute', top: 16, right: 16,
+                  width: 34, height: 34, borderRadius: 17,
+                  background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#fff', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 16, fontWeight: 700,
+                  zIndex: 10,
+                  backdropFilter: 'blur(4px)', /* Küçük bir elementte blur sorun yaratmaz */
+                  transition: 'background 0.2s, transform 0.1s'
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.8)'; e.currentTarget.style.transform = 'scale(1.05)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.6)'; e.currentTarget.style.transform = 'scale(1)'; }}
+              >
+                ✕
+              </button>
 
+              <div style={{ padding: '28px 32px 32px' }}>
                 {/* Etiketler */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
                   {selected.tags.map((t) => (
@@ -430,7 +437,10 @@ function Projects({ data }) {
                       color: '#fff', textDecoration: 'none',
                       fontWeight: 600, fontSize: 14,
                       boxShadow: '0 4px 16px rgba(167,139,250,0.3)',
+                      transition: 'transform 0.2s, boxShadow 0.2s'
                     }}
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                   >
                     Tam Sayfada Oku <ArrowUpRight size={16} />
                   </a>
