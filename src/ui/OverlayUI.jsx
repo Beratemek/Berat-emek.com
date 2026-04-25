@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X, Mail, Globe, ArrowUpRight, Sun, Moon } from 'lucide-react'
-import { generateHTML } from '@tiptap/html'
-import StarterKit from '@tiptap/starter-kit'
-import TiptapLink from '@tiptap/extension-link'
-import TiptapImage from '@tiptap/extension-image'
+
 import { content } from '../data/portfolio.js'
 import { THEMES } from '../data/themes.js'
 
@@ -43,7 +40,6 @@ function buildPanelData(sectionId, live) {
       tags: p.tags || [],
       slug: p.slug,
       cover: p.cover || null,
-      content: p.content || null,
     }))
     return {
       title: 'Projeler',
@@ -423,11 +419,6 @@ function Projects({ data }) {
                   {selected.desc}
                 </p>
 
-                {/* Tam içerik (varsa) */}
-                {selected.content && (
-                  <ProjectContent content={selected.content} />
-                )}
-
                 {/* Sayfaya git butonu */}
                 {selected.slug && (
                   <a
@@ -453,34 +444,7 @@ function Projects({ data }) {
   )
 }
 
-function ProjectContent({ content }) {
-  if (!content) return null
 
-  let html = ''
-  try {
-    if (typeof content === 'string') {
-      html = content
-    } else if (content.type === 'doc' && Array.isArray(content.content)) {
-      if (content.content.length === 0) return null
-      html = generateHTML(content, [StarterKit, TiptapLink, TiptapImage])
-    } else {
-      return null
-    }
-  } catch (e) {
-    console.error('[ProjectContent] generateHTML error:', e)
-    return null
-  }
-
-  if (!html) return null
-
-  return (
-    <div
-      className="post-content"
-      style={{ fontSize: 14, lineHeight: 1.7 }}
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  )
-}
 
 function Blog({ data }) {
   const fmtDate = (iso) =>

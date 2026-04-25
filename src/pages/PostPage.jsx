@@ -209,21 +209,28 @@ const excerptStyle = {
 }
 
 /**
- * İçeriği güvenli bir şekilde HTML'e çevirir.
- * - null / undefined → boş string
- * - string (düz metin veya HTML) → olduğu gibi kullan
- * - TipTap JSON ({ type:'doc', content:[...] }) → generateHTML ile çevir
- * - Geçersiz JSON → excerpt veya boş string döner
+ * İçeriği güvenli şekilde HTML'e çevirir.
+ * Supabase JSONB bazen string, bazen obje döner — hepsini handle eder.
  */
-function renderContent(content) {
-  if (!content) return ''
+function renderContent(raw) {
+  if (!raw) return ''
 
-  // String ise direkt kullan
-  if (typeof content === 'string') return content
+  let content = raw
+
+  // Eğer string olarak geldiyse JSON parse dene
+  if (typeof content === 'string') {
+    try {
+      content = JSON.parse(content)
+    } catch {
+      // Parse edilemiyorsa düz HTML/metin olarak kullan
+      return content
+    }
+  }
 
   // TipTap JSON: { type: 'doc', content: [...] }
-  if (typeof content === 'object' && content.type === 'doc' && Array.isArray(content.content)) {
-    if (content.content.length === 0) return ''
+  if (content && typeof content === 'object' && content.type === 'doc') {
+    const children = content.content
+    if (!Array.isArray(children) || children.length === 0) return ''
     try {
       return generateHTML(content, [
         StarterKit,
@@ -231,7 +238,7 @@ function renderContent(content) {
         TiptapImage,
       ])
     } catch (e) {
-      console.error('[PostPage] generateHTML error:', e)
+      console.error('[PostPage] generateHTML hatası:', e, 'content:', content)
       return ''
     }
   }
