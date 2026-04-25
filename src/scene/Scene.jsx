@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import {
   OrbitControls,
@@ -7,6 +7,7 @@ import {
   Environment,
   Stars,
 } from '@react-three/drei'
+import { useThree } from '@react-three/fiber'
 
 import CentralIsland from './CentralIsland.jsx'
 import FloatingIslands from './FloatingIslands.jsx'
@@ -34,6 +35,7 @@ export default function Scene({ activeSection, onSelect, theme = 'day', content 
       }}
     >
       <OrthographicCamera makeDefault position={[12, 7, 16]} zoom={55} near={0.1} far={120} />
+      <ResponsiveZoom />
 
       <OrbitControls
         makeDefault
@@ -96,4 +98,22 @@ export default function Scene({ activeSection, onSelect, theme = 'day', content 
       </Suspense>
     </Canvas>
   )
+}
+
+/* Mobilde kamera zoom'unu ekrana sığacak şekilde ayarla */
+function ResponsiveZoom() {
+  const { camera, size } = useThree()
+
+  useEffect(() => {
+    const w = size.width
+    let zoom = 55 // masaüstü varsayılan
+    if (w < 480) zoom = 28
+    else if (w < 640) zoom = 32
+    else if (w < 768) zoom = 38
+    else if (w < 1024) zoom = 45
+    camera.zoom = zoom
+    camera.updateProjectionMatrix()
+  }, [size.width, camera])
+
+  return null
 }

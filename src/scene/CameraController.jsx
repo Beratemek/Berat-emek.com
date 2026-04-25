@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
@@ -8,17 +8,27 @@ const HOME_ZOOM = 55
 const FOCUS_ZOOM = 120
 
 export default function CameraController({ target }) {
-  const { camera, controls } = useThree()
+  const { camera, controls, size } = useThree()
+
+  const zooms = useMemo(() => {
+    const w = size.width
+    if (w < 480) return { home: 28, focus: 55 }
+    if (w < 640) return { home: 32, focus: 65 }
+    if (w < 768) return { home: 38, focus: 75 }
+    if (w < 1024) return { home: 45, focus: 95 }
+    return { home: 55, focus: 120 }
+  }, [size.width])
+
   const desiredPos = useRef(new THREE.Vector3())
   const desiredTarget = useRef(new THREE.Vector3())
-  const desiredZoom = useRef(HOME_ZOOM)
+  const desiredZoom = useRef(zooms.home)
   const prevTargetId = useRef('__init__')
   const isAnimating = useRef(false)
 
   // İlk mount'ta kamerayı HOME pozisyonuna zorla (HMR'dan bağımsız)
   useEffect(() => {
     camera.position.copy(HOME_POSITION)
-    camera.zoom = HOME_ZOOM
+    camera.zoom = zooms.home
     camera.updateProjectionMatrix()
     if (controls && controls.target) {
       controls.target.copy(HOME_TARGET)
@@ -52,11 +62,11 @@ export default function CameraController({ target }) {
       const [x, y, z] = target.position
       desiredPos.current.set(x + 5, y + 4, z + 5)
       desiredTarget.current.set(x, y - 0.8, z)
-      desiredZoom.current = FOCUS_ZOOM
+      desiredZoom.current = zooms.focus
     } else {
       desiredPos.current.copy(HOME_POSITION)
       desiredTarget.current.copy(HOME_TARGET)
-      desiredZoom.current = HOME_ZOOM
+      desiredZoom.current = zooms.home
     }
     isAnimating.current = true
   }, [target])

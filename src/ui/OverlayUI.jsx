@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X, Mail, Globe, ArrowUpRight, Sun, Moon } from 'lucide-react'
 import { content } from '../data/portfolio.js'
@@ -78,10 +79,24 @@ function buildPanelData(sectionId, live) {
 
 export default function OverlayUI({ activeSection, onClose, theme = 'day', onToggleTheme, content: live }) {
   const data = buildPanelData(activeSection, live)
+  const isMobile = useIsMobile()
+
+  const mobilePanelStyle = isMobile ? {
+    ...panelStyle,
+    width: '100vw',
+    padding: '40px 20px',
+    borderLeft: 'none',
+  } : panelStyle
+
+  const mobileHeadingStyle = isMobile ? {
+    ...headingStyle,
+    fontSize: 36,
+    letterSpacing: -0.5,
+  } : headingStyle
 
   return (
     <>
-      <HudCorners theme={theme} onToggleTheme={onToggleTheme} />
+      <HudCorners theme={theme} onToggleTheme={onToggleTheme} isMobile={isMobile} />
 
       <AnimatePresence>
         {activeSection && (
@@ -111,7 +126,7 @@ export default function OverlayUI({ activeSection, onClose, theme = 'day', onTog
             exit={{ x: '105%', opacity: 0 }}
             transition={{ type: 'spring', stiffness: 140, damping: 22 }}
             className="panel-scroll"
-            style={panelStyle}
+            style={mobilePanelStyle}
           >
             <button onClick={onClose} style={closeBtnStyle} aria-label="Kapat">
               <X size={18} />
@@ -130,7 +145,7 @@ export default function OverlayUI({ activeSection, onClose, theme = 'day', onTog
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18 }}
-              style={headingStyle}
+              style={mobileHeadingStyle}
             >
               {data.title}
             </motion.h1>
@@ -152,7 +167,7 @@ export default function OverlayUI({ activeSection, onClose, theme = 'day', onTog
   )
 }
 
-function HudCorners({ theme = 'day', onToggleTheme }) {
+function HudCorners({ theme = 'day', onToggleTheme, isMobile = false }) {
   const T = THEMES[theme]
 
   return (
@@ -162,10 +177,12 @@ function HudCorners({ theme = 'day', onToggleTheme }) {
           ...hudLeftStyle,
           color: T.hud.text,
           textShadow: T.hud.textShadow,
+          top: isMobile ? 14 : 28,
+          left: isMobile ? 14 : 28,
         }}
       >
-        <div style={{ fontSize: 14, fontWeight: 600 }}>Berat Emek</div>
-        <div style={{ fontSize: 12, opacity: 0.7 }}>Full-Stack Developer</div>
+        <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 600 }}>Berat Emek</div>
+        <div style={{ fontSize: isMobile ? 10 : 12, opacity: 0.7 }}>Full-Stack Developer</div>
       </div>
 
       {/* Tema toggle butonu — her zaman görünür */}
@@ -176,12 +193,12 @@ function HudCorners({ theme = 'day', onToggleTheme }) {
         aria-label={theme === 'day' ? 'Gece moduna geç' : 'Gündüz moduna geç'}
         style={{
           position: 'fixed',
-          top: 28,
-          right: 28,
+          top: isMobile ? 14 : 28,
+          right: isMobile ? 14 : 28,
           zIndex: 6,
-          width: 48,
-          height: 48,
-          borderRadius: 24,
+          width: isMobile ? 38 : 48,
+          height: isMobile ? 38 : 48,
+          borderRadius: isMobile ? 19 : 24,
           border: `1px solid ${T.hud.chipBorder}`,
           background: T.hud.chipBg,
           backdropFilter: 'blur(10px)',
@@ -522,4 +539,19 @@ const hudLeftStyle = {
   pointerEvents: 'none',
   color: 'rgba(58,42,74,0.9)',
   textShadow: '0 1px 2px rgba(255,255,255,0.5)',
+}
+
+/* Hook: mobil mi? */
+function useIsMobile(breakpoint = 768) {
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
+  )
+
+  useEffect(() => {
+    const onResize = () => setMobile(window.innerWidth < breakpoint)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [breakpoint])
+
+  return mobile
 }
