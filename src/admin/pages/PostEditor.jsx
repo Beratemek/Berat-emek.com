@@ -88,7 +88,16 @@ export default function PostEditor() {
           cover: data.cover || '',
           published: !!data.published,
         })
-        editor.commands.setContent(data.content ?? '')
+        // Supabase JSONB bazen string olarak döner — parse et
+        let editorContent = data.content ?? ''
+        if (typeof editorContent === 'string' && editorContent.trim()) {
+          try {
+            editorContent = JSON.parse(editorContent)
+          } catch {
+            // Parse edilemiyorsa olduğu gibi bırak (düz HTML/metin)
+          }
+        }
+        editor.commands.setContent(editorContent)
       }
       setLoading(false)
     })()
