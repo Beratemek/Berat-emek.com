@@ -25,6 +25,7 @@ import {
 import { supabase } from '../../lib/supabase.js'
 import InfoBox from '../InfoBox.jsx'
 import ImageUpload from '../components/ImageUpload.jsx'
+import MultiImageUpload from '../components/MultiImageUpload.jsx'
 
 function slugify(s) {
   return (s || '')
@@ -53,6 +54,7 @@ export default function PostEditor() {
     excerpt: '',
     tags: '',
     cover: '',
+    gallery: [],
     published: false,
   })
   const [imgUploading, setImgUploading] = useState(false)
@@ -86,6 +88,7 @@ export default function PostEditor() {
           excerpt: data.excerpt || '',
           tags: (data.tags || []).join(', '),
           cover: data.cover || '',
+          gallery: data.gallery || [],
           published: !!data.published,
         })
         // Supabase JSONB bazen string olarak döner — parse et
@@ -118,6 +121,7 @@ export default function PostEditor() {
       excerpt: form.excerpt,
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       cover: form.cover || null,
+      gallery: form.gallery || [],
       published: form.published,
       content: editor?.getJSON() ?? null,
     }
@@ -269,6 +273,18 @@ export default function PostEditor() {
               value={form.cover}
               onChange={(url) => set('cover', url)}
               folder={form.kind}
+            />
+          </label>
+
+          <label style={{ marginTop: 8 }}>
+            Galeri (Birden Fazla Resim)
+            <span className="hint">
+              — Yazının veya projenin en altında slider/grid olarak görünür.
+            </span>
+            <MultiImageUpload
+              value={form.gallery}
+              onChange={(urls) => set('gallery', urls)}
+              folder={form.kind + '-gallery'}
             />
           </label>
         </div>
