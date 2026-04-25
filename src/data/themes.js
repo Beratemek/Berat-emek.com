@@ -1,0 +1,46 @@
+export const THEMES = {
+  day: {
+    bg: 'linear-gradient(180deg, #ffd9b5 0%, #ffc6d6 35%, #d4c5ff 70%, #a8d4ff 100%)',
+    fog: { color: '#ffd4e0', near: 22, far: 55 },
+    ambient: { color: '#fff0e0', intensity: 0.85 },
+    hemi: { sky: '#ffd4a8', ground: '#c4b5fd', intensity: 0.6 },
+    sun: {
+      position: [10, 16, 8],
+      color: '#fff2d8',
+      intensity: 1.4,
+    },
+    envPreset: 'sunset',
+    cloudColor: '#ffffff',
+    cloudAccent: '#fff0e8',
+    stars: false,
+    hud: {
+      text: '#3a2a4a',
+      textShadow: '0 1px 2px rgba(255,255,255,0.5)',
+      chipBg: 'rgba(255,255,255,0.55)',
+      chipBorder: 'rgba(255,255,255,0.6)',
+    },
+    haloOpacity: 0.9,
+  },
+  night: {
+    bg: 'linear-gradient(180deg, #050418 0%, #0c0a38 35%, #1a1050 70%, #0a0630 100%)',
+    fog: { color: '#0a0728', near: 20, far: 48 },
+    ambient: { color: '#8da3e0', intensity: 0.3 },
+    hemi: { sky: '#5a6fe0', ground: '#1a0d40', intensity: 0.35 },
+    sun: {
+      position: [-8, 14, 10],
+      color: '#cbd6ff',
+      intensity: 0.6,
+    },
+    envPreset: 'night',
+    cloudColor: '#6a7fb0',
+    cloudAccent: '#8697c5',
+    stars: true,
+    hud: {
+      text: '#e8e8ff',
+      textShadow: '0 1px 6px rgba(10,5,30,0.8)',
+      chipBg: 'rgba(20,15,45,0.55)',
+      chipBorder: 'rgba(200,210,255,0.15)',
+    },
+    haloOpacity: 0.45,
+  },
+}
