@@ -4,6 +4,7 @@ import { X, Mail, Globe, ArrowUpRight, Sun, Moon } from 'lucide-react'
 import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapLink from '@tiptap/extension-link'
+import TiptapImage from '@tiptap/extension-image'
 import { content } from '../data/portfolio.js'
 import { THEMES } from '../data/themes.js'
 
@@ -454,7 +455,7 @@ function Projects({ data }) {
 
 function ProjectContent({ content }) {
   try {
-    const html = generateHTML(content, [StarterKit, TiptapLink])
+    const html = generateHTML(content, [StarterKit, TiptapLink, TiptapImage])
     return (
       <div
         className="post-content"

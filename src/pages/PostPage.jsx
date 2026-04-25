@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Tag, Clock } from 'lucide-react'
 import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapLink from '@tiptap/extension-link'
+import TiptapImage from '@tiptap/extension-image'
 
 export default function PostPage() {
   const { slug } = useParams()
@@ -98,6 +99,7 @@ export default function PostPage() {
       htmlContent = generateHTML(post.content, [
         StarterKit,
         TiptapLink.configure({ openOnClick: true }),
+        TiptapImage,
       ])
     }
   } catch {

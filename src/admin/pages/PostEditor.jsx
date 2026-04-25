@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapLink from '@tiptap/extension-link'
+import TiptapImage from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
 import {
   ArrowLeft,
@@ -18,6 +19,7 @@ import {
   Heading2,
   Link as LinkIcon,
   Loader2,
+  ImagePlus,
 } from 'lucide-react'
 
 import { supabase } from '../../lib/supabase.js'
@@ -53,11 +55,14 @@ export default function PostEditor() {
     cover: '',
     published: false,
   })
+  const [imgUploading, setImgUploading] = useState(false)
+  const imgInputRef = useRef(null)
 
   const editor = useEditor({
     extensions: [
       StarterKit,
       TiptapLink.configure({ openOnClick: false, HTMLAttributes: { class: 'tiptap-link' } }),
+      TiptapImage.configure({ inline: false, allowBase64: false }),
       Placeholder.configure({ placeholder: 'Buraya yazmaya başla…' }),
     ],
     content: '',
@@ -129,6 +134,33 @@ export default function PostEditor() {
     if (url === null) return
     if (url === '') editor.chain().focus().unsetLink().run()
     else editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+  }
+
+  async function handleInlineImage(file) {
+    if (!file || !editor) return
+    const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', 'image/avif']
+    if (!allowed.includes(file.type)) return
+    if (file.size > 5 * 1024 * 1024) { setErr('Resim 5 MB\'den küçük olmalı.'); return }
+
+    setImgUploading(true)
+    try {
+      const ext = file.name.split('.').pop().toLowerCase()
+      const rand = Math.random().toString(36).slice(2, 10)
+      const path = `${form.kind}/inline/${Date.now()}-${rand}.${ext}`
+
+      const { error: upErr } = await supabase.storage
+        .from('covers')
+        .upload(path, file, { cacheControl: '3600', upsert: false })
+      if (upErr) throw upErr
+
+      const { data } = supabase.storage.from('covers').getPublicUrl(path)
+      editor.chain().focus().setImage({ src: data.publicUrl }).run()
+    } catch (e) {
+      setErr(e.message || 'Resim yüklenemedi')
+    } finally {
+      setImgUploading(false)
+      if (imgInputRef.current) imgInputRef.current.value = ''
+    }
   }
 
   if (loading) {
@@ -266,6 +298,24 @@ export default function PostEditor() {
             <ToolbarBtn active={editor?.isActive('link')} onClick={addLink}>
               <LinkIcon size={16} />
             </ToolbarBtn>
+            <span style={{ width: 1, height: 20, background: 'rgba(28,22,51,0.1)', margin: '0 2px' }} />
+            <ToolbarBtn
+              onClick={() => imgInputRef.current?.click()}
+              active={false}
+              title="Resim ekle"
+            >
+              {imgUploading
+                ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                : <ImagePlus size={16} />
+              }
+            </ToolbarBtn>
+            <input
+              ref={imgInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/avif"
+              onChange={(e) => handleInlineImage(e.target.files?.[0])}
+              style={{ display: 'none' }}
+            />
           </div>
           <EditorContent editor={editor} />
         </div>
