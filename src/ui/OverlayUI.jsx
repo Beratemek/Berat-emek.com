@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X, Mail, Globe, ArrowUpRight, Sun, Moon } from 'lucide-react'
+import { generateHTML } from '@tiptap/html'
+import StarterKit from '@tiptap/starter-kit'
+import TiptapLink from '@tiptap/extension-link'
 import { content } from '../data/portfolio.js'
 import { THEMES } from '../data/themes.js'
 
@@ -451,9 +454,7 @@ function Projects({ data }) {
 
 function ProjectContent({ content }) {
   try {
-    const { generateHTML } = require('@tiptap/html')
-    const StarterKit = require('@tiptap/starter-kit').default
-    const html = generateHTML(content, [StarterKit])
+    const html = generateHTML(content, [StarterKit, TiptapLink])
     return (
       <div
         className="post-content"
