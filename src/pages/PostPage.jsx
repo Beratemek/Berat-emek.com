@@ -93,18 +93,7 @@ export default function PostPage() {
     return `${Math.max(1, Math.ceil(words / 200))} dk okuma`
   }
 
-  let htmlContent = ''
-  try {
-    if (post.content) {
-      htmlContent = generateHTML(post.content, [
-        StarterKit,
-        TiptapLink.configure({ openOnClick: true }),
-        TiptapImage,
-      ])
-    }
-  } catch {
-    htmlContent = '<p>İçerik yüklenemedi.</p>'
-  }
+  const htmlContent = renderContent(post.content)
 
   return (
     <div style={pageWrap}>
@@ -217,4 +206,49 @@ const titleStyle = {
 const excerptStyle = {
   fontSize: 18, lineHeight: 1.7,
   color: '#666', fontStyle: 'italic',
+}
+
+/**
+ * İçeriği güvenli bir şekilde HTML'e çevirir.
+ * - null / undefined → boş string
+ * - string (düz metin veya HTML) → olduğu gibi kullan
+ * - TipTap JSON ({ type:'doc', content:[...] }) → generateHTML ile çevir
+ * - Geçersiz JSON → excerpt veya boş string döner
+ */
+function renderContent(content) {
+  if (!content) return ''
+
+  // String ise direkt kullan (eski kayıtlar veya düz metin)
+  if (typeof content === 'string') {
+    return content
+  }
+
+  // TipTap JSON formatını kontrol et
+  if (typeof content === 'object') {
+    // Geçerli TipTap doc formatı: { type: 'doc', content: [...] }
+    if (content.type === 'doc' && Array.isArray(content.content)) {
+      // Boş döküman kontrolü
+      if (content.content.length === 0) return ''
+      try {
+        return generateHTML(content, [
+          StarterKit,
+          TiptapLink.configure({ openOnClick: true }),
+          TiptapImage,
+        ])
+      } catch (e) {
+        console.error('[PostPage] generateHTML error:', e)
+        return ''
+      }
+    }
+
+    // Başka bir obje formatı — JSON string olarak düz göster
+    try {
+      const json = JSON.stringify(content, null, 2)
+      return `<pre style="font-size:13px;color:#888">${json}</pre>`
+    } catch {
+      return ''
+    }
+  }
+
+  return ''
 }

@@ -454,18 +454,32 @@ function Projects({ data }) {
 }
 
 function ProjectContent({ content }) {
+  if (!content) return null
+
+  let html = ''
   try {
-    const html = generateHTML(content, [StarterKit, TiptapLink, TiptapImage])
-    return (
-      <div
-        className="post-content"
-        style={{ fontSize: 14, lineHeight: 1.7 }}
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
-    )
-  } catch {
+    if (typeof content === 'string') {
+      html = content
+    } else if (content.type === 'doc' && Array.isArray(content.content)) {
+      if (content.content.length === 0) return null
+      html = generateHTML(content, [StarterKit, TiptapLink, TiptapImage])
+    } else {
+      return null
+    }
+  } catch (e) {
+    console.error('[ProjectContent] generateHTML error:', e)
     return null
   }
+
+  if (!html) return null
+
+  return (
+    <div
+      className="post-content"
+      style={{ fontSize: 14, lineHeight: 1.7 }}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
 }
 
 function Blog({ data }) {
