@@ -61,6 +61,19 @@ function ArrowSign({ y, rotY, label, color, accent }) {
       >
         {label}
       </Text>
+      <Text
+        position={[0.32, 0, -0.03]}
+        rotation={[0, Math.PI, 0]}
+        fontSize={0.12}
+        fontWeight="bold"
+        color="#ffffff"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.008}
+        outlineColor="#1a0f2e"
+      >
+        {label}
+      </Text>
     </group>
   )
 }

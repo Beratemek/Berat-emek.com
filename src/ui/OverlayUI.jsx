@@ -350,7 +350,7 @@ function Projects({ data }) {
                 background: 'linear-gradient(180deg, #fff 0%, #faf8ff 100%)',
                 borderRadius: 20, padding: 0,
                 maxWidth: 580, width: '100%',
-                maxHeight: '85vh', overflowY: 'auto',
+                maxHeight: '85vh', overflowX: 'hidden', overflowY: 'auto',
                 boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
                 border: '1px solid rgba(167,139,250,0.2)',
                 willChange: 'transform, opacity', /* GPU Hızlandırma */
@@ -360,8 +360,10 @@ function Projects({ data }) {
               {/* Kapak görseli */}
               {selected.cover && (
                 <div style={{
-                  width: '100%', height: 200,
-                  background: `url(${selected.cover}) center/cover`,
+                  width: 'calc(100% + 2px)', height: 200,
+                  marginLeft: '-1px',
+                  background: `url("${selected.cover}") center/cover no-repeat`,
+                  backgroundColor: '#000',
                   borderRadius: '20px 20px 0 0',
                 }} />
               )}
