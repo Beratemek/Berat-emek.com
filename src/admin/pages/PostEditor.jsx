@@ -25,7 +25,6 @@ import {
 import { supabase } from '../../lib/supabase.js'
 import InfoBox from '../InfoBox.jsx'
 import ImageUpload from '../components/ImageUpload.jsx'
-import MultiImageUpload from '../components/MultiImageUpload.jsx'
 
 function slugify(s) {
   return (s || '')
@@ -54,7 +53,6 @@ export default function PostEditor() {
     excerpt: '',
     tags: '',
     cover: '',
-    gallery: [],
     project_url: '',
     published: false,
   })
@@ -89,7 +87,6 @@ export default function PostEditor() {
           excerpt: data.excerpt || '',
           tags: (data.tags || []).join(', '),
           cover: data.cover || '',
-          gallery: data.gallery || [],
           project_url: data.project_url || '',
           published: !!data.published,
         })
@@ -123,7 +120,6 @@ export default function PostEditor() {
       excerpt: form.excerpt,
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       cover: form.cover || null,
-      gallery: form.gallery || [],
       project_url: form.project_url?.trim() || null,
       published: form.published,
       content: editor?.getJSON() ?? null,
@@ -196,7 +192,7 @@ export default function PostEditor() {
         <b>Kayıt nereye gider?</b> Tip alanına göre Blog veya Proje tablosuna eklenir.
         Sadece <b>Yayında</b> seçtiğin kayıtlar 3D sitede görünür; taslakları istediğin zaman düzenleyip yayına alabilirsin.
         <br />
-        <b>Zengin editör</b> başlıklar, listeler, alıntı, kod ve link destekler. İçerik Supabase'de JSON olarak saklanır.
+        <b>Zengin editör</b> başlıklar, listeler, alıntı, kod, link ve <b>satır arası resim</b> destekler — paragrafların arasına resim koymak için cursor'u istediğin yere getir, toolbar'ın sağındaki resim ikonuna bas.
       </InfoBox>
 
       {err && (
@@ -286,18 +282,6 @@ export default function PostEditor() {
               value={form.cover}
               onChange={(url) => set('cover', url)}
               folder={form.kind}
-            />
-          </label>
-
-          <label style={{ marginTop: 8 }}>
-            Galeri (Birden Fazla Resim)
-            <span className="hint">
-              — Yazının veya projenin en altında slider/grid olarak görünür.
-            </span>
-            <MultiImageUpload
-              value={form.gallery}
-              onChange={(urls) => set('gallery', urls)}
-              folder={form.kind + '-gallery'}
             />
           </label>
         </div>

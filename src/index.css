@@ -139,8 +139,11 @@ canvas {
 
 .post-content img {
   max-width: 100%;
+  height: auto;
+  display: block;
   border-radius: 12px;
-  margin: 24px 0;
+  margin: 32px auto;
+  box-shadow: 0 8px 28px rgba(28, 22, 51, 0.1);
 }
 
 .post-content hr {

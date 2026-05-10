@@ -169,37 +169,6 @@ export default function PostPage() {
           dangerouslySetInnerHTML={{ __html: htmlContent }}
         />
 
-        {/* Galeri (Birden Fazla Görsel) */}
-        {post.gallery && post.gallery.length > 0 && (
-          <div style={{ marginTop: 48 }}>
-            <h3 style={{ fontSize: 22, fontWeight: 700, color: '#1c1633', marginBottom: 20 }}>Galeri</h3>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
-              gap: 16 
-            }}>
-              {post.gallery.map((url, i) => (
-                <a key={i} href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', borderRadius: 12, overflow: 'hidden', border: '1px solid #eee' }}>
-                  <img 
-                    src={url} 
-                    alt={`Gallery image ${i + 1}`} 
-                    style={{ 
-                      width: '100%', 
-                      height: '100%', 
-                      aspectRatio: '1', 
-                      objectFit: 'cover', 
-                      display: 'block',
-                      transition: 'transform 0.3s ease'
-                    }} 
-                    onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
-                  />
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Alt geri butonu */}
         <div style={{ borderTop: '1px solid #e8e5f0', paddingTop: 32, marginTop: 48 }}>
           <Link to="/" style={backBtnStyle}>
