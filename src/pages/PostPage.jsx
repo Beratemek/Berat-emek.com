@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { supabase } from '../lib/supabase.js'
 import { ArrowLeft, Calendar, Tag, Clock, ExternalLink } from 'lucide-react'
 import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapLink from '@tiptap/extension-link'
 import TiptapImage from '@tiptap/extension-image'
+
+const SITE_URL = 'https://berat-emek.com'
 
 export default function PostPage() {
   const { slug } = useParams()
@@ -95,8 +98,71 @@ export default function PostPage() {
 
   const htmlContent = renderContent(post.content)
 
+  const pathPrefix = post.kind === 'project' ? 'project' : 'blog'
+  const canonicalUrl = `${SITE_URL}/${pathPrefix}/${post.slug}`
+  const metaDescription = post.excerpt || `${post.title} — Berat Emek`
+  const ogImage = post.cover || `${SITE_URL}/og-cover.svg`
+  const ogType = post.kind === 'project' ? 'website' : 'article'
+
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': post.kind === 'project' ? 'CreativeWork' : 'BlogPosting',
+    headline: post.title,
+    description: metaDescription,
+    image: ogImage,
+    datePublished: post.created_at,
+    dateModified: post.updated_at || post.created_at,
+    url: canonicalUrl,
+    inLanguage: 'tr-TR',
+    keywords: (post.tags || []).join(', '),
+    author: {
+      '@type': 'Person',
+      name: 'Berat Emek',
+      url: SITE_URL,
+    },
+    publisher: {
+      '@type': 'Person',
+      name: 'Berat Emek',
+      url: SITE_URL,
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
+  }
+
   return (
     <div style={pageWrap}>
+      <Helmet>
+        <title>{`${post.title} — Berat Emek`}</title>
+        <meta name="description" content={metaDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        {post.tags?.length > 0 && <meta name="keywords" content={post.tags.join(', ')} />}
+
+        <meta property="og:type" content={ogType} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:locale" content="tr_TR" />
+        <meta property="og:site_name" content="Berat Emek" />
+        {ogType === 'article' && post.created_at && (
+          <meta property="article:published_time" content={post.created_at} />
+        )}
+        {ogType === 'article' && (post.updated_at || post.created_at) && (
+          <meta property="article:modified_time" content={post.updated_at || post.created_at} />
+        )}
+        {ogType === 'article' && <meta property="article:author" content="Berat Emek" />}
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={canonicalUrl} />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={ogImage} />
+
+        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
+      </Helmet>
+
       <div style={container}>
         {/* Geri butonu */}
         <Link to="/" style={backBtnStyle}>
