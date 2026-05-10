@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase.js'
-import { ArrowLeft, Calendar, Tag, Clock } from 'lucide-react'
+import { ArrowLeft, Calendar, Tag, Clock, ExternalLink } from 'lucide-react'
 import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapLink from '@tiptap/extension-link'
@@ -136,6 +136,26 @@ export default function PostPage() {
           <p style={excerptStyle}>{post.excerpt}</p>
         )}
 
+        {/* Proje / Site Linki CTA */}
+        {post.project_url && (
+          <a
+            href={post.project_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={projectLinkStyle}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 12px 32px rgba(124,58,237,0.35)'
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(124,58,237,0.25)'
+            }}
+          >
+            <ExternalLink size={18} /> Siteyi Ziyaret Et
+          </a>
+        )}
+
         {/* Ayırıcı */}
         <div style={{
           height: 2, width: 80,
@@ -237,6 +257,17 @@ const titleStyle = {
 const excerptStyle = {
   fontSize: 18, lineHeight: 1.7,
   color: '#666', fontStyle: 'italic',
+}
+
+const projectLinkStyle = {
+  display: 'inline-flex', alignItems: 'center', gap: 8,
+  marginTop: 24,
+  padding: '14px 28px', borderRadius: 12,
+  background: 'linear-gradient(135deg, #7c3aed 0%, #f472b6 100%)',
+  color: '#fff', textDecoration: 'none',
+  fontSize: 15, fontWeight: 700, letterSpacing: 0.3,
+  boxShadow: '0 6px 20px rgba(124,58,237,0.25)',
+  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
 }
 
 /**

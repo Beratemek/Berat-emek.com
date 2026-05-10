@@ -55,6 +55,7 @@ export default function PostEditor() {
     tags: '',
     cover: '',
     gallery: [],
+    project_url: '',
     published: false,
   })
   const [imgUploading, setImgUploading] = useState(false)
@@ -89,6 +90,7 @@ export default function PostEditor() {
           tags: (data.tags || []).join(', '),
           cover: data.cover || '',
           gallery: data.gallery || [],
+          project_url: data.project_url || '',
           published: !!data.published,
         })
         // Supabase JSONB bazen string olarak döner — parse et
@@ -122,6 +124,7 @@ export default function PostEditor() {
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       cover: form.cover || null,
       gallery: form.gallery || [],
+      project_url: form.project_url?.trim() || null,
       published: form.published,
       content: editor?.getJSON() ?? null,
     }
@@ -261,6 +264,16 @@ export default function PostEditor() {
               value={form.tags}
               onChange={(e) => set('tags', e.target.value)}
               placeholder="React, WebGL, UI"
+            />
+          </label>
+
+          <label>
+            Proje / Site Linki <span className="hint">— başlığın altında "Siteyi Ziyaret Et" butonu olarak görünür (boş bırakılırsa gösterilmez)</span>
+            <input
+              type="url"
+              value={form.project_url}
+              onChange={(e) => set('project_url', e.target.value)}
+              placeholder="https://ornek-projem.com"
             />
           </label>
 
