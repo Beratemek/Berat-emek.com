@@ -24,7 +24,7 @@ export default function Scene({ activeSection, onSelect, theme = 'day', content 
   return (
     <Canvas
       shadows
-      dpr={[1, 2]}
+      dpr={[1, 1.75]}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       style={{
         position: 'fixed',
@@ -57,7 +57,7 @@ export default function Scene({ activeSection, onSelect, theme = 'day', content 
         intensity={T.sun.intensity}
         color={T.sun.color}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0001}
       >
         <orthographicCamera attach="shadow-camera" args={[-16, 16, 16, -16, 0.1, 50]} />
@@ -73,10 +73,10 @@ export default function Scene({ activeSection, onSelect, theme = 'day', content 
         />
       )}
 
-      <SoftShadows size={28} samples={12} focus={0.9} />
+      <SoftShadows size={28} samples={8} focus={0.9} />
 
       <Suspense fallback={null}>
-        {T.stars && <Stars radius={60} depth={40} count={2000} factor={4} fade speed={0.5} />}
+        {T.stars && <Stars radius={60} depth={40} count={800} factor={4} fade speed={0.5} />}
         {theme === 'night' && (
           <Fireflies count={40} radius={12} height={5} color="#fef3c7" />
         )}
