@@ -4,7 +4,6 @@ import {
   OrbitControls,
   OrthographicCamera,
   SoftShadows,
-  Environment,
   Stars,
 } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
@@ -77,7 +76,6 @@ export default function Scene({ activeSection, onSelect, theme = 'day', content 
       <SoftShadows size={28} samples={12} focus={0.9} />
 
       <Suspense fallback={null}>
-        <Environment preset={T.envPreset} />
         {T.stars && <Stars radius={60} depth={40} count={2000} factor={4} fade speed={0.5} />}
         {theme === 'night' && (
           <Fireflies count={40} radius={12} height={5} color="#fef3c7" />
