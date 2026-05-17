@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFrame } from '@react-three/fiber'
-import { Float, Image } from '@react-three/drei'
+import { Float, useTexture } from '@react-three/drei'
 import { ROTATE_MS } from '../data/billboards.js'
 
 function Drone({ position, rotation }) {
@@ -64,16 +64,156 @@ function Drone({ position, rotation }) {
   )
 }
 
-const TRANSITION_MS = 750
+const TRANSITION_MS = 800
 const BASE_W = 1.55
 const BASE_H = 1.0
-const SLIDE_AMP = 0.05
+const PANEL_ASPECT = BASE_W / BASE_H
 
-function setImageOpacity(mesh, value) {
-  if (!mesh?.material) return
-  const u = mesh.material.uniforms
-  if (u?.opacity) u.opacity.value = value
-  else mesh.material.opacity = value
+// Slide shader: iki texture'ı yatay olarak yan yana render eder.
+// `progress` 0 -> 1 arası ilerledikçe görüntü sağdan sola kayar.
+const slideVertex = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`
+
+const slideFragment = /* glsl */ `
+  uniform sampler2D mapA;
+  uniform sampler2D mapB;
+  uniform float progress;
+  uniform float aspectA;
+  uniform float aspectB;
+  uniform float panelAspect;
+  varying vec2 vUv;
+
+  // CSS background-size: cover davranışı (kırp ve doldur)
+  vec2 coverUV(vec2 uv, float texAspect) {
+    float ratio = texAspect / panelAspect;
+    vec2 result = uv;
+    if (ratio > 1.0) {
+      result.x = (uv.x - 0.5) / ratio + 0.5;
+    } else {
+      result.y = (uv.y - 0.5) * ratio + 0.5;
+    }
+    return result;
+  }
+
+  void main() {
+    float uA = vUv.x + progress;
+    float uB = vUv.x + progress - 1.0;
+    vec3 color;
+    if (uA <= 1.0) {
+      // Eski görsel hâlâ bu pikselde görünüyor
+      color = texture2D(mapA, coverUV(vec2(uA, vUv.y), aspectA)).rgb;
+    } else {
+      // Yeni görsel sağdan içeri kaymış
+      color = texture2D(mapB, coverUV(vec2(uB, vUv.y), aspectB)).rgb;
+    }
+    gl_FragColor = vec4(color, 1.0);
+  }
+`
+
+function getAspect(tex) {
+  const img = tex?.image
+  if (!img) return 1.0
+  const w = img.width || img.naturalWidth || 1
+  const h = img.height || img.naturalHeight || 1
+  return w / h
+}
+
+function SlideCarousel({
+  urls,
+  rotateMs,
+  durationMs,
+  onIdxChange,
+  onClick,
+  onPointerOver,
+  onPointerOut,
+}) {
+  const loaded = useTexture(urls)
+  const texList = Array.isArray(loaded) ? loaded : [loaded]
+
+  const idxARef = useRef(0)
+  const idxBRef = useRef(texList.length > 1 ? 1 : 0)
+  const transitionStartRef = useRef(null)
+
+  const uniforms = useMemo(() => ({
+    mapA: { value: null },
+    mapB: { value: null },
+    progress: { value: 0 },
+    aspectA: { value: 1 },
+    aspectB: { value: 1 },
+    panelAspect: { value: PANEL_ASPECT },
+  }), [])
+
+  // Texture listesi değişirse (içerik yüklenince) baştan başla
+  useEffect(() => {
+    idxARef.current = 0
+    idxBRef.current = texList.length > 1 ? 1 : 0
+    transitionStartRef.current = null
+
+    const a = texList[idxARef.current]
+    const b = texList[idxBRef.current]
+    uniforms.mapA.value = a || null
+    uniforms.mapB.value = b || null
+    uniforms.aspectA.value = getAspect(a)
+    uniforms.aspectB.value = getAspect(b)
+    uniforms.progress.value = 0
+    onIdxChange?.(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [texList.length])
+
+  useEffect(() => {
+    if (texList.length <= 1) return
+    const id = setInterval(() => {
+      if (transitionStartRef.current !== null) return
+      transitionStartRef.current = performance.now()
+    }, rotateMs)
+    return () => clearInterval(id)
+  }, [texList.length, rotateMs])
+
+  useFrame(() => {
+    if (transitionStartRef.current === null) return
+    const t = Math.min(
+      (performance.now() - transitionStartRef.current) / durationMs,
+      1,
+    )
+    // ease-in-out cubic — başta yumuşak hızlanır, sonda yumuşak yavaşlar
+    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+    uniforms.progress.value = eased
+
+    if (t >= 1) {
+      // B tamamen göründü; B yeni A olur, B'nin yerine sıradaki yüklenir
+      const newA = idxBRef.current
+      const newB = (idxBRef.current + 1) % texList.length
+      idxARef.current = newA
+      idxBRef.current = newB
+      uniforms.mapA.value = texList[newA]
+      uniforms.mapB.value = texList[newB]
+      uniforms.aspectA.value = getAspect(texList[newA])
+      uniforms.aspectB.value = getAspect(texList[newB])
+      uniforms.progress.value = 0
+      transitionStartRef.current = null
+      onIdxChange?.(newA)
+    }
+  })
+
+  return (
+    <mesh
+      onClick={onClick}
+      onPointerOver={onPointerOver}
+      onPointerOut={onPointerOut}
+    >
+      <planeGeometry args={[BASE_W, BASE_H]} />
+      <shaderMaterial
+        vertexShader={slideVertex}
+        fragmentShader={slideFragment}
+        uniforms={uniforms}
+      />
+    </mesh>
+  )
 }
 
 export default function Billboard({
@@ -83,96 +223,17 @@ export default function Billboard({
 }) {
   const navigate = useNavigate()
   const posts = feed.posts ?? []
+  const validPosts = useMemo(() => posts.filter((p) => p?.cover), [posts])
+  const urls = useMemo(() => validPosts.map((p) => p.cover), [validPosts])
   const [idx, setIdx] = useState(0)
-
-  const visibleIdxRef = useRef(0)
-  const targetIdxRef = useRef(0)
-  const transitionStartRef = useRef(null)
-  const meshRefs = useRef([])
-
-  useEffect(() => {
-    visibleIdxRef.current = idx
-  }, [idx])
-
-  // posts uzunluğu değişirse ref dizisini temizle
-  useEffect(() => {
-    meshRefs.current.length = posts.length
-  }, [posts.length])
-
-  useEffect(() => {
-    if (posts.length <= 1) return
-    const id = setInterval(() => {
-      if (transitionStartRef.current !== null) return
-      targetIdxRef.current = (visibleIdxRef.current + 1) % posts.length
-      transitionStartRef.current = performance.now()
-    }, ROTATE_MS)
-    return () => clearInterval(id)
-  }, [posts.length])
-
-  useFrame(() => {
-    const refs = meshRefs.current
-
-    if (transitionStartRef.current === null) {
-      // Sabit durum: sadece görünür olan opaklık 1, diğerleri 0
-      for (let i = 0; i < refs.length; i++) {
-        const mesh = refs[i]
-        if (!mesh) continue
-        const visible = i === visibleIdxRef.current
-        setImageOpacity(mesh, visible ? 1 : 0)
-        mesh.scale.set(BASE_W, BASE_H, 1)
-        mesh.position.x = 0
-      }
-      return
-    }
-
-    const t = Math.min((performance.now() - transitionStartRef.current) / TRANSITION_MS, 1)
-    // ease-in-out cubic
-    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
-
-    const ci = visibleIdxRef.current
-    const ti = targetIdxRef.current
-
-    for (let i = 0; i < refs.length; i++) {
-      const mesh = refs[i]
-      if (!mesh) continue
-
-      let opacity = 0
-      let scaleMul = 1
-      let xOff = 0
-
-      if (i === ci) {
-        // Çıkan görsel: sola süzülerek silinir
-        opacity = 1 - eased
-        scaleMul = 1 - eased * 0.04
-        xOff = -eased * SLIDE_AMP
-      } else if (i === ti) {
-        // Giren görsel: sağdan kayarak belirir
-        opacity = eased
-        scaleMul = 0.96 + eased * 0.04
-        xOff = (1 - eased) * SLIDE_AMP
-      }
-
-      setImageOpacity(mesh, opacity)
-      mesh.scale.set(BASE_W * scaleMul, BASE_H * scaleMul, 1)
-      mesh.position.x = xOff
-    }
-
-    if (t >= 1) {
-      transitionStartRef.current = null
-      visibleIdxRef.current = ti
-      setIdx(ti)
-    }
-  })
 
   const handleClick = (e) => {
     e.stopPropagation()
-    const post = posts[visibleIdxRef.current]
+    const post = validPosts[idx]
     if (post?.href && post.href !== '#') navigate(post.href)
   }
   const handlePointerOver = () => { document.body.style.cursor = 'pointer' }
   const handlePointerOut = () => { document.body.style.cursor = 'auto' }
-
-  const hasAnyCover = posts.some((p) => p?.cover)
 
   return (
     <Float speed={2} rotationIntensity={0.15} floatIntensity={0.25} floatingRange={[-0.08, 0.08]}>
@@ -198,50 +259,48 @@ export default function Billboard({
           <meshStandardMaterial color="#a0522d" roughness={0.8} />
         </mesh>
 
-        {/* İçerik — tüm görseller üst üste, opaklık ile karıştırılır */}
+        {/* İçerik — slide carousel (custom shader) */}
         <group position={[0, 1.35, 0.035]}>
-          {hasAnyCover ? (
-            posts.map((post, i) => post?.cover ? (
-              <Image
-                key={i}
-                ref={(el) => { meshRefs.current[i] = el }}
-                url={post.cover}
-                scale={[BASE_W, BASE_H]}
-                transparent
-                opacity={i === idx ? 1 : 0}
-                renderOrder={i === idx ? 2 : 1}
-                position={[0, 0, i * 0.0006]}
-                onClick={handleClick}
-                onPointerOver={handlePointerOver}
-                onPointerOut={handlePointerOut}
-              />
-            ) : null)
+          {validPosts.length > 0 ? (
+            <SlideCarousel
+              urls={urls}
+              rotateMs={ROTATE_MS}
+              durationMs={TRANSITION_MS}
+              onIdxChange={setIdx}
+              onClick={handleClick}
+              onPointerOver={handlePointerOver}
+              onPointerOut={handlePointerOut}
+            />
           ) : (
             <mesh
               onClick={handleClick}
               onPointerOver={handlePointerOver}
               onPointerOut={handlePointerOut}
             >
-              <planeGeometry args={[1.55, 1]} />
+              <planeGeometry args={[BASE_W, BASE_H]} />
               <meshBasicMaterial color={feed.accent} transparent opacity={0.8} />
             </mesh>
           )}
 
-          {/* Pagination Indicators (3D Meshes) */}
-          {posts.length > 1 && (
+          {/* Pagination Indicators */}
+          {validPosts.length > 1 && (
             <group position={[0, -0.42, 0.01]}>
-              {posts.map((_, i) => {
-                const isSelected = i === idx;
-                const width = isSelected ? 0.08 : 0.03;
-                const spacing = 0.06;
-                const totalWidth = (posts.length - 1) * spacing;
-                const x = (i * spacing) - totalWidth / 2;
+              {validPosts.map((_, i) => {
+                const isSelected = i === idx
+                const width = isSelected ? 0.08 : 0.03
+                const spacing = 0.06
+                const totalWidth = (validPosts.length - 1) * spacing
+                const x = i * spacing - totalWidth / 2
                 return (
                   <mesh key={i} position={[x, 0, 0]}>
                     <planeGeometry args={[width, 0.015]} />
-                    <meshBasicMaterial color={isSelected ? feed.accent : '#ffffff'} transparent opacity={isSelected ? 1 : 0.4} />
+                    <meshBasicMaterial
+                      color={isSelected ? feed.accent : '#ffffff'}
+                      transparent
+                      opacity={isSelected ? 1 : 0.4}
+                    />
                   </mesh>
-                );
+                )
               })}
             </group>
           )}
