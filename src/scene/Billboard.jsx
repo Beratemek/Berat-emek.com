@@ -30,7 +30,7 @@ function Drone({ position, rotation }) {
         <sphereGeometry args={[0.02, 8, 8]} />
         <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={2} />
       </mesh>
-      
+
       {/* Kollar ve Pervaneler */}
       {[
         [-0.12, -0.12, prop1],
@@ -54,7 +54,7 @@ function Drone({ position, rotation }) {
           </mesh>
         </group>
       ))}
-      
+
       {/* Pano bağlantı kablosu */}
       <mesh position={[0, -0.12, 0]}>
         <cylinderGeometry args={[0.015, 0.015, 0.16]} />
@@ -62,6 +62,18 @@ function Drone({ position, rotation }) {
       </mesh>
     </group>
   )
+}
+
+const TRANSITION_MS = 750
+const BASE_W = 1.55
+const BASE_H = 1.0
+const SLIDE_AMP = 0.05
+
+function setImageOpacity(mesh, value) {
+  if (!mesh?.material) return
+  const u = mesh.material.uniforms
+  if (u?.opacity) u.opacity.value = value
+  else mesh.material.opacity = value
 }
 
 export default function Billboard({
@@ -73,15 +85,94 @@ export default function Billboard({
   const posts = feed.posts ?? []
   const [idx, setIdx] = useState(0)
 
+  const visibleIdxRef = useRef(0)
+  const targetIdxRef = useRef(0)
+  const transitionStartRef = useRef(null)
+  const meshRefs = useRef([])
+
+  useEffect(() => {
+    visibleIdxRef.current = idx
+  }, [idx])
+
+  // posts uzunluğu değişirse ref dizisini temizle
+  useEffect(() => {
+    meshRefs.current.length = posts.length
+  }, [posts.length])
+
   useEffect(() => {
     if (posts.length <= 1) return
     const id = setInterval(() => {
-      setIdx((i) => (i + 1) % posts.length)
+      if (transitionStartRef.current !== null) return
+      targetIdxRef.current = (visibleIdxRef.current + 1) % posts.length
+      transitionStartRef.current = performance.now()
     }, ROTATE_MS)
     return () => clearInterval(id)
   }, [posts.length])
 
-  const post = posts[idx]
+  useFrame(() => {
+    const refs = meshRefs.current
+
+    if (transitionStartRef.current === null) {
+      // Sabit durum: sadece görünür olan opaklık 1, diğerleri 0
+      for (let i = 0; i < refs.length; i++) {
+        const mesh = refs[i]
+        if (!mesh) continue
+        const visible = i === visibleIdxRef.current
+        setImageOpacity(mesh, visible ? 1 : 0)
+        mesh.scale.set(BASE_W, BASE_H, 1)
+        mesh.position.x = 0
+      }
+      return
+    }
+
+    const t = Math.min((performance.now() - transitionStartRef.current) / TRANSITION_MS, 1)
+    // ease-in-out cubic
+    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+
+    const ci = visibleIdxRef.current
+    const ti = targetIdxRef.current
+
+    for (let i = 0; i < refs.length; i++) {
+      const mesh = refs[i]
+      if (!mesh) continue
+
+      let opacity = 0
+      let scaleMul = 1
+      let xOff = 0
+
+      if (i === ci) {
+        // Çıkan görsel: sola süzülerek silinir
+        opacity = 1 - eased
+        scaleMul = 1 - eased * 0.04
+        xOff = -eased * SLIDE_AMP
+      } else if (i === ti) {
+        // Giren görsel: sağdan kayarak belirir
+        opacity = eased
+        scaleMul = 0.96 + eased * 0.04
+        xOff = (1 - eased) * SLIDE_AMP
+      }
+
+      setImageOpacity(mesh, opacity)
+      mesh.scale.set(BASE_W * scaleMul, BASE_H * scaleMul, 1)
+      mesh.position.x = xOff
+    }
+
+    if (t >= 1) {
+      transitionStartRef.current = null
+      visibleIdxRef.current = ti
+      setIdx(ti)
+    }
+  })
+
+  const handleClick = (e) => {
+    e.stopPropagation()
+    const post = posts[visibleIdxRef.current]
+    if (post?.href && post.href !== '#') navigate(post.href)
+  }
+  const handlePointerOver = () => { document.body.style.cursor = 'pointer' }
+  const handlePointerOut = () => { document.body.style.cursor = 'auto' }
+
+  const hasAnyCover = posts.some((p) => p?.cover)
 
   return (
     <Float speed={2} rotationIntensity={0.15} floatIntensity={0.25} floatingRange={[-0.08, 0.08]}>
@@ -107,28 +198,29 @@ export default function Billboard({
           <meshStandardMaterial color="#a0522d" roughness={0.8} />
         </mesh>
 
-        {/* İçerik — 3D Image (Bugsız, taşmasız, kusursuz görünüm) */}
+        {/* İçerik — tüm görseller üst üste, opaklık ile karıştırılır */}
         <group position={[0, 1.35, 0.035]}>
-          {post?.cover ? (
-            <Image
-              url={post.cover}
-              scale={[1.55, 1]}
-              transparent
-              onClick={(e) => {
-                e.stopPropagation()
-                if (post.href && post.href !== '#') navigate(post.href)
-              }}
-              onPointerOver={() => { document.body.style.cursor = 'pointer' }}
-              onPointerOut={() => { document.body.style.cursor = 'auto' }}
-            />
+          {hasAnyCover ? (
+            posts.map((post, i) => post?.cover ? (
+              <Image
+                key={i}
+                ref={(el) => { meshRefs.current[i] = el }}
+                url={post.cover}
+                scale={[BASE_W, BASE_H]}
+                transparent
+                opacity={i === idx ? 1 : 0}
+                renderOrder={i === idx ? 2 : 1}
+                position={[0, 0, i * 0.0006]}
+                onClick={handleClick}
+                onPointerOver={handlePointerOver}
+                onPointerOut={handlePointerOut}
+              />
+            ) : null)
           ) : (
             <mesh
-              onClick={(e) => {
-                e.stopPropagation()
-                if (post?.href && post.href !== '#') navigate(post.href)
-              }}
-              onPointerOver={() => { document.body.style.cursor = 'pointer' }}
-              onPointerOut={() => { document.body.style.cursor = 'auto' }}
+              onClick={handleClick}
+              onPointerOver={handlePointerOver}
+              onPointerOut={handlePointerOut}
             >
               <planeGeometry args={[1.55, 1]} />
               <meshBasicMaterial color={feed.accent} transparent opacity={0.8} />

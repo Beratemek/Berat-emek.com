@@ -303,7 +303,6 @@ function Projects({ data }) {
             style={{ ...projectCardStyle, cursor: 'pointer' }}
             whileHover={{ y: -3, boxShadow: '0 8px 30px rgba(167,139,250,0.18)' }}
             onClick={() => setSelected(p)}
-            layoutId={`project-${p.name}`}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <h3 style={{ fontSize: 20, fontWeight: 600 }}>{p.name}</h3>
@@ -339,14 +338,14 @@ function Projects({ data }) {
             }}
           >
             <motion.div
-              layoutId={`project-${selected.name}`}
-              initial={{ scale: 0.85, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.85, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 24 }}
+              initial={{ scale: 0.94, opacity: 0, y: 12 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.94, opacity: 0, y: 12 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
               className="panel-scroll"
               style={{
+                transformOrigin: 'center center',
                 background: 'linear-gradient(180deg, #fff 0%, #faf8ff 100%)',
                 borderRadius: 20, padding: 0,
                 maxWidth: 580, width: '100%',
