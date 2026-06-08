@@ -6,6 +6,12 @@ body.admin-mode {
   user-select: text;
 }
 
+/* index.css'teki "#root { color:#e8e8f0 }" (3D site için açık metin) admin'e sızıp
+   rengi olmayan metinleri (ör. liste başlıkları) soluklaştırıyordu — burada ez. */
+body.admin-mode #root {
+  color: #1c1633;
+}
+
 .admin-shell {
   min-height: 100vh;
   display: grid;
@@ -205,7 +211,7 @@ body.admin-mode {
 }
 .kind-chip.blog { background: rgba(244,114,182,0.15); color: #be185d; }
 .kind-chip.project { background: rgba(56,189,248,0.15); color: #0369a1; }
-.post-row .title { font-weight: 600; }
+.post-row .title { font-weight: 600; color: #1c1633; }
 .post-row .meta { font-size: 12px; color: rgba(28,22,51,0.55); }
 .post-row .status {
   font-size: 11px;

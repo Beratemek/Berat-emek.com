@@ -28,27 +28,33 @@ export default function ImageUpload({
 
   const canPosition = typeof onPositionChange === 'function'
 
+  // Sürükleme: pointer'ı window'da dinleriz — böylece re-render'da capture kopsa
+  // veya imleç küçük önizleme kutusundan çıksa bile konum takibi sürer ve
+  // bırakınca en son konum kalır (başa sarmaz).
   function onPointerDown(e) {
-    if (!canPosition) return
+    if (!canPosition || !dragRef.current) return
+    e.preventDefault() // tarayıcının kendi görsel-sürüklemesini (ghost) engelle
     const rect = dragRef.current.getBoundingClientRect()
-    const { x, y } = parsePos(position)
-    drag.current = { sx: e.clientX, sy: e.clientY, x, y, w: rect.width, h: rect.height }
+    const start = { sx: e.clientX, sy: e.clientY, ...parsePos(position), w: rect.width, h: rect.height }
+    drag.current = start
     setDragging(true)
-    try { e.currentTarget.setPointerCapture(e.pointerId) } catch {}
-  }
 
-  function onPointerMove(e) {
-    if (!drag.current) return
-    const d = drag.current
-    // Görseli sürükleme yönü: aşağı çekince üst kısım görünür → yüzde azalır
-    const nx = Math.min(100, Math.max(0, d.x - ((e.clientX - d.sx) / d.w) * 100))
-    const ny = Math.min(100, Math.max(0, d.y - ((e.clientY - d.sy) / d.h) * 100))
-    onPositionChange(`${Math.round(nx)}% ${Math.round(ny)}%`)
-  }
-
-  function endDrag() {
-    drag.current = null
-    setDragging(false)
+    const move = (ev) => {
+      // aşağı/sağa çekince görselin üst/sol kısmı görünür → yüzde azalır
+      const nx = Math.min(100, Math.max(0, start.x - ((ev.clientX - start.sx) / start.w) * 100))
+      const ny = Math.min(100, Math.max(0, start.y - ((ev.clientY - start.sy) / start.h) * 100))
+      onPositionChange(`${Math.round(nx)}% ${Math.round(ny)}%`)
+    }
+    const up = () => {
+      drag.current = null
+      setDragging(false)
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', up)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', up)
   }
 
   async function handleFile(file) {
@@ -118,9 +124,7 @@ export default function ImageUpload({
             alt="Cover preview"
             draggable={false}
             onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
+            onDragStart={(e) => e.preventDefault()}
             style={{
               width: '100%',
               height: 180,

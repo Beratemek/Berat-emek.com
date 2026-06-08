@@ -20,6 +20,7 @@ import {
   Link as LinkIcon,
   Loader2,
   ImagePlus,
+  CheckCircle2,
 } from 'lucide-react'
 
 import { supabase } from '../../lib/supabase.js'
@@ -44,7 +45,15 @@ export default function PostEditor() {
 
   const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
   const [err, setErr] = useState(null)
+
+  // "Kaydedildi" bildirimini birkaç saniye sonra otomatik gizle
+  useEffect(() => {
+    if (!saved) return
+    const t = setTimeout(() => setSaved(false), 2600)
+    return () => clearTimeout(t)
+  }, [saved])
 
   const [form, setForm] = useState({
     kind: searchParams.get('kind') || 'blog',
@@ -146,6 +155,7 @@ export default function PostEditor() {
         res = await save(fallback)
       }
       if (res.error) throw res.error
+      setSaved(true)
       if (isNew) navigate(`/admin/posts/${res.data.id}`, { replace: true })
     } catch (e) {
       setErr(e.message)
@@ -195,6 +205,33 @@ export default function PostEditor() {
 
   return (
     <div>
+      {/* Kaydedildi bildirimi */}
+      {saved && (
+        <div
+          role="status"
+          style={{
+            position: 'fixed',
+            top: 24,
+            right: 24,
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '12px 18px',
+            borderRadius: 12,
+            background: '#16a34a',
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: 14,
+            boxShadow: '0 10px 30px rgba(22,163,74,0.35)',
+            animation: 'toastIn 0.25s ease',
+          }}
+        >
+          <CheckCircle2 size={18} /> Kaydedildi
+          <style>{`@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}`}</style>
+        </div>
+      )}
+
       <Link to="/admin/posts" className="btn btn-secondary" style={{ marginBottom: 20 }}>
         <ArrowLeft size={14} /> Geri
       </Link>

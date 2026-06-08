@@ -292,167 +292,37 @@ function About({ data }) {
 }
 
 function Projects({ data }) {
-  const [selected, setSelected] = useState(null)
+  // Karta tıklayınca ara modal yerine doğrudan yazı sayfasına git
+  const go = (p) => {
+    if (p.slug) window.location.href = `/project/${p.slug}`
+  }
 
   return (
-    <>
-      <div style={{ display: 'grid', gap: 14 }}>
-        {data.items.map((p, i) => (
-          <motion.article
-            key={p.name}
-            {...fade(i)}
-            style={{ ...projectCardStyle, cursor: 'pointer' }}
-            whileHover={{ y: -3, boxShadow: '0 8px 30px rgba(167,139,250,0.18)' }}
-            onClick={() => setSelected(p)}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <h3 style={{ fontSize: 20, fontWeight: 600 }}>{p.name}</h3>
-              <ArrowUpRight size={18} style={{ color: 'rgba(58,42,74,0.4)', flexShrink: 0 }} />
-            </div>
-            <p style={{ color: 'rgba(58,42,74,0.75)', lineHeight: 1.6, fontSize: 14, marginTop: 8 }}>
-              {p.desc}
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 14 }}>
-              {p.tags.map((t) => (
-                <span key={t} style={tagStyle}>
-                  {t}
-                </span>
-              ))}
-            </div>
-          </motion.article>
-        ))}
-      </div>
-
-      {/* Büyüyen proje detay modalı */}
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelected(null)}
-            style={{
-              position: 'fixed', inset: 0, zIndex: 60,
-              background: 'rgba(0,0,0,0.65)', /* Performans için backdropFilter kaldırıldı */
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: 20,
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0.94, opacity: 0, y: 12 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.94, opacity: 0, y: 12 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              onClick={(e) => e.stopPropagation()}
-              className="panel-scroll"
-              style={{
-                transformOrigin: 'center center',
-                background: 'linear-gradient(180deg, #fff 0%, #faf8ff 100%)',
-                borderRadius: 20, padding: 0,
-                maxWidth: 580, width: '100%',
-                maxHeight: '85vh', overflowX: 'hidden', overflowY: 'auto',
-                boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
-                border: '1px solid rgba(167,139,250,0.2)',
-                willChange: 'transform, opacity', /* GPU Hızlandırma */
-                position: 'relative', /* Kapat butonu için referans */
-              }}
-            >
-              {/* Kapak görseli */}
-              {selected.cover && (
-                <div style={{
-                  width: 'calc(100% + 2px)', height: 200,
-                  marginLeft: '-1px',
-                  background: `url("${selected.cover}") ${selected.coverPosition || 'center'}/cover no-repeat`,
-                  backgroundColor: '#000',
-                  borderRadius: '20px 20px 0 0',
-                }} />
-              )}
-
-              {/* Gradient başlık şeridi (cover yoksa) */}
-              {!selected.cover && (
-                <div style={{
-                  width: '100%', height: 8,
-                  background: 'linear-gradient(90deg, #a78bfa, #38bdf8, #f472b6)',
-                  borderRadius: '20px 20px 0 0',
-                }} />
-              )}
-
-              {/* Kapat butonu - Her zaman sağ üstte, görselin veya arka planın üzerinde */}
-              <button
-                onClick={() => setSelected(null)}
-                style={{
-                  position: 'absolute', top: 16, right: 16,
-                  width: 34, height: 34, borderRadius: 17,
-                  background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.2)',
-                  color: '#fff', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 16, fontWeight: 700,
-                  zIndex: 10,
-                  backdropFilter: 'blur(4px)', /* Küçük bir elementte blur sorun yaratmaz */
-                  transition: 'background 0.2s, transform 0.1s'
-                }}
-                onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.8)'; e.currentTarget.style.transform = 'scale(1.05)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(0,0,0,0.6)'; e.currentTarget.style.transform = 'scale(1)'; }}
-              >
-                ✕
-              </button>
-
-              <div style={{ padding: '28px 32px 32px' }}>
-                {/* Etiketler */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
-                  {selected.tags.map((t) => (
-                    <span key={t} style={tagStyle}>{t}</span>
-                  ))}
-                </div>
-
-                {/* Başlık */}
-                <h2 style={{
-                  fontSize: 28, fontWeight: 800, color: '#1c1633',
-                  lineHeight: 1.2, marginBottom: 12, letterSpacing: -0.5,
-                }}>
-                  {selected.name}
-                </h2>
-
-                {/* Ayırıcı */}
-                <div style={{
-                  height: 2, width: 60,
-                  background: 'linear-gradient(90deg, #38bdf8, #a78bfa)',
-                  borderRadius: 1, marginBottom: 20,
-                }} />
-
-                {/* Açıklama */}
-                <p style={{
-                  fontSize: 15, lineHeight: 1.75, color: 'rgba(58,42,74,0.8)',
-                  marginBottom: 20,
-                }}>
-                  {selected.desc}
-                </p>
-
-                {/* Sayfaya git butonu */}
-                {selected.slug && (
-                  <a
-                    href={`/project/${selected.slug}`}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      marginTop: 16, padding: '10px 20px', borderRadius: 10,
-                      background: 'linear-gradient(135deg, #a78bfa, #38bdf8)',
-                      color: '#fff', textDecoration: 'none',
-                      fontWeight: 600, fontSize: 14,
-                      boxShadow: '0 4px 16px rgba(167,139,250,0.3)',
-                      transition: 'transform 0.2s, boxShadow 0.2s'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                  >
-                    Tam Sayfada Oku <ArrowUpRight size={16} />
-                  </a>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    <div style={{ display: 'grid', gap: 14 }}>
+      {data.items.map((p, i) => (
+        <motion.article
+          key={p.name}
+          {...fade(i)}
+          style={{ ...projectCardStyle, cursor: p.slug ? 'pointer' : 'default' }}
+          // hover/tap için kendi hızlı geçişi — yoksa giriş animasyonunun
+          // delay'ini miras alıp geç tepki veriyordu
+          whileHover={p.slug ? { y: -4, transition: { duration: 0.15 } } : undefined}
+          whileTap={p.slug ? { scale: 0.99, transition: { duration: 0.1 } } : undefined}
+          onClick={() => go(p)}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h3 style={{ fontSize: 20, fontWeight: 600 }}>{p.name}</h3>
+            <ArrowUpRight size={18} style={{ color: 'rgba(58,42,74,0.4)', flexShrink: 0 }} />
+          </div>
+          <p style={{ color: 'rgba(58,42,74,0.75)', lineHeight: 1.6, fontSize: 14, marginTop: 8 }}>
+            {p.desc}
+          </p>
+          {p.tags?.length > 0 && (
+            <div style={tagRowStyle}>{p.tags.join(' · ')}</div>
+          )}
+        </motion.article>
+      ))}
+    </div>
   )
 }
 
@@ -763,16 +633,14 @@ const projectCardStyle = {
   color: '#3a2a4a',
 }
 
-const tagStyle = {
+// Etiketler artık buton/pill değil — düz, mat metin (kullanıcılar tıklamaya çalışmasın)
+const tagRowStyle = {
+  marginTop: 14,
   fontSize: 11,
   letterSpacing: 1.2,
   textTransform: 'uppercase',
-  padding: '5px 10px',
-  borderRadius: 999,
-  background: 'rgba(56,189,248,0.18)',
-  color: '#0e7490',
-  border: '1px solid rgba(56,189,248,0.3)',
   fontWeight: 600,
+  color: 'rgba(58,42,74,0.5)',
 }
 
 
