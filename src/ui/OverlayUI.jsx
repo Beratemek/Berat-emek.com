@@ -40,6 +40,7 @@ function buildPanelData(sectionId, live) {
       tags: p.tags || [],
       slug: p.slug,
       cover: p.cover || null,
+      coverPosition: p.cover_position || 'center',
     }))
     return {
       title: 'Projeler',
@@ -361,7 +362,7 @@ function Projects({ data }) {
                 <div style={{
                   width: 'calc(100% + 2px)', height: 200,
                   marginLeft: '-1px',
-                  background: `url("${selected.cover}") center/cover no-repeat`,
+                  background: `url("${selected.cover}") ${selected.coverPosition || 'center'}/cover no-repeat`,
                   backgroundColor: '#000',
                   borderRadius: '20px 20px 0 0',
                 }} />

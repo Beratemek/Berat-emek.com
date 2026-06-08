@@ -174,7 +174,7 @@ export default function PostPage() {
           <div style={{
             width: '100%', height: 'clamp(200px, 40vw, 420px)',
             borderRadius: 16, overflow: 'hidden', marginBottom: 32,
-            background: `url(${post.cover}) center/cover`,
+            background: `url(${post.cover}) ${post.cover_position || 'center'}/cover`,
             boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
           }} />
         )}

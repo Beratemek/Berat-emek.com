@@ -14,6 +14,7 @@ alter table posts add column if not exists excerpt text;
 alter table posts add column if not exists content jsonb;
 alter table posts add column if not exists tags text[] default '{}';
 alter table posts add column if not exists cover text;
+alter table posts add column if not exists cover_position text default '50% 50%';
 alter table posts add column if not exists project_url text;
 alter table posts add column if not exists published boolean default false;
 alter table posts add column if not exists created_at timestamptz default now();

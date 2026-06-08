@@ -53,6 +53,7 @@ export default function PostEditor() {
     excerpt: '',
     tags: '',
     cover: '',
+    cover_position: '50% 50%',
     project_url: '',
     published: false,
   })
@@ -87,6 +88,7 @@ export default function PostEditor() {
           excerpt: data.excerpt || '',
           tags: (data.tags || []).join(', '),
           cover: data.cover || '',
+          cover_position: data.cover_position || '50% 50%',
           project_url: data.project_url || '',
           published: !!data.published,
         })
@@ -120,19 +122,31 @@ export default function PostEditor() {
       excerpt: form.excerpt,
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       cover: form.cover || null,
+      cover_position: form.cover_position || '50% 50%',
       project_url: form.project_url?.trim() || null,
       published: form.published,
       content: editor?.getJSON() ?? null,
     }
+
+    // cover_position kolonu henüz oluşturulmadıysa (schema.sql migration'ı Supabase'de
+    // çalıştırılmadıysa) kayıt patlamasın — kolonsuz tekrar dene.
+    const save = async (body) =>
+      isNew
+        ? supabase.from('posts').insert(body).select().single()
+        : supabase.from('posts').update(body).eq('id', id)
+
     try {
-      if (isNew) {
-        const { data, error } = await supabase.from('posts').insert(payload).select().single()
-        if (error) throw error
-        navigate(`/admin/posts/${data.id}`, { replace: true })
-      } else {
-        const { error } = await supabase.from('posts').update(payload).eq('id', id)
-        if (error) throw error
+      let res = await save(payload)
+      if (res.error && /cover_position/.test(res.error.message || '')) {
+        console.warn(
+          "[PostEditor] 'cover_position' kolonu bulunamadı — supabase/schema.sql'i Supabase " +
+            'SQL Editor\'de çalıştır. Kayıt, konum bilgisi olmadan tamamlandı.'
+        )
+        const { cover_position, ...fallback } = payload
+        res = await save(fallback)
       }
+      if (res.error) throw res.error
+      if (isNew) navigate(`/admin/posts/${res.data.id}`, { replace: true })
     } catch (e) {
       setErr(e.message)
     } finally {
@@ -277,10 +291,13 @@ export default function PostEditor() {
             Kapak Görseli
             <span className="hint">
               — Supabase Storage'a yüklenir. Yazı kartında ve detay sayfasında görünür.
+              Yükledikten sonra <b>görseli sürükleyerek</b> hangi kısmının görüneceğini ayarlayabilirsin.
             </span>
             <ImageUpload
               value={form.cover}
               onChange={(url) => set('cover', url)}
+              position={form.cover_position}
+              onPositionChange={(pos) => set('cover_position', pos)}
               folder={form.kind}
             />
           </label>
