@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sevgilime 💕</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'><path d='M12 21s-6.7-4.3-9.3-8.1C.9 10.2 1.6 6.6 4.5 5.3 6.8 4.2 9.2 5 10.6 6.8L12 8.6l1.4-1.8C14.8 5 17.2 4.2 19.5 5.3c2.9 1.3 3.6 4.9 1.8 7.6C18.7 16.7 12 21 12 21z'/></svg>"
+    />
+
+    <!-- Romantik yazı tipleri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Quicksand:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS (Play CDN — kurulum gerektirmez) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Supabase (bulut veritabanı — sorular tüm cihazlarda ortak & anlık senkron) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Quicksand", ui-sans-serif, system-ui, sans-serif;
+        color: #4c0519;
+        background: linear-gradient(135deg, #ffe4e6 0%, #fbcfe8 45%, #fecaca 100%);
+        background-attachment: fixed;
+        overflow-x: hidden;
+      }
+      .font-script {
+        font-family: "Dancing Script", ui-serif, cursive;
+      }
+
+      /* ---------- Uçuşan kalpler (arka plan) ---------- */
+      #hearts {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+      }
+      .heart {
+        position: absolute;
+        bottom: -10vh;
+        opacity: 0;
+        user-select: none;
+        animation-name: floatUp;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+      }
+      @keyframes floatUp {
+        0% {
+          transform: translateY(0) rotate(0deg) scale(1);
+          opacity: 0;
+        }
+        10% {
+          opacity: var(--o, 0.5);
+        }
+        90% {
+          opacity: var(--o, 0.5);
+        }
+        100% {
+          transform: translateY(-115vh) rotate(35deg) scale(1.2);
+          opacity: 0;
+        }
+      }
+
+      /* ---------- Animasyonlar ---------- */
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        25% {
+          transform: scale(1.12);
+        }
+        40% {
+          transform: scale(0.97);
+        }
+        60% {
+          transform: scale(1.08);
+        }
+      }
+      .animate-heartbeat {
+        animation: heartbeat 1.4s ease-in-out infinite;
+      }
+      @keyframes popIn {
+        0% {
+          transform: scale(0.85) translateY(8px);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+      }
+      .animate-pop-in {
+        animation: popIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.4s ease-out both;
+      }
+
+      /* ---------- 3D dönen hafıza kartları ---------- */
+      .perspective {
+        perspective: 1000px;
+      }
+      .card {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+      }
+      .card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.5s;
+        transform-style: preserve-3d;
+      }
+      .card.flipped .card-inner {
+        transform: rotateY(180deg);
+      }
+      .card-face {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        border-radius: 1rem;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(190, 24, 93, 0.18);
+      }
+      .card-front {
+        background: linear-gradient(135deg, #fb7185, #ef4444);
+        font-size: 2rem;
+      }
+      .card-back {
+        transform: rotateY(180deg);
+        background: #fff;
+      }
+      .card-back img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .card.matched .card-back {
+        box-shadow: inset 0 0 0 3px #f43f5e, 0 4px 14px rgba(190, 24, 93, 0.18);
+      }
+
+      /* ---------- Aktif sekme ---------- */
+      .tab-active {
+        background: linear-gradient(90deg, #f43f5e, #ef4444) !important;
+        color: #fff !important;
+        box-shadow: 0 6px 16px rgba(244, 63, 94, 0.35);
+      }
+
+      /* ---------- İlişki testi: mod düğmeleri & soru editörü ---------- */
+      .quiz-mode {
+        color: #e11d48;
+      }
+      .quiz-mode-active {
+        background: linear-gradient(90deg, #f43f5e, #ef4444);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+      }
+      .test-tab {
+        color: #9f1239;
+      }
+      .test-tab-active {
+        background: linear-gradient(90deg, #f43f5e, #ef4444);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+      }
+      .test-tab-active[data-test="berat"] {
+        background: linear-gradient(90deg, #3b82f6, #6366f1);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+      .opt-row.opt-correct .opt-input {
+        border-color: #22c55e;
+        background: #f0fdf4;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <!-- Arka plan kalpleri -->
+    <div id="hearts" aria-hidden="true"></div>
+
+    <!-- ====================== ANA SAYFA ====================== -->
+    <main
+      id="view-home"
+      class="relative z-10 mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-7 px-6 py-16 text-center"
+    >
+      <span
+        class="animate-fade-in rounded-full bg-white/60 px-4 py-1.5 text-sm font-semibold text-rose-600 shadow-sm backdrop-blur"
+      >
+        💌 Sana özel hazırladım
+      </span>
+
+      <h1
+        class="animate-pop-in font-script text-5xl leading-tight text-rose-600 drop-shadow-sm sm:text-7xl"
+      >
+        Hoş Geldin Sevgilim
+      </h1>
+
+      <p class="max-w-md text-lg text-rose-800/90">
+        Seninle geçirdiğim her an bir hediye. Sana küçük bir dünya hazırladım —
+        birlikte keşfedelim mi? 💕
+      </p>
+
+      <!-- WhatsApp butonu (link JS ile CONFIG'ten doldurulur) -->
+      <a
+        id="whatsapp-btn"
+        href="#"
+        rel="noopener noreferrer"
+        class="group inline-flex max-w-xs items-center justify-center gap-3 rounded-full bg-[#25D366] px-7 py-4 text-center text-base font-bold leading-snug text-white shadow-xl shadow-green-500/30 transition hover:scale-105 hover:bg-[#1ebe57] active:scale-95 sm:max-w-md sm:text-lg"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          class="h-6 w-6 shrink-0 transition group-hover:rotate-12"
+          aria-hidden="true"
+        >
+          <path
+            d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.748-.985zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"
+          />
+        </svg>
+        <span>Yüce Sevgiline Hak Ettiği Mesajı Yollamak İçin Buraya Bas</span>
+      </a>
+
+      <!-- Oyunlara git -->
+      <a
+        href="#/games"
+        class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 to-red-500 px-7 py-3.5 font-semibold text-white shadow-lg shadow-rose-500/30 transition hover:scale-105 active:scale-95"
+      >
+        🎮 Birlikte Oynayalım
+      </a>
+
+      <p class="mt-2 text-xs text-rose-400">Seni seviyorum • <span id="year"></span></p>
+    </main>
+
+    <!-- ====================== OYUNLAR ====================== -->
+    <main
+      id="view-games"
+      style="display: none"
+      class="relative z-10 mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-8"
+    >
+      <header class="mb-6 flex items-center justify-between">
+        <a
+          href="#/"
+          class="rounded-full bg-white/60 px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm backdrop-blur transition hover:bg-white"
+        >
+          ← Ana Sayfa
+        </a>
+        <h1 class="font-script text-3xl text-rose-600 sm:text-4xl">Oyun Zamanı 🎀</h1>
+        <span class="w-[92px]"></span>
+      </header>
+
+      <!-- Sekmeler -->
+      <nav
+        class="mb-6 flex flex-wrap justify-center gap-2 rounded-full bg-white/50 p-2 shadow-sm backdrop-blur"
+      >
+        <button
+          data-tab="memory"
+          class="tab-btn tab-active rounded-full px-4 py-2 text-sm font-semibold text-rose-600 transition sm:px-5"
+        >
+          🃏 Anı Kartları
+        </button>
+        <button
+          data-tab="quiz"
+          class="tab-btn rounded-full px-4 py-2 text-sm font-semibold text-rose-600 transition sm:px-5"
+        >
+          ❓ İlişki Testi
+        </button>
+      </nav>
+
+      <!-- ---------- OYUN 1: Anı Hafıza Kartları ---------- -->
+      <section
+        data-panel="memory"
+        class="animate-fade-in rounded-3xl border border-white/60 bg-white/70 p-5 shadow-xl backdrop-blur-md sm:p-7"
+      >
+        <h2 class="text-center font-script text-3xl text-rose-600 sm:text-4xl">
+          Anı Hafıza Kartları
+        </h2>
+        <p class="mt-1 text-center text-sm text-rose-500">
+          Eşleşen anılarımızı bul 💞 Aynı fotoğrafları yan yana getir.
+        </p>
+
+        <div class="mb-4 mt-5 flex items-center justify-between text-sm font-semibold text-rose-700">
+          <span>Hamle: <span id="mem-moves">0</span></span>
+          <span>Eşleşen: <span id="mem-matched">0</span>/<span id="mem-total">0</span></span>
+          <button
+            id="mem-reset"
+            class="rounded-full bg-rose-500 px-4 py-1.5 text-white shadow transition hover:bg-rose-600 active:scale-95"
+          >
+            🔄 Yeniden
+          </button>
+        </div>
+
+        <div id="mem-board" class="grid grid-cols-4 gap-2 sm:grid-cols-5 sm:gap-3 lg:grid-cols-6"></div>
+      </section>
+
+      <!-- ---------- OYUN 2: İlişki Testi ---------- -->
+      <section
+        data-panel="quiz"
+        class="hidden animate-fade-in rounded-3xl border border-white/60 bg-white/70 p-5 shadow-xl backdrop-blur-md sm:p-7"
+      >
+        <h2 class="text-center font-script text-3xl text-rose-600 sm:text-4xl">İlişki Testleri</h2>
+
+        <!-- Hangi test? Elif / Berat -->
+        <div class="mx-auto mt-3 flex w-fit gap-1 rounded-full bg-rose-100/70 p-1">
+          <button
+            data-test="elif"
+            class="test-tab rounded-full px-4 py-1.5 text-sm font-semibold transition"
+          >
+            💗 Elif'in Testi
+          </button>
+          <button
+            data-test="berat"
+            class="test-tab rounded-full px-4 py-1.5 text-sm font-semibold transition"
+          >
+            💙 Berat'ın Testi
+          </button>
+        </div>
+
+        <!-- Mod seçimi: Oyna / Soruları Düzenle -->
+        <div class="mx-auto mt-2 flex w-fit gap-1 rounded-full bg-rose-100/70 p-1">
+          <button
+            id="quiz-mode-play"
+            class="quiz-mode quiz-mode-active rounded-full px-4 py-1.5 text-sm font-semibold transition"
+          >
+            ▶️ Oyna
+          </button>
+          <button
+            id="quiz-mode-edit"
+            class="quiz-mode rounded-full px-4 py-1.5 text-sm font-semibold transition"
+          >
+            ✏️ Soruları Düzenle
+          </button>
+        </div>
+
+        <div id="quiz-content" class="mt-5"></div>
+        <div id="quiz-editor" class="mt-5 hidden"></div>
+      </section>
+    </main>
+
+    <!-- ---------- Kazanma penceresi (Hafıza oyunu) ---------- -->
+    <div
+      id="win-modal"
+      class="fixed inset-0 z-50 hidden items-center justify-center bg-rose-950/40 p-4 backdrop-blur-sm"
+    >
+      <div class="animate-pop-in w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-2xl">
+        <div class="mb-3 text-6xl animate-heartbeat">🎉❤️</div>
+        <h3 class="font-script text-3xl text-rose-600">Tebrikler sevgilim!</h3>
+        <p class="mt-2 text-rose-800">
+          Tüm anılarımızı buldun! Her anımız tıpkı gerçek hayatta olduğu gibi birbirine eşleşiyor. 💕
+        </p>
+        <p class="mt-1 text-sm text-rose-500"><span id="win-moves">0</span> hamlede tamamladın.</p>
+        <button
+          id="win-replay"
+          class="mt-6 rounded-full bg-gradient-to-r from-rose-500 to-red-500 px-6 py-3 font-semibold text-white shadow-lg transition hover:scale-105 active:scale-95"
+        >
+          Tekrar Oynayalım 💫
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- ====================== TÜM JAVASCRIPT ======================== -->
+    <!-- ============================================================== -->
+    <script>
+      /* =================================================================
+       *  ⚙️  AYARLAR — SADECE BURAYI DEĞİŞTİRMEN YETERLİ
+       * ================================================================= */
+      const CONFIG = {
+        // 📱 WhatsApp numaran: ülke koduyla, "+" ve boşluk OLMADAN yaz.
+        //    Türkiye örneği: 905551112233
+        whatsappNumber: "905347071180",
+
+        // 💬 WhatsApp'ta otomatik yazılacak mesaj
+        whatsappMessage: "Seni Seviyorum Yüce Sultanımm <3<3",
+
+        // ☁️ SUPABASE (bulut veritabanı) — sorular her cihazda ortak & anlık senkron olsun diye.
+        //    Nasıl alınır: SUPABASE-KURULUM.txt dosyasına bak (Project Settings > API).
+        //    Boş bırakırsan sorun olmaz; site yerel hafızayla yine çalışır.
+        supabaseUrl: "https://rqhuvxssrqcngseytslh.supabase.co", //  örn: https://abcdefgh.supabase.co
+        supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxaHV2eHNzcnFjbmdzZXl0c2xoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4ODQ5MDYsImV4cCI6MjA5MjQ2MDkwNn0.ABVm7HJIGpeP_OGK0ppecujjClChO7Lkm7Jlj-mluLU", //     "anon public" anahtarı (uzun metin)
+      };
+
+      /* 🃏 Hafıza oyunu fotoğrafları.
+       *  • PHOTO_COUNT: kaç FARKLI fotoğraf olacağını belirler. Her fotoğraf 2 kez
+       *    çıkar (eşleştirme oyunu), yani 15 fotoğraf = 30 kart (15 çift). İstersen
+       *    bu sayıyı değiştir (örn. 6, 8, 10) — oyun otomatik uyum sağlar.
+       *  • Kendi fotoğraflarını index.html'in YANINDAKİ "fotograflar" klasörüne
+       *    1.jpg, 2.jpg, 3.jpg ... şeklinde koy. Fotoğraf yoksa otomatik olarak
+       *    geçici (picsum) bir görsel gösterilir; oyun yine de çalışır. */
+      const PHOTO_COUNT = 15;
+      const MEMORIES = Array.from({ length: PHOTO_COUNT }, function (_, i) {
+        const n = i + 1;
+        return {
+          id: n,
+          src: "fotograflar/" + n + ".jpg", // 👈 kendi fotoğrafın (fotograflar/1.jpg, 2.jpg ...)
+          fallback: "https://picsum.photos/seed/ask-" + n + "/400/400", // fotoğraf yoksa yedek görsel
+          label: "Anımız " + n,
+        };
+      });
+
+      /* ❓ İKİ AYRI TEST: "Elif'in Testi" ve "Berat'ın Testi".
+       *    Her testin kendi BAŞLANGIÇ soruları aşağıda. correctIndex = doğru şıkkın sırası (0'dan başlar).
+       *    Oyundaki "✏️ Soruları Düzenle" ekranından her iki teste de soru ekleyip silebilirsin. */
+      const DEFAULT_TESTS = {
+        elif: [
+          {
+            question: "İlk nerede kahve içtik? ☕",
+            options: ["Sahildeki kafe", "Köşedeki küçük kafe", "Evde", "AVM'de"],
+            correctIndex: 1,
+          },
+          {
+            question: "En sevdiğin huyum nedir? 🥰",
+            options: ["Komikliğim", "Sabırlı oluşum", "Sana sarılmam", "Hepsi 💕"],
+            correctIndex: 3,
+          },
+          {
+            question: "İlk birlikte izlediğimiz film türü neydi? 🎬",
+            options: ["Romantik komedi", "Korku", "Animasyon", "Aksiyon"],
+            correctIndex: 0,
+          },
+          {
+            question: "Seni en çok ne mutlu eder? ✨",
+            options: ["Sürpriz çiçekler", "Birlikte yürüyüş", "Günaydın mesajım", "Hepsi birden"],
+            correctIndex: 3,
+          },
+        ],
+        berat: [
+          {
+            question: "İlk tatilimiz neredeydi? 🏖️",
+            options: ["Bodrum", "Antalya", "Karadeniz", "Kapadokya"],
+            correctIndex: 1,
+          },
+          {
+            question: "En sevdiğim yemeği bilebilir misin? 🍝",
+            options: ["Makarna", "Mantı", "Pizza", "Lahmacun"],
+            correctIndex: 1,
+          },
+          {
+            question: "Sana ilk hediyem neydi? 🎁",
+            options: ["Çiçek", "Kolye", "Oyuncak ayı", "Kitap"],
+            correctIndex: 2,
+          },
+          {
+            question: "Birlikte en çok ne yapmayı seviyoruz? 💑",
+            options: ["Film izlemek", "Yürüyüş", "Yemek yapmak", "Hepsi 💕"],
+            correctIndex: 3,
+          },
+        ],
+      };
+
+      /* =================================================================
+       *  Bundan sonrasını değiştirmene gerek yok 🙂
+       * ================================================================= */
+
+      /* ---------- WhatsApp linki + yıl ---------- */
+      // whatsapp:// protokolü → hem telefonda hem PC'de WhatsApp UYGULAMASINI açar
+      document.getElementById("whatsapp-btn").href =
+        "whatsapp://send?phone=" +
+        CONFIG.whatsappNumber +
+        "&text=" +
+        encodeURIComponent(CONFIG.whatsappMessage);
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      /* ---------- Basit yönlendirme (hash router) ---------- */
+      function showView(view) {
+        document.getElementById("view-home").style.display = view === "games" ? "none" : "flex";
+        document.getElementById("view-games").style.display = view === "games" ? "flex" : "none";
+        window.scrollTo(0, 0);
+      }
+      function handleRoute() {
+        showView(window.location.hash === "#/games" ? "games" : "home");
+      }
+      window.addEventListener("hashchange", handleRoute);
+      handleRoute();
+
+      /* ---------- Uçuşan kalpler ---------- */
+      (function spawnHearts() {
+        const emojis = ["💗", "💕", "💖", "❤️", "🌸", "💞"];
+        const container = document.getElementById("hearts");
+        for (let i = 0; i < 16; i++) {
+          const s = document.createElement("span");
+          s.className = "heart";
+          s.textContent = emojis[i % emojis.length];
+          s.style.left = Math.random() * 100 + "%";
+          s.style.fontSize = 14 + Math.random() * 22 + "px";
+          s.style.animationDuration = 11 + Math.random() * 10 + "s";
+          s.style.animationDelay = Math.random() * 10 + "s";
+          s.style.setProperty("--o", (0.35 + Math.random() * 0.25).toFixed(2));
+          container.appendChild(s);
+        }
+      })();
+
+      /* ---------- Sekme geçişleri ---------- */
+      const tabButtons = [...document.querySelectorAll(".tab-btn")];
+      const panels = [...document.querySelectorAll("[data-panel]")];
+      function switchTab(id) {
+        tabButtons.forEach((b) => b.classList.toggle("tab-active", b.dataset.tab === id));
+        panels.forEach((p) => p.classList.toggle("hidden", p.dataset.panel !== id));
+      }
+      tabButtons.forEach((b) => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+
+      /* ---------- OYUN 1: Anı Hafıza Kartları ---------- */
+      const board = document.getElementById("mem-board");
+      let memDeck = [];
+      let memFlipped = [];
+      let memMatched = [];
+      let memMoves = 0;
+      let memLocked = false;
+
+      function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function buildMemDeck() {
+        const cards = [];
+        MEMORIES.forEach((m) => {
+          cards.push({ uid: m.id + "-a", pairId: m.id, src: m.src, label: m.label });
+          cards.push({ uid: m.id + "-b", pairId: m.id, src: m.src, label: m.label });
+        });
+        return shuffle(cards);
+      }
+
+      function renderBoard() {
+        board.innerHTML = "";
+        memDeck.forEach((card) => {
+          const btn = document.createElement("button");
+          btn.className = "card perspective aspect-square";
+          btn.setAttribute("aria-label", "Kart");
+          btn.innerHTML =
+            '<div class="card-inner">' +
+            '<div class="card-face card-front">💗</div>' +
+            '<div class="card-face card-back"><img src="' +
+            card.src +
+            "\" onerror=\"this.onerror=null;this.src='" +
+            card.fallback +
+            "'\" alt=\"" +
+            card.label +
+            '" loading="lazy" /></div>' +
+            "</div>";
+          btn.addEventListener("click", () => flipCard(btn, card));
+          board.appendChild(btn);
+        });
+      }
+
+      function updateMemStats() {
+        document.getElementById("mem-moves").textContent = memMoves;
+        document.getElementById("mem-matched").textContent = memMatched.length;
+        document.getElementById("mem-total").textContent = MEMORIES.length;
+      }
+
+      function flipCard(el, card) {
+        if (memLocked) return;
+        if (el.classList.contains("flipped")) return; // zaten açık ya da eşleşmiş
+        el.classList.add("flipped");
+        memFlipped.push({ el, card });
+
+        if (memFlipped.length === 2) {
+          memMoves++;
+          updateMemStats();
+          memLocked = true;
+          const [a, b] = memFlipped;
+
+          if (a.card.pairId === b.card.pairId) {
+            a.el.classList.add("matched");
+            b.el.classList.add("matched");
+            memMatched.push(a.card.pairId);
+            updateMemStats();
+            memFlipped = [];
+            memLocked = false;
+            if (memMatched.length === MEMORIES.length) setTimeout(showWin, 550);
+          } else {
+            setTimeout(() => {
+              a.el.classList.remove("flipped");
+              b.el.classList.remove("flipped");
+              memFlipped = [];
+              memLocked = false;
+            }, 850);
+          }
+        }
+      }
+
+      function showWin() {
+        document.getElementById("win-moves").textContent = memMoves;
+        const m = document.getElementById("win-modal");
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+      }
+      function hideWin() {
+        const m = document.getElementById("win-modal");
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      }
+
+      function resetMemory() {
+        memDeck = buildMemDeck();
+        memFlipped = [];
+        memMatched = [];
+        memMoves = 0;
+        memLocked = false;
+        updateMemStats();
+        renderBoard();
+        hideWin();
+      }
+      document.getElementById("mem-reset").addEventListener("click", resetMemory);
+      document.getElementById("win-replay").addEventListener("click", resetMemory);
+      resetMemory();
+
+      /* ---------- OYUN 2: İlişki Testleri (Elif & Berat) ---------- */
+      const TESTS = [
+        { id: "elif", name: "Elif'in Testi", key: "test-elif-v1", emoji: "💗" },
+        { id: "berat", name: "Berat'ın Testi", key: "test-berat-v1", emoji: "💙" },
+      ];
+      let activeTestId = "elif";
+      let quizMode = "play"; // "play" | "edit"
+
+      const quizContent = document.getElementById("quiz-content");
+      const quizEditor = document.getElementById("quiz-editor");
+      const QUIZ_BASE =
+        "quiz-opt flex items-center justify-between rounded-2xl border-2 px-5 py-4 text-left font-medium transition";
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+      }
+
+      function activeTest() {
+        return TESTS.filter(function (t) { return t.id === activeTestId; })[0] || TESTS[0];
+      }
+      function cloneDefaults(id) {
+        const base = DEFAULT_TESTS[id] || [];
+        return base.map(function (q) {
+          return { question: q.question, options: q.options.slice(), correctIndex: q.correctIndex };
+        });
+      }
+      /* ===== Supabase (bulut veritabanı) bağlantısı ===== */
+      const SUPABASE_READY =
+        CONFIG.supabaseUrl &&
+        CONFIG.supabaseKey &&
+        !/BURAYA/.test(CONFIG.supabaseUrl) &&
+        !/BURAYA/.test(CONFIG.supabaseKey);
+      let sb = null;
+      if (SUPABASE_READY && window.supabase && window.supabase.createClient) {
+        try {
+          sb = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+        } catch (e) {
+          sb = null;
+        }
+      }
+      const cloudCache = {}; // { elif: [...soru...], berat: [...] }
+
+      function cloneList(list) {
+        return (list || []).map(function (q) {
+          return { question: q.question, options: q.options.slice(), correctIndex: q.correctIndex };
+        });
+      }
+
+      function loadQuestions() {
+        // 1) Bulut (önceden çekildiyse)
+        if (cloudCache[activeTestId]) return cloneList(cloudCache[activeTestId]);
+        // 2) Yerel yedek (Supabase yok / çevrimdışı)
+        try {
+          const saved = localStorage.getItem(activeTest().key);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) return parsed;
+          }
+        } catch (e) {}
+        // 3) Varsayılan sorular
+        return cloneDefaults(activeTestId);
+      }
+
+      function saveQuestions() {
+        // Yerel yedek + bellek (anında)
+        try {
+          localStorage.setItem(activeTest().key, JSON.stringify(quizQuestions));
+        } catch (e) {}
+        cloudCache[activeTestId] = cloneList(quizQuestions);
+        // Buluta yaz
+        if (sb) {
+          sb.from("tests")
+            .upsert({ id: activeTestId, questions: quizQuestions })
+            .then(function (res) {
+              if (res && res.error) console.warn("Supabase kayıt hatası:", res.error.message);
+            });
+        }
+      }
+
+      function fetchAllTests() {
+        if (!sb) return Promise.resolve();
+        return sb
+          .from("tests")
+          .select("id, questions")
+          .then(function (res) {
+            if (res.error) {
+              console.warn("Supabase okuma hatası:", res.error.message);
+              return;
+            }
+            (res.data || []).forEach(function (row) {
+              cloudCache[row.id] = Array.isArray(row.questions) ? row.questions : [];
+            });
+            // Bulutta henüz olmayan testleri varsayılanlarla oluştur
+            TESTS.forEach(function (t) {
+              if (!(t.id in cloudCache)) {
+                cloudCache[t.id] = cloneDefaults(t.id);
+                sb.from("tests").upsert({ id: t.id, questions: cloudCache[t.id] }).then(function () {});
+              }
+            });
+          });
+      }
+
+      function subscribeRealtime() {
+        if (!sb) return;
+        try {
+          sb.channel("tests-realtime")
+            .on(
+              "postgres_changes",
+              { event: "*", schema: "public", table: "tests" },
+              function (payload) {
+                const row = payload.new;
+                if (!row || !row.id) return;
+                cloudCache[row.id] = Array.isArray(row.questions) ? row.questions : [];
+                // Açık olan test güncellendiyse ve oyun modundaysak anında tazele
+                if (row.id === activeTestId && quizMode === "play") {
+                  quizQuestions = loadQuestions();
+                  restartQuiz();
+                }
+              }
+            )
+            .subscribe();
+        } catch (e) {}
+      }
+
+      let quizQuestions = [];
+      let qStep = 0;
+      let qScore = 0;
+      let qSelected = null;
+
+      /* ===== OYNA modu ===== */
+      function renderQuiz() {
+        if (quizQuestions.length === 0) {
+          quizContent.innerHTML =
+            '<p class="py-10 text-center text-rose-600">Henüz soru yok 🙈 Yukarıdaki <b>✏️ Soruları Düzenle</b> ile soru ekle.</p>';
+          return;
+        }
+        if (qStep >= quizQuestions.length) return renderResult();
+        const q = quizQuestions[qStep];
+        const progress = (qStep / quizQuestions.length) * 100;
+
+        quizContent.innerHTML =
+          '<div class="mb-5 h-2 w-full overflow-hidden rounded-full bg-rose-100">' +
+          '<div class="h-full rounded-full bg-gradient-to-r from-rose-400 to-red-500 transition-all duration-500" style="width:' +
+          progress +
+          '%"></div></div>' +
+          '<p class="mb-4 text-center text-sm font-semibold text-rose-500">Soru ' +
+          (qStep + 1) +
+          " / " +
+          quizQuestions.length +
+          "</p>" +
+          '<h3 class="mb-5 text-center text-xl font-bold text-rose-900">' +
+          escapeHtml(q.question) +
+          "</h3>" +
+          '<div class="grid gap-3" id="quiz-options"></div>' +
+          '<div id="quiz-feedback" class="mt-5"></div>';
+
+        const optionsEl = document.getElementById("quiz-options");
+        q.options.forEach(function (opt, i) {
+          const btn = document.createElement("button");
+          btn.className =
+            QUIZ_BASE + " border-rose-200 bg-white hover:border-rose-400 hover:bg-rose-50";
+          btn.innerHTML = "<span>" + escapeHtml(opt) + '</span><span class="icon"></span>';
+          btn.addEventListener("click", function () {
+            chooseOption(i);
+          });
+          optionsEl.appendChild(btn);
+        });
+      }
+
+      function chooseOption(i) {
+        if (qSelected !== null) return;
+        qSelected = i;
+        const q = quizQuestions[qStep];
+        if (i === q.correctIndex) qScore++;
+
+        const buttons = [].slice.call(document.querySelectorAll("#quiz-options .quiz-opt"));
+        buttons.forEach(function (btn, idx) {
+          btn.disabled = true;
+          let cls = QUIZ_BASE;
+          if (idx === q.correctIndex) {
+            cls += " border-green-500 bg-green-100 text-green-800";
+            btn.querySelector(".icon").textContent = "✅";
+          } else if (idx === i) {
+            cls += " border-red-500 bg-red-100 text-red-800";
+            btn.querySelector(".icon").textContent = "❌";
+          } else {
+            cls += " border-rose-100 bg-white opacity-60";
+          }
+          btn.className = cls;
+        });
+
+        const correct = i === q.correctIndex;
+        const isLast = qStep + 1 === quizQuestions.length;
+        document.getElementById("quiz-feedback").innerHTML =
+          '<div class="flex items-center justify-between gap-3 animate-fade-in">' +
+          '<p class="font-semibold text-rose-700">' +
+          (correct ? "Doğru bildin! 💖" : "Olsun, yine de seni seviyorum 😘") +
+          "</p>" +
+          '<button id="quiz-next" class="shrink-0 rounded-full bg-gradient-to-r from-rose-500 to-red-500 px-6 py-2.5 font-semibold text-white shadow-lg transition hover:scale-105 active:scale-95">' +
+          (isLast ? "Sonucu Gör 🎀" : "Sonraki ➜") +
+          "</button></div>";
+        document.getElementById("quiz-next").addEventListener("click", nextQuestion);
+      }
+
+      function nextQuestion() {
+        qSelected = null;
+        qStep++;
+        renderQuiz();
+      }
+
+      function renderResult() {
+        const pct = Math.round((qScore / quizQuestions.length) * 100);
+        const perfect = qScore === quizQuestions.length;
+        const title = perfect ? "İlişkimizi %100 tanıyorsun!" : "İlişkimizi %" + pct + " tanıyorsun!";
+        const message = perfect
+          ? "Sen gerçekten benim ruh eşimsin. Her şeyi hatırlıyorsun! 💍"
+          : pct >= 50
+          ? "Birbirimizi çok iyi tanıyoruz, geri kalanını birlikte öğreniriz 💕"
+          : "Daha çok anı biriktirmemiz lazım galiba 😄 Hemen başlayalım!";
+
+        quizContent.innerHTML =
+          '<div class="flex flex-col items-center gap-4 py-6 text-center animate-pop-in">' +
+          '<div class="text-7xl animate-heartbeat">💝</div>' +
+          '<h3 class="font-script text-4xl text-rose-600">' +
+          title +
+          "</h3>" +
+          '<p class="text-lg font-semibold text-rose-800">' +
+          qScore +
+          " / " +
+          quizQuestions.length +
+          " doğru</p>" +
+          '<p class="max-w-sm text-rose-700">' +
+          message +
+          "</p>" +
+          '<button id="quiz-restart" class="mt-2 rounded-full bg-gradient-to-r from-rose-500 to-red-500 px-7 py-3 font-semibold text-white shadow-lg transition hover:scale-105 active:scale-95">Testi Tekrar Çöz 🔁</button>' +
+          "</div>";
+        document.getElementById("quiz-restart").addEventListener("click", restartQuiz);
+      }
+
+      function restartQuiz() {
+        qStep = 0;
+        qScore = 0;
+        qSelected = null;
+        renderQuiz();
+      }
+
+      /* ===== Test seçimi (Elif / Berat) + Mod geçişi (Oyna / Düzenle) ===== */
+      const testTabs = [].slice.call(document.querySelectorAll(".test-tab"));
+      const modePlayBtn = document.getElementById("quiz-mode-play");
+      const modeEditBtn = document.getElementById("quiz-mode-edit");
+
+      function applyView() {
+        const editing = quizMode === "edit";
+        testTabs.forEach(function (b) {
+          b.classList.toggle("test-tab-active", b.getAttribute("data-test") === activeTestId);
+        });
+        modeEditBtn.classList.toggle("quiz-mode-active", editing);
+        modePlayBtn.classList.toggle("quiz-mode-active", !editing);
+        quizEditor.classList.toggle("hidden", !editing);
+        quizContent.classList.toggle("hidden", editing);
+        if (editing) renderEditor();
+        else restartQuiz();
+      }
+      function selectTest(id) {
+        activeTestId = id;
+        quizQuestions = loadQuestions();
+        applyView();
+      }
+      function setQuizMode(mode) {
+        quizMode = mode;
+        applyView();
+      }
+      testTabs.forEach(function (b) {
+        b.addEventListener("click", function () {
+          selectTest(b.getAttribute("data-test"));
+        });
+      });
+      modePlayBtn.addEventListener("click", function () {
+        setQuizMode("play");
+      });
+      modeEditBtn.addEventListener("click", function () {
+        setQuizMode("edit");
+      });
+
+      /* ===== DÜZENLE modu (soru ekle / sil / işaretle) ===== */
+      function renderEditor() {
+        let listHtml;
+        if (quizQuestions.length === 0) {
+          listHtml = '<p class="text-center text-sm text-rose-400">Henüz soru yok. Aşağıdan ekleyebilirsin 👇</p>';
+        } else {
+          listHtml = quizQuestions
+            .map(function (q, qi) {
+              // Not: Doğru cevap LİSTEDE gösterilmez — sadece oluşturan bilir.
+              const opts = q.options
+                .map(function (o) {
+                  return '<li class="text-rose-700/70">• ' + escapeHtml(o) + "</li>";
+                })
+                .join("");
+              return (
+                '<div class="rounded-2xl border border-rose-100 bg-white/70 p-4">' +
+                '<div class="flex items-start justify-between gap-3">' +
+                '<p class="font-semibold text-rose-900">' +
+                (qi + 1) +
+                ". " +
+                escapeHtml(q.question) +
+                "</p>" +
+                '<button data-del="' +
+                qi +
+                '" class="shrink-0 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-200">🗑️ Sil</button>' +
+                "</div>" +
+                '<ul class="mt-2 space-y-0.5 text-sm">' +
+                opts +
+                "</ul></div>"
+              );
+            })
+            .join("");
+        }
+
+        quizEditor.innerHTML =
+          '<p class="mb-3 text-center text-sm font-semibold text-rose-500">' +
+          escapeHtml(activeTest().name) +
+          " — düzenleniyor ✏️</p>" +
+          '<div class="space-y-3">' +
+          listHtml +
+          "</div>" +
+          '<div class="mt-6 rounded-2xl border-2 border-dashed border-rose-300 bg-rose-50/60 p-4">' +
+          '<h3 class="mb-3 text-center font-semibold text-rose-700">➕ Yeni Soru Ekle</h3>' +
+          '<input id="new-q" type="text" placeholder="Soru (örn: İlk tatilimiz neredeydi?)" class="mb-3 w-full rounded-xl border-2 border-rose-200 bg-white px-4 py-2.5 outline-none focus:border-rose-400" />' +
+          '<p class="mb-2 text-xs font-medium text-rose-500">Şıkları yaz, doğru cevabı <b>"Doğru ✓"</b> ile işaretle:</p>' +
+          '<div id="opt-rows" class="space-y-2"></div>' +
+          '<button id="add-opt" class="mt-2 text-sm font-semibold text-rose-500 transition hover:text-rose-700">+ Şık Ekle</button>' +
+          '<p id="editor-msg" class="mt-2 text-center text-sm font-semibold text-red-500"></p>' +
+          '<button id="add-question" class="mt-2 w-full rounded-full bg-gradient-to-r from-rose-500 to-red-500 px-6 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.02] active:scale-95">Soruyu Ekle 💕</button>' +
+          "</div>" +
+          '<div class="mt-4 flex flex-wrap items-center justify-center gap-2">' +
+          '<button id="quiz-export" class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-rose-600 shadow transition hover:bg-rose-50" title="Soruları, siteyi yüklediğinde de görünecek şekilde kalıcı yapmak için">📋 Kodu Kopyala</button>' +
+          '<button id="quiz-reset" class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-rose-400 shadow transition hover:bg-rose-50">↩️ Varsayılana dön</button>' +
+          "</div>";
+
+        renderOptRows();
+
+        [].slice.call(quizEditor.querySelectorAll("[data-del]")).forEach(function (b) {
+          b.addEventListener("click", function () {
+            deleteQuestion(parseInt(b.getAttribute("data-del"), 10));
+          });
+        });
+        document.getElementById("add-opt").addEventListener("click", addOptRow);
+        document.getElementById("add-question").addEventListener("click", addQuestion);
+        document.getElementById("quiz-export").addEventListener("click", exportQuestions);
+        document.getElementById("quiz-reset").addEventListener("click", resetQuestions);
+      }
+
+      function createOptRow(value) {
+        const row = document.createElement("div");
+        row.className = "opt-row flex items-center gap-2";
+        row.innerHTML =
+          '<input type="text" value="' +
+          escapeHtml(value || "") +
+          '" placeholder="Şık..." class="opt-input flex-1 rounded-xl border-2 border-rose-200 bg-white px-3 py-2 text-sm outline-none focus:border-rose-400" />' +
+          '<button type="button" class="mark-correct shrink-0 rounded-lg border-2 border-rose-200 px-3 py-2 text-xs font-semibold text-rose-500 transition">Doğru ✓</button>' +
+          '<button type="button" class="remove-opt shrink-0 rounded-lg px-2 py-2 text-rose-300 transition hover:text-red-500" title="Şıkkı sil">✕</button>';
+        row.querySelector(".mark-correct").addEventListener("click", function () {
+          markCorrect(row);
+        });
+        row.querySelector(".remove-opt").addEventListener("click", function () {
+          removeOptRow(row);
+        });
+        return row;
+      }
+
+      function renderOptRows() {
+        const container = document.getElementById("opt-rows");
+        container.innerHTML = "";
+        container.appendChild(createOptRow(""));
+        container.appendChild(createOptRow(""));
+        markCorrect(container.querySelector(".opt-row"));
+      }
+
+      function addOptRow() {
+        const container = document.getElementById("opt-rows");
+        if (container.querySelectorAll(".opt-row").length >= 6) return;
+        container.appendChild(createOptRow(""));
+      }
+
+      function removeOptRow(row) {
+        const container = document.getElementById("opt-rows");
+        if (container.querySelectorAll(".opt-row").length <= 2) return;
+        const wasCorrect = row.classList.contains("opt-correct");
+        row.remove();
+        if (wasCorrect) {
+          const first = container.querySelector(".opt-row");
+          if (first) markCorrect(first);
+        }
+      }
+
+      function markCorrect(row) {
+        [].slice.call(document.querySelectorAll("#opt-rows .opt-row")).forEach(function (r) {
+          const sel = r === row;
+          r.classList.toggle("opt-correct", sel);
+          const btn = r.querySelector(".mark-correct");
+          btn.classList.toggle("border-green-500", sel);
+          btn.classList.toggle("bg-green-100", sel);
+          btn.classList.toggle("text-green-700", sel);
+          btn.classList.toggle("border-rose-200", !sel);
+          btn.classList.toggle("text-rose-500", !sel);
+        });
+      }
+
+      function flashEditorMsg(text) {
+        const el = document.getElementById("editor-msg");
+        if (el) el.textContent = text;
+      }
+
+      function addQuestion() {
+        const qInput = document.getElementById("new-q");
+        const question = qInput.value.trim();
+        const rows = [].slice.call(document.querySelectorAll("#opt-rows .opt-row"));
+
+        if (!question) {
+          flashEditorMsg("Lütfen soruyu yaz 🙂");
+          qInput.focus();
+          return;
+        }
+
+        const cleanOptions = [];
+        let newCorrect = -1;
+        rows.forEach(function (r) {
+          const v = r.querySelector(".opt-input").value.trim();
+          if (v === "") return;
+          if (r.classList.contains("opt-correct")) newCorrect = cleanOptions.length;
+          cleanOptions.push(v);
+        });
+
+        if (cleanOptions.length < 2) {
+          flashEditorMsg("En az 2 dolu şık olmalı.");
+          return;
+        }
+        if (newCorrect < 0) {
+          flashEditorMsg('Doğru cevabı dolu bir şıkta "Doğru ✓" ile işaretle.');
+          return;
+        }
+
+        quizQuestions.push({ question: question, options: cleanOptions, correctIndex: newCorrect });
+        saveQuestions();
+        renderEditor();
+      }
+
+      function deleteQuestion(index) {
+        if (!window.confirm("Bu soruyu silmek istiyor musun?")) return;
+        quizQuestions.splice(index, 1);
+        saveQuestions();
+        renderEditor();
+      }
+
+      function resetQuestions() {
+        if (!window.confirm("Bu testin tüm soruları varsayılana dönecek. Emin misin?")) return;
+        quizQuestions = cloneDefaults(activeTestId);
+        saveQuestions();
+        renderEditor();
+      }
+
+      function exportQuestions() {
+        const target = "DEFAULT_TESTS." + activeTestId;
+        const code = JSON.stringify(quizQuestions, null, 2);
+        const note =
+          "Kopyalandı! 📋\n\nKalıcı olması (ve siteyi yüklediğinde de görünmesi) için " +
+          "index.html dosyasındaki " + target + " dizisini kopyaladığın kodla değiştir.";
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(
+            function () {
+              window.alert(note);
+            },
+            function () {
+              window.prompt(target + " yerine yapıştır:", code);
+            }
+          );
+        } else {
+          window.prompt(target + " yerine yapıştır:", code);
+        }
+      }
+
+      // İlk render yerel/varsayılan ile anında olur; sonra buluttan tazeleyip canlı dinlemeye başlar.
+      selectTest(activeTestId);
+      if (sb) {
+        fetchAllTests().then(function () {
+          subscribeRealtime();
+          if (quizMode === "play") selectTest(activeTestId);
+        });
+      }
+    </script>
+  </body>
+</html>
