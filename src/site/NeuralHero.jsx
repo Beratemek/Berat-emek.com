@@ -115,8 +115,9 @@ export default function NeuralHero() {
       const elapsed = time - startTime
       const wide = width >= 900
       const cx = wide ? width * 0.71 : width * 0.5
+      // Dar ekranda küre üstte kendi alanında durur; yazılar altında kalır, üst üste binmez
       const cy = wide ? height * 0.5 : height * 0.25
-      const radius = wide ? Math.min(width * 0.29, height * 0.4) : Math.min(width * 0.44, height * 0.21)
+      const radius = wide ? Math.min(width * 0.29, height * 0.4) : Math.min(width * 0.37, height * 0.17)
       const focal = 2.6
 
       if (!reduceMotion) rot.y += 0.0015

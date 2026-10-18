@@ -8,7 +8,9 @@ import Layout from '../site/Layout.jsx'
 import NeuralHero from '../site/NeuralHero.jsx'
 import Reveal from '../site/Reveal.jsx'
 import GenCover from '../site/GenCover.jsx'
-import { PostList, FeaturedPost, PostListSkeleton } from '../site/PostList.jsx'
+import Rail from '../site/Rail.jsx'
+import CountUp from '../site/CountUp.jsx'
+import { PostCard, FeaturedPost, PostListSkeleton } from '../site/PostList.jsx'
 import { iconMap, LinkedinIcon } from '../site/icons.jsx'
 import { coverWord, postPath } from '../site/format.js'
 import { usePortfolioContent } from '../hooks/usePortfolioContent.js'
@@ -20,6 +22,12 @@ const CAPABILITY_ICONS = [BrainCircuit, Layers, AudioWaveform]
 const PROJECTS_PREVIEW = 6 // ana sayfada ilk 6 proje; gerisi butonla açılır
 const PINNED_PROJECT = 'morf' // şu an çalıştığım şirketin projesi, tarihinden bağımsız hep başta
 const pinFirst = (list) => [...list].sort((a, b) => (b.slug === PINNED_PROJECT) - (a.slug === PINNED_PROJECT))
+
+/** Giriş metnini ilk cümle ve devamı olarak böler; telefonda yalnızca ilk cümle görünür. */
+function splitLead(text) {
+  const m = String(text).match(/^(.+?[.!?。！？])\s*([\s\S]+)$/)
+  return m ? [m[1], m[2]] : [text, '']
+}
 
 /** Başlığı kelime kelime canlandırır; vurgulu kısmı gradyanla gösterir. */
 function AnimatedHeadline({ text, accent }) {
@@ -73,8 +81,10 @@ function untilt(e) {
 }
 
 export default function HomePage() {
-  const { t, lang } = useI18n()
+  const { t, lang, locale } = useI18n()
   const { profile, blogPosts, projectPosts, contact, loading } = usePortfolioContent()
+  const [aboutOpen, setAboutOpen] = useState(false)
+  const [leadFirst, leadRest] = splitLead(t('hero.intro'))
 
   // Hakkımda metni admin panelinden Türkçe girilir; diğer dillerde çevirisi gösterilir
   const about =
@@ -98,6 +108,14 @@ export default function HomePage() {
   const linkedin = links.find((l) => l.icon === 'linkedin' || /linkedin\.com/.test(l.href || ''))
 
   const [featured, ...restPosts] = blogPosts
+
+  // Uzun paragraflar yerine bir bakışta okunan rakamlar
+  const stats = [
+    { value: loading ? null : projects.length, label: t('stats.projects') },
+    { value: loading || !blogPosts.length ? null : blogPosts.length, label: t('stats.posts') },
+    { value: 0.903, decimals: 3, label: t('stats.datathon') },
+    { value: 6, format: (n) => t('stats.rank', { n }), label: t('stats.hackathon') },
+  ]
 
   return (
     <Layout overlay>
@@ -124,14 +142,19 @@ export default function HomePage() {
             )}
             <p className="kicker fade-in" style={{ '--i': 1 }}>{t('hero.role')}</p>
             <AnimatedHeadline text={t('hero.headline')} accent={t('hero.accent')} />
-            <p className="hero-lead fade-in" style={{ '--i': 6 }}>{t('hero.intro')}</p>
+            <p className="hero-lead fade-in" style={{ '--i': 6 }}>
+              {leadFirst}
+              {leadRest && <span className="lead-rest">{/[。！？]$/.test(leadFirst) ? '' : ' '}{leadRest}</span>}
+            </p>
             <div className="hero-actions fade-in" style={{ '--i': 8 }}>
               <Link to="/blog" className="s-btn accent">
                 {t('hero.ctaPosts')} <ArrowRight size={17} />
               </Link>
               {linkedin && (
                 <a href={linkedin.href} target="_blank" rel="noreferrer" className="s-btn ghost">
-                  <LinkedinIcon size={16} /> {t('hero.ctaLinkedin')}
+                  <LinkedinIcon size={16} />
+                  <span className="lbl-long">{t('hero.ctaLinkedin')}</span>
+                  <span className="lbl-short">LinkedIn</span>
                 </a>
               )}
             </div>
@@ -148,6 +171,20 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ---------------- Rakamlar ---------------- */}
+      <section className="stats-band" aria-label={t('stats.label')}>
+        <div className="wrap stats">
+          {stats.map((s, i) => (
+            <Reveal key={s.label} delay={i * 90} className="stat">
+              <span className="stat-num">
+                <CountUp value={s.value} decimals={s.decimals} locale={locale} format={s.format} />
+              </span>
+              <span className="stat-label">{s.label}</span>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
       {/* ---------------- Neler yapıyorum ---------------- */}
       <section className="section" id="yetkinlikler">
         <div className="wrap">
@@ -157,7 +194,7 @@ export default function HomePage() {
               <h2><Accent text={t('caps.title')} accent={t('caps.accent')} /></h2>
             </div>
           </Reveal>
-          <div className="capabilities">
+          <Rail className="capabilities" label={t('caps.title')}>
             {t('caps.items').map((c, i) => {
               const Icon = CAPABILITY_ICONS[i] ?? BrainCircuit
               return (
@@ -171,7 +208,7 @@ export default function HomePage() {
                 </Reveal>
               )
             })}
-          </div>
+          </Rail>
         </div>
       </section>
 
@@ -194,7 +231,15 @@ export default function HomePage() {
           ) : featured ? (
             <>
               <Reveal><FeaturedPost post={featured} /></Reveal>
-              {restPosts.length > 0 && <Reveal delay={100}><PostList posts={restPosts.slice(0, 3)} /></Reveal>}
+              {restPosts.length > 0 && (
+                <Rail className="post-cards" label={t('posts.title')}>
+                  {restPosts.slice(0, 3).map((p, i) => (
+                    <Reveal key={p.id || p.slug} delay={i * 100}>
+                      <PostCard post={p} />
+                    </Reveal>
+                  ))}
+                </Rail>
+              )}
             </>
           ) : (
             <p className="empty">{t('posts.empty')}</p>
@@ -211,8 +256,9 @@ export default function HomePage() {
               <h2>{t('projects.title')}</h2>
             </div>
           </Reveal>
-          <div className="project-grid">
-            {(showAllProjects ? projects : projects.slice(0, PROJECTS_PREVIEW)).map((p, i) => {
+          {/* Telefonda tüm projeler yana kaydırılır; bilgisayarda ilk 6'sı görünür, gerisi butonla açılır */}
+          <Rail className="project-grid" label={t('projects.title')}>
+            {projects.map((p, i) => {
               const body = (
                 <>
                   {p.cover ? (
@@ -235,7 +281,7 @@ export default function HomePage() {
                 </>
               )
               return (
-                <Reveal key={p.title} delay={(i % 2) * 120}>
+                <Reveal key={p.title} delay={(i % 2) * 120} className={i >= PROJECTS_PREVIEW && !showAllProjects ? 'is-extra' : ''}>
                   {p.href ? (
                     <Link to={p.href} className="project-card" onMouseMove={tilt} onMouseLeave={untilt}>{body}</Link>
                   ) : p.url ? (
@@ -246,7 +292,7 @@ export default function HomePage() {
                 </Reveal>
               )
             })}
-          </div>
+          </Rail>
           {projects.length > PROJECTS_PREVIEW && (
             <div className="more-projects">
               <button type="button" className="s-btn ghost" onClick={() => setShowAllProjects((v) => !v)}>
@@ -263,9 +309,21 @@ export default function HomePage() {
           <Reveal>
             <p className="kicker">{t('about.kicker')}</p>
             <h2 className="about-title">{aboutTitle}</h2>
+            <div className="about-id">
+              <img className="about-photo" src="/berat.jpg" alt={SITE.name} width="240" height="240" loading="lazy" decoding="async" />
+              <div>
+                <strong>{SITE.name}</strong>
+                <span>VizioWise · Morf</span>
+              </div>
+            </div>
           </Reveal>
           <Reveal delay={120}>
-            <p className="about-text">{about.body}</p>
+            <p className={`about-text${aboutOpen ? '' : ' clamp-sm'}`}>{about.body}</p>
+            {!aboutOpen && (
+              <button type="button" className="read-toggle" onClick={() => setAboutOpen(true)}>
+                {t('ui.readMore')} <ArrowDown size={14} />
+              </button>
+            )}
             <ul className="highlights">
               {about.highlights.map((h, i) => (
                 <li key={h}>

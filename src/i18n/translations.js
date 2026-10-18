@@ -20,7 +20,7 @@ const ROLE = "Full-Stack & AI Developer"
 export const DICT = {
   tr: {
     nav: { posts: "Yazılar", projects: "Projeler", about: "Hakkımda", contact: "İletişim", skip: "İçeriğe geç", main: "Ana menü", footer: "Alt menü" },
-    ui: { language: "Dil", toLight: "Aydınlık moda geç", toDark: "Karanlık moda geç", copy: "Kopyala", copied: "Kopyalandı", copyEmail: "E-posta adresini kopyala" },
+    ui: { language: "Dil", toLight: "Aydınlık moda geç", toDark: "Karanlık moda geç", copy: "Kopyala", copied: "Kopyalandı", copyEmail: "E-posta adresini kopyala", readMore: "Devamını oku" },
     hero: {
       role: ROLE,
       latest: "Yeni yazı",
@@ -43,6 +43,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — Yazılar", title: "Son yazılar", all: "Tümü", empty: "İlk yazılar çok yakında burada.", min: "{n} dk", minLong: "{n} dk okuma", featured: "Öne çıkan" },
     projects: { kicker: "03 — Projeler", title: "Seçilmiş çalışmalar", showAll: "Tüm projeleri göster ({n})", showLess: "Daha az göster" },
+    stats: { label: "Rakamlarla", projects: "Proje", posts: "Blog yazısı", datathon: "Trendyol Datathon F1 skoru", hackathon: "TUA Astro Hackathon'da 19 ekip arasında", rank: "{n}." },
     about: {
       kicker: "04 — Hakkımda",
       body: "Yapay zekayı uçtan uca ürünlere dönüştüren bir geliştiriciyim. Büyük dil modeli entegrasyonlarından çok ajanlı otomasyonlara, ölçeklenebilir backend mimarilerinden kullanıcı arayüzlerine kadar ürünün tamamında çalışıyorum. VizioWise'da sanayi için kurumsal yapay zeka platformu Morf üzerinde çalışıyorum: viziowise.com'u ben geliştirdim; ürün geliştirmenin yanında reklamdan satışa ve müşteri görüşmelerine kadar bir girişimin ihtiyaç duyduğu her alanda yer alıyorum, reklam süreçlerinin tamamı benim sorumluluğumda. TÜBİTAK 2209-A kapsamında derin öğrenme araştırması yürüttüm; Trendyol Datathon ve bir uzay hackathonunda yarıştım.",
@@ -66,7 +67,7 @@ export const DICT = {
 
   en: {
     nav: { posts: "Writing", projects: "Projects", about: "About", contact: "Contact", skip: "Skip to content", main: "Main menu", footer: "Footer menu" },
-    ui: { language: "Language", toLight: "Switch to light mode", toDark: "Switch to dark mode", copy: "Copy", copied: "Copied", copyEmail: "Copy email address" },
+    ui: { language: "Language", toLight: "Switch to light mode", toDark: "Switch to dark mode", copy: "Copy", copied: "Copied", copyEmail: "Copy email address", readMore: "Read more" },
     hero: {
       role: ROLE,
       latest: "New post",
@@ -89,6 +90,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — Writing", title: "Latest writing", all: "All", empty: "The first articles are coming soon.", min: "{n} min", minLong: "{n} min read", featured: "Featured" },
     projects: { kicker: "03 — Projects", title: "Selected work", showAll: "Show all projects ({n})", showLess: "Show less" },
+    stats: { label: "At a glance", projects: "Projects", posts: "Articles", datathon: "Trendyol Datathon F1 score", hackathon: "Place among 19 teams at TUA Astro Hackathon", rank: "{n}th" },
     about: {
       kicker: "04 — About",
       body: "I'm a developer who turns AI into end-to-end products. I work across the whole product, from large language model integrations to multi-agent automation and from scalable backend architectures to user interfaces. At VizioWise I work on Morf, an enterprise AI platform for industry: I built viziowise.com, and beyond product development I take part in everything a startup needs, from advertising to sales and customer meetings; all advertising is under my responsibility. I conducted deep learning research under TÜBİTAK 2209-A and competed in the Trendyol Datathon and a space hackathon.",
@@ -112,7 +114,7 @@ export const DICT = {
 
   de: {
     nav: { posts: "Beiträge", projects: "Projekte", about: "Über mich", contact: "Kontakt", skip: "Zum Inhalt springen", main: "Hauptmenü", footer: "Fußzeilenmenü" },
-    ui: { language: "Sprache", toLight: "Zum hellen Modus wechseln", toDark: "Zum dunklen Modus wechseln", copy: "Kopieren", copied: "Kopiert", copyEmail: "E-Mail-Adresse kopieren" },
+    ui: { language: "Sprache", toLight: "Zum hellen Modus wechseln", toDark: "Zum dunklen Modus wechseln", copy: "Kopieren", copied: "Kopiert", copyEmail: "E-Mail-Adresse kopieren", readMore: "Weiterlesen" },
     hero: {
       role: ROLE,
       latest: "Neuer Beitrag",
@@ -135,6 +137,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — Beiträge", title: "Neueste Beiträge", all: "Alle", empty: "Die ersten Beiträge erscheinen bald.", min: "{n} Min.", minLong: "{n} Min. Lesezeit", featured: "Empfohlen" },
     projects: { kicker: "03 — Projekte", title: "Ausgewählte Arbeiten", showAll: "Alle Projekte anzeigen ({n})", showLess: "Weniger anzeigen" },
+    stats: { label: "In Zahlen", projects: "Projekte", posts: "Artikel", datathon: "F1-Score beim Trendyol Datathon", hackathon: "Platz unter 19 Teams beim TUA Astro Hackathon", rank: "{n}." },
     about: {
       kicker: "04 — Über mich",
       body: "Ich bin ein Entwickler, der KI in durchgängige Produkte verwandelt. Ich arbeite am gesamten Produkt – von der Integration großer Sprachmodelle über Multi-Agenten-Automatisierung bis zu skalierbaren Backend-Architekturen und Benutzeroberflächen. Bei VizioWise arbeite ich an Morf, einer KI-Plattform für die Industrie: Ich habe viziowise.com entwickelt und bin neben der Produktentwicklung überall im Einsatz, wo ein Start-up mich braucht – von Werbung über Vertrieb bis zu Kundengesprächen; die gesamte Werbung liegt in meiner Verantwortung. Im Rahmen von TÜBİTAK 2209-A habe ich zu Deep Learning geforscht und am Trendyol Datathon sowie an einem Weltraum-Hackathon teilgenommen.",
@@ -158,7 +161,7 @@ export const DICT = {
 
   fr: {
     nav: { posts: "Articles", projects: "Projets", about: "À propos", contact: "Contact", skip: "Aller au contenu", main: "Menu principal", footer: "Menu de pied de page" },
-    ui: { language: "Langue", toLight: "Passer en mode clair", toDark: "Passer en mode sombre", copy: "Copier", copied: "Copié", copyEmail: "Copier l'adresse e-mail" },
+    ui: { language: "Langue", toLight: "Passer en mode clair", toDark: "Passer en mode sombre", copy: "Copier", copied: "Copié", copyEmail: "Copier l'adresse e-mail", readMore: "Lire la suite" },
     hero: {
       role: ROLE,
       latest: "Nouvel article",
@@ -181,6 +184,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — Articles", title: "Derniers articles", all: "Tous", empty: "Les premiers articles arrivent bientôt.", min: "{n} min", minLong: "{n} min de lecture", featured: "À la une" },
     projects: { kicker: "03 — Projets", title: "Travaux choisis", showAll: "Voir tous les projets ({n})", showLess: "Voir moins" },
+    stats: { label: "En chiffres", projects: "Projets", posts: "Articles", datathon: "Score F1 au Trendyol Datathon", hackathon: "Place sur 19 équipes au TUA Astro Hackathon", rank: "{n}e" },
     about: {
       kicker: "04 — À propos",
       body: "Je suis un développeur qui transforme l'IA en produits complets. Je travaille sur l'ensemble du produit, de l'intégration de grands modèles de langage à l'automatisation multi-agents, des architectures backend évolutives aux interfaces utilisateur. Chez VizioWise, je travaille sur Morf, une plateforme d'IA d'entreprise pour l'industrie : j'ai développé viziowise.com et, au-delà du produit, j'interviens partout où une start-up en a besoin, de la publicité aux ventes et aux rendez-vous clients ; toute la publicité est sous ma responsabilité. J'ai mené une recherche en deep learning dans le cadre de TÜBİTAK 2209-A et participé au Trendyol Datathon et à un hackathon spatial.",
@@ -204,7 +208,7 @@ export const DICT = {
 
   es: {
     nav: { posts: "Artículos", projects: "Proyectos", about: "Sobre mí", contact: "Contacto", skip: "Saltar al contenido", main: "Menú principal", footer: "Menú del pie" },
-    ui: { language: "Idioma", toLight: "Cambiar a modo claro", toDark: "Cambiar a modo oscuro", copy: "Copiar", copied: "Copiado", copyEmail: "Copiar correo electrónico" },
+    ui: { language: "Idioma", toLight: "Cambiar a modo claro", toDark: "Cambiar a modo oscuro", copy: "Copiar", copied: "Copiado", copyEmail: "Copiar correo electrónico", readMore: "Leer más" },
     hero: {
       role: ROLE,
       latest: "Nuevo artículo",
@@ -227,6 +231,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — Artículos", title: "Últimos artículos", all: "Todos", empty: "Los primeros artículos llegarán pronto.", min: "{n} min", minLong: "{n} min de lectura", featured: "Destacado" },
     projects: { kicker: "03 — Proyectos", title: "Trabajos seleccionados", showAll: "Ver todos los proyectos ({n})", showLess: "Ver menos" },
+    stats: { label: "En cifras", projects: "Proyectos", posts: "Artículos", datathon: "Puntuación F1 en el Trendyol Datathon", hackathon: "Puesto entre 19 equipos en el TUA Astro Hackathon", rank: "{n}.º" },
     about: {
       kicker: "04 — Sobre mí",
       body: "Soy un desarrollador que convierte la IA en productos completos. Trabajo en todo el producto, desde la integración de grandes modelos de lenguaje hasta la automatización multiagente, y desde arquitecturas backend escalables hasta interfaces de usuario. En VizioWise trabajo en Morf, una plataforma de IA empresarial para la industria: desarrollé viziowise.com y, además del producto, participo en todo lo que necesita una startup, desde la publicidad hasta las ventas y las reuniones con clientes; toda la publicidad está bajo mi responsabilidad. Realicé una investigación en deep learning en el marco de TÜBİTAK 2209-A y competí en el Trendyol Datathon y en un hackathon espacial.",
@@ -250,7 +255,7 @@ export const DICT = {
 
   it: {
     nav: { posts: "Articoli", projects: "Progetti", about: "Chi sono", contact: "Contatti", skip: "Vai al contenuto", main: "Menu principale", footer: "Menu a piè di pagina" },
-    ui: { language: "Lingua", toLight: "Passa alla modalità chiara", toDark: "Passa alla modalità scura", copy: "Copia", copied: "Copiato", copyEmail: "Copia indirizzo e-mail" },
+    ui: { language: "Lingua", toLight: "Passa alla modalità chiara", toDark: "Passa alla modalità scura", copy: "Copia", copied: "Copiato", copyEmail: "Copia indirizzo e-mail", readMore: "Leggi di più" },
     hero: {
       role: ROLE,
       latest: "Nuovo articolo",
@@ -273,6 +278,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — Articoli", title: "Ultimi articoli", all: "Tutti", empty: "I primi articoli arriveranno presto.", min: "{n} min", minLong: "{n} min di lettura", featured: "In evidenza" },
     projects: { kicker: "03 — Progetti", title: "Lavori selezionati", showAll: "Mostra tutti i progetti ({n})", showLess: "Mostra meno" },
+    stats: { label: "In cifre", projects: "Progetti", posts: "Articoli", datathon: "Punteggio F1 al Trendyol Datathon", hackathon: "Posto su 19 squadre al TUA Astro Hackathon", rank: "{n}º" },
     about: {
       kicker: "04 — Chi sono",
       body: "Sono uno sviluppatore che trasforma l'IA in prodotti completi. Lavoro sull'intero prodotto, dall'integrazione di modelli linguistici di grandi dimensioni all'automazione multi-agente, dalle architetture backend scalabili alle interfacce utente. In VizioWise lavoro a Morf, una piattaforma di IA aziendale per l'industria: ho sviluppato viziowise.com e, oltre al prodotto, mi occupo di tutto ciò di cui una startup ha bisogno, dalla pubblicità alle vendite e agli incontri con i clienti; tutta la pubblicità è sotto la mia responsabilità. Ho condotto una ricerca sul deep learning nell'ambito di TÜBİTAK 2209-A e ho partecipato al Trendyol Datathon e a un hackathon spaziale.",
@@ -296,7 +302,7 @@ export const DICT = {
 
   pt: {
     nav: { posts: "Artigos", projects: "Projetos", about: "Sobre", contact: "Contato", skip: "Pular para o conteúdo", main: "Menu principal", footer: "Menu do rodapé" },
-    ui: { language: "Idioma", toLight: "Mudar para o modo claro", toDark: "Mudar para o modo escuro", copy: "Copiar", copied: "Copiado", copyEmail: "Copiar endereço de e-mail" },
+    ui: { language: "Idioma", toLight: "Mudar para o modo claro", toDark: "Mudar para o modo escuro", copy: "Copiar", copied: "Copiado", copyEmail: "Copiar endereço de e-mail", readMore: "Ler mais" },
     hero: {
       role: ROLE,
       latest: "Novo artigo",
@@ -319,6 +325,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — Artigos", title: "Artigos recentes", all: "Todos", empty: "Os primeiros artigos chegam em breve.", min: "{n} min", minLong: "{n} min de leitura", featured: "Destaque" },
     projects: { kicker: "03 — Projetos", title: "Trabalhos selecionados", showAll: "Ver todos os projetos ({n})", showLess: "Ver menos" },
+    stats: { label: "Em números", projects: "Projetos", posts: "Artigos", datathon: "Pontuação F1 no Trendyol Datathon", hackathon: "Lugar entre 19 equipes no TUA Astro Hackathon", rank: "{n}º" },
     about: {
       kicker: "04 — Sobre",
       body: "Sou um desenvolvedor que transforma IA em produtos completos. Trabalho no produto inteiro, da integração de grandes modelos de linguagem à automação multiagente, de arquiteturas de backend escaláveis a interfaces de usuário. Na VizioWise, trabalho no Morf, uma plataforma de IA corporativa para a indústria: desenvolvi o viziowise.com e, além do produto, atuo em tudo o que uma startup precisa, da publicidade às vendas e reuniões com clientes; toda a publicidade está sob minha responsabilidade. Conduzi uma pesquisa em deep learning no âmbito do TÜBİTAK 2209-A e participei do Trendyol Datathon e de um hackathon espacial.",
@@ -342,7 +349,7 @@ export const DICT = {
 
   ru: {
     nav: { posts: "Статьи", projects: "Проекты", about: "Обо мне", contact: "Контакты", skip: "Перейти к содержанию", main: "Главное меню", footer: "Меню в подвале" },
-    ui: { language: "Язык", toLight: "Включить светлую тему", toDark: "Включить тёмную тему", copy: "Копировать", copied: "Скопировано", copyEmail: "Скопировать адрес почты" },
+    ui: { language: "Язык", toLight: "Включить светлую тему", toDark: "Включить тёмную тему", copy: "Копировать", copied: "Скопировано", copyEmail: "Скопировать адрес почты", readMore: "Читать далее" },
     hero: {
       role: ROLE,
       latest: "Новая статья",
@@ -365,6 +372,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — Статьи", title: "Свежие статьи", all: "Все", empty: "Первые статьи скоро появятся.", min: "{n} мин", minLong: "{n} мин чтения", featured: "Главное" },
     projects: { kicker: "03 — Проекты", title: "Избранные работы", showAll: "Показать все проекты ({n})", showLess: "Свернуть" },
+    stats: { label: "В цифрах", projects: "Проектов", posts: "Статей", datathon: "F1 на Trendyol Datathon", hackathon: "Место из 19 команд на TUA Astro Hackathon", rank: "{n}-е" },
     about: {
       kicker: "04 — Обо мне",
       body: "Я разработчик, который превращает ИИ в законченные продукты. Работаю над продуктом целиком: от интеграции больших языковых моделей до мультиагентной автоматизации, от масштабируемой серверной архитектуры до пользовательских интерфейсов. В VizioWise я работаю над Morf — корпоративной ИИ-платформой для промышленности: я создал сайт viziowise.com и, помимо продукта, участвую во всём, что нужно стартапу, — от рекламы до продаж и встреч с клиентами; вся реклама находится под моей ответственностью. В рамках TÜBİTAK 2209-A вёл исследование в области глубокого обучения, участвовал в Trendyol Datathon и космическом хакатоне.",
@@ -388,7 +396,7 @@ export const DICT = {
 
   zh: {
     nav: { posts: "文章", projects: "项目", about: "关于我", contact: "联系", skip: "跳到正文", main: "主菜单", footer: "页脚菜单" },
-    ui: { language: "语言", toLight: "切换到浅色模式", toDark: "切换到深色模式", copy: "复制", copied: "已复制", copyEmail: "复制邮箱地址" },
+    ui: { language: "语言", toLight: "切换到浅色模式", toDark: "切换到深色模式", copy: "复制", copied: "已复制", copyEmail: "复制邮箱地址", readMore: "阅读更多" },
     hero: {
       role: ROLE,
       latest: "新文章",
@@ -411,6 +419,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — 文章", title: "最新文章", all: "全部", empty: "第一批文章即将上线。", min: "{n} 分钟", minLong: "阅读约 {n} 分钟", featured: "精选" },
     projects: { kicker: "03 — 项目", title: "精选作品", showAll: "显示全部项目（{n}）", showLess: "收起" },
+    stats: { label: "数据一览", projects: "个项目", posts: "篇文章", datathon: "Trendyol Datathon F1 分数", hackathon: "TUA Astro 黑客松 19 支队伍中的排名", rank: "第{n}" },
     about: {
       kicker: "04 — 关于我",
       body: "我是一名把 AI 变成完整产品的开发者。我参与产品的每个环节：从大语言模型集成到多智能体自动化，从可扩展的后端架构到用户界面。在 VizioWise，我参与面向工业的企业级 AI 平台 Morf：viziowise.com 由我开发；除了产品开发，我还承担初创公司所需的各项工作，从广告到销售和客户沟通，所有广告工作都由我负责。我在 TÜBİTAK 2209-A 项目中开展了深度学习研究，并参加了 Trendyol Datathon 和一场太空主题黑客松。",
@@ -434,7 +443,7 @@ export const DICT = {
 
   ja: {
     nav: { posts: "記事", projects: "プロジェクト", about: "自己紹介", contact: "お問い合わせ", skip: "本文へスキップ", main: "メインメニュー", footer: "フッターメニュー" },
-    ui: { language: "言語", toLight: "ライトモードに切り替え", toDark: "ダークモードに切り替え", copy: "コピー", copied: "コピーしました", copyEmail: "メールアドレスをコピー" },
+    ui: { language: "言語", toLight: "ライトモードに切り替え", toDark: "ダークモードに切り替え", copy: "コピー", copied: "コピーしました", copyEmail: "メールアドレスをコピー", readMore: "続きを読む" },
     hero: {
       role: ROLE,
       latest: "新着記事",
@@ -457,6 +466,7 @@ export const DICT = {
     },
     posts: { kicker: "02 — 記事", title: "最新の記事", all: "すべて", empty: "最初の記事はまもなく公開されます。", min: "{n} 分", minLong: "{n} 分で読めます", featured: "注目" },
     projects: { kicker: "03 — プロジェクト", title: "主な実績", showAll: "すべてのプロジェクトを表示（{n}）", showLess: "閉じる" },
+    stats: { label: "数字で見る", projects: "プロジェクト", posts: "記事", datathon: "Trendyol Datathon F1スコア", hackathon: "TUA Astro ハッカソン 19チーム中の順位", rank: "{n}位" },
     about: {
       kicker: "04 — 自己紹介",
       body: "AI をエンドツーエンドのプロダクトに変える開発者です。大規模言語モデルの統合からマルチエージェントの自動化、スケーラブルなバックエンド設計からユーザーインターフェースまで、プロダクト全体に携わっています。VizioWise では産業向けのエンタープライズ AI プラットフォーム Morf に取り組んでおり、viziowise.com を開発しました。プロダクト開発に加え、広告から営業、顧客との打ち合わせまでスタートアップに必要なあらゆる領域を担い、広告はすべて私の担当です。TÜBİTAK 2209-A ではディープラーニングの研究を行い、Trendyol Datathon や宇宙ハッカソンにも参加しました。",

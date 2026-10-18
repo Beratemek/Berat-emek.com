@@ -11,6 +11,12 @@ export function PostList({ posts }) {
       {posts.map((p) => (
         <li key={p.id || p.slug} className="post-item">
           <Link to={postPath(p)}>
+            {/* Küçük kapak yalnızca telefonda görünür; liste metin yığını gibi durmasın */}
+            {p.cover ? (
+              <div className="post-thumb cover-img" style={{ backgroundImage: `url(${p.cover})`, backgroundPosition: p.cover_position || 'center' }} />
+            ) : (
+              <GenCover className="post-thumb" seed={p.slug || p.title} />
+            )}
             <time className="post-date" dateTime={p.created_at}>
               {fmtDate(p.created_at, 'short', locale)}
             </time>
@@ -32,6 +38,30 @@ export function PostList({ posts }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+/** Kapaklı küçük yazı kartı (ana sayfa): metin değil görsel ağırlıklı. */
+export function PostCard({ post }) {
+  const { t, locale } = useI18n()
+  return (
+    <Link to={postPath(post)} className="post-card">
+      {post.cover ? (
+        <div
+          className="post-card-media cover-img"
+          style={{ backgroundImage: `url(${post.cover})`, backgroundPosition: post.cover_position || 'center' }}
+        />
+      ) : (
+        <GenCover className="post-card-media" seed={post.slug || post.title} word={coverWord(post)} />
+      )}
+      <div className="post-card-body">
+        <div className="post-card-meta">
+          <time dateTime={post.created_at}>{fmtDate(post.created_at, 'short', locale)}</time>
+          <span>· {t('posts.min', { n: readMinutes(post.content) })}</span>
+        </div>
+        <h3 className="post-card-title">{post.title}</h3>
+      </div>
+    </Link>
   )
 }
 
