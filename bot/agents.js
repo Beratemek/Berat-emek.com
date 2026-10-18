@@ -174,7 +174,7 @@ export async function writeDraft(cluster, v) {
     label: 'yazar',
     model: WRITER_MODEL,
     temperature: 0.6,
-    maxTokens: 6000,
+    maxTokens: 10000,
     system: `${PERSONA}
 
 Görevin: doğrulanmış bilgilerden kısa bir LinkedIn gönderisi ve bir blog yazısı taslağı hazırlamak.
@@ -202,7 +202,10 @@ LinkedIn gönderisi (blog yazısına yönlendiren kısa giriş):
 - Kaynaklar listesini yazma; sistem ekleyecek.
 - blocks içindeki type yalnızca: p, h2, h3, ul, quote, code. Vurgu için **kalın** kullanabilirsin.
 
-Çıktı: {"linkedin":"...","blog":{"title":"...","excerpt":"...","tags":["..."],"blocks":[{"type":"p","text":"..."},{"type":"h2","text":"..."},{"type":"ul","items":["..."]},{"type":"code","text":"npx ..."}]}}
+Kapak görseli fikri (image_prompt): yazının konusunu anlatan, renkli ve somut bir görsel metafor; İNGİLİZCE, 1-2 cümle.
+Ne görüneceğini tarif et (nesneler, sahne, hareket). Marka logosu, yazı, rakam, ekran metni İSTEME; gerçek kişi çizdirme.
+
+Çıktı: {"linkedin":"...","image_prompt":"...","blog":{"title":"...","excerpt":"...","tags":["..."],"blocks":[{"type":"p","text":"..."},{"type":"h2","text":"..."},{"type":"ul","items":["..."]},{"type":"code","text":"npx ..."}]}}
 ${JSON_ONLY}`,
     user: factSheet(cluster, v),
   })
@@ -220,7 +223,7 @@ export async function checkDraft(cluster, v, draft) {
   try {
     const out = await askJSON({
       label: 'kontrolcü',
-      maxTokens: 6000,
+      maxTokens: 12000,
       system: `Sen yayın öncesi kontrol editörüsün. Sana doğrulanmış bilgi listesi ve bir LinkedIn gönderisi + blog yazısı taslağı veriliyor.
 Görevin:
 1. Taslakta doğrulanmış bilgilerde OLMAYAN her iddiayı bul (sayı, tarih, isim, özellik, komut, karşılaştırma).

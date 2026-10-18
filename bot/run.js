@@ -11,7 +11,8 @@ import { clusterNews, scoreClusters, verifyCandidate, writeDraft, checkDraft, de
 import { getUsage } from './llm.js'
 import { blocksToDoc, slugify } from './tiptap.js'
 import { hasDb, recentBriefs, insertDraftPost, upsertBrief, uploadCover } from './db.js'
-import { renderCover } from './cover.js'
+import { renderCover, compressImage } from './cover.js'
+import { generateIllustration, imageCost } from './image.js'
 
 const envFile = fileURLToPath(new URL('./.env', import.meta.url))
 if (existsSync(envFile)) process.loadEnvFile(envFile)
@@ -48,19 +49,32 @@ function sourceList(cluster) {
     .slice(0, 4)
 }
 
-async function save(brief, draftPost) {
-  // Kapak görseli: blog kapağı, bağlantı önizlemesi ve LinkedIn kart görseli olarak kullanılır
-  let coverPng = null
-  if (draftPost) {
-    coverPng = renderCover({ title: draftPost.title, kicker: 'Yapay zeka gündemi', date: dateShort })
-    log(coverPng ? '🖼️  Kapak görseli üretildi' : '🖼️  Kapak üretilemedi (Chrome bulunamadı); kapaksız devam ediliyor')
+async function save(brief, draftPost, imagePrompt) {
+  // Kapak görseli: önce konuya özel renkli illüstrasyon; olmazsa markalı kahverengi kapak.
+  // Blog kapağı, bağlantı önizlemesi ve LinkedIn kart görseli olarak kullanılır.
+  let cover = null // { buf, type, ext }
+  if (draftPost && imagePrompt) {
+    try {
+      const png = await generateIllustration(imagePrompt)
+      const webp = compressImage(png)
+      cover = webp ? { buf: webp, type: 'image/webp', ext: 'webp' } : { buf: png, type: 'image/png', ext: 'png' }
+      log(`🎨 Konuya özel görsel üretildi (${Math.round(cover.buf.length / 1024)} KB, ${imageCost()})`)
+    } catch (e) {
+      log(`   ! Görsel üretilemedi, markalı kapağa geçiliyor: ${e.message}`)
+    }
   }
+  if (draftPost && !cover) {
+    const png = renderCover({ title: draftPost.title, kicker: 'Yapay zeka gündemi', date: dateShort })
+    if (png) cover = { buf: png, type: 'image/png', ext: 'png' }
+    log(png ? '🖼️  Markalı kapak üretildi' : '🖼️  Kapak üretilemedi (Chrome bulunamadı); kapaksız devam ediliyor')
+  }
+  const coverPng = cover?.buf
   if (DRY || !hasDb()) {
     const dir = fileURLToPath(new URL('./out/', import.meta.url))
     mkdirSync(dir, { recursive: true })
     const file = `${dir}${briefDate}.json`
     writeFileSync(file, JSON.stringify({ brief, draftPost }, null, 2))
-    if (coverPng) writeFileSync(`${dir}${briefDate}.png`, coverPng)
+    if (cover) writeFileSync(`${dir}${briefDate}.${cover.ext}`, cover.buf)
     log(`\n💾 Supabase'e yazılmadı (${DRY ? '--dry' : 'anahtar yok'}). Sonuç: ${file}`)
     if (brief.linkedin_text) log(`\n--- LinkedIn taslağı ---\n${brief.linkedin_text}\n\n${brief.linkedin_comment}`)
     return
@@ -68,7 +82,7 @@ async function save(brief, draftPost) {
   if (draftPost) {
     if (coverPng) {
       try {
-        draftPost.cover = await uploadCover(`bot/${briefDate}-${draftPost.slug}.png`, coverPng)
+        draftPost.cover = await uploadCover(`bot/${briefDate}-${draftPost.slug}.${cover.ext}`, cover.buf, cover.type)
         draftPost.cover_position = '50% 50%'
       } catch (e) {
         log(`   ! ${e.message}`)
@@ -224,7 +238,7 @@ async function main() {
         }
       : null
 
-  await save(brief, draftPost)
+  await save(brief, draftPost, draft.image_prompt)
 
   const u = getUsage()
   const LABEL = { kesin: '🔥 BUGÜN KESİN PAYLAŞ', onerilir: '✅ BUGÜN PAYLAŞ', 'istege-bagli': '🟡 İSTERSEN PAYLAŞ', 'gerek-yok': '⏸️  BUGÜN PAYLAŞMA' }

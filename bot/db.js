@@ -32,9 +32,9 @@ export async function rest(path, { method = 'GET', body, prefer } = {}) {
 }
 
 /** Kapak görselini sitenin depolama alanına (covers) yükler, herkese açık adresini döndürür. */
-export async function uploadCover(path, buffer) {
+export async function uploadCover(path, buffer, contentType = 'image/png') {
   const { url, key } = config()
-  const headers = { apikey: key, 'Content-Type': 'image/png', 'x-upsert': 'true', 'Cache-Control': 'max-age=31536000' }
+  const headers = { apikey: key, 'Content-Type': contentType, 'x-upsert': 'true', 'Cache-Control': 'max-age=31536000' }
   if (key.startsWith('eyJ')) headers.Authorization = `Bearer ${key}`
   const res = await fetch(`${url}/storage/v1/object/covers/${path}`, { method: 'POST', headers, body: buffer, signal: AbortSignal.timeout(30_000) })
   if (!res.ok) throw new Error(`Kapak yüklenemedi (${res.status}): ${(await res.text()).slice(0, 200)}`)
