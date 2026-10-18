@@ -2,7 +2,7 @@
 // Her ajan tek bir model çağrısıdır; günde toplam ~7-8 çağrı.
 import { askJSON } from './llm.js'
 import { fetchText, mainText } from './collect.js'
-import { PERSONA, FOCUS, WRITER_MODEL, CONTENT_RULES, GOLD_LINKEDIN } from './config.js'
+import { PERSONA, FOCUS, WRITER_MODEL, CONTENT_RULES, PLAIN_LANGUAGE, GOLD_LINKEDIN } from './config.js'
 
 const JSON_ONLY = 'Yalnızca geçerli JSON döndür; JSON dışında hiçbir şey yazma.'
 
@@ -182,31 +182,34 @@ export async function writeDraft(cluster, v) {
 
 ${CONTENT_RULES}
 
+${PLAIN_LANGUAGE}
+
 Görevin: doğrulanmış bilgilerden kısa bir LinkedIn gönderisi ve bir blog yazısı taslağı hazırlamak.
 Kesin kurallar:
 - YALNIZCA verilen bilgileri kullan. Listede olmayan sayı, tarih, isim, özellik, komut UYDURMA.
 - Doğrulanmamış bir iddiadan bahsedeceksen açıkça "henüz doğrulanmadı" de.
-- Türkçe yaz; yerleşik İngilizce terimleri (model, agent, MCP, open-source, prompt) koruyabilirsin.
 - "Devrim", "her şey değişti", "oyunun kuralları" gibi abartılı kalıplar yok.
 
-Berat haber muhabiri DEĞİL. Amaç: güncel bir gelişmenin ayrıntılarını Berat'ın blog yazısında toplamak ve
+Berat haber muhabiri DEĞİL. Amaç: güncel bir gelişmeyi Berat'ın blog yazısında sade bir dille anlatmak ve
 LinkedIn'de kısa bir yorumla bu yazıya yönlendirmek. Asıl iş blog yazısıdır.
 
-Blog yazısı (ana ürün, Berat'ın ağzından, sade ve profesyonel):
-- 500-900 kelime. Bölümler: giriş paragrafı (ne oldu, kime ne ifade ediyor), "Ne oldu?", "Neden önemli?",
-  "Nasıl denenir?" (yalnızca adım verildiyse; komutları "code" bloğuyla yaz), "Henüz bilinmeyenler" (doğrulanmamış iddia yoksa atla), "Benim yorumum".
-- Bülten dili değil: okuyan bir geliştirici yazının sonunda konuyu anlamış ve ne yapacağını biliyor olmalı.
+Blog yazısı (ana ürün, Berat'ın ağzından, sade ve anlaşılır):
+- 400-700 kelime. İlk blok "**Kısaca:**" ile başlayan 2-3 cümlelik paragraf (ne oldu, okura neden önemli).
+  Bölümler: "Ne oldu?", konunun anahtar kavramı varsa onu açıklayan kısa bir bölüm (ör. "Açık kaynak ne demek?"), "Neden önemli?",
+  "Nasıl denenir?" (yalnızca adım verildiyse; okurun gerçekten yazacağı komutları "code" bloğuyla ver, önüne ne işe yaradığını söyleyen bir cümle koy),
+  "Dikkat" (doğrulanmamış iddialar ve riskler; yoksa atla), "Benim yorumum".
+- Teknik bilgisi olmayan bir okur yazının sonunda konuyu anlamış, yazılımcı da nasıl deneyeceğini biliyor olmalı.
 
 LinkedIn gönderisi (blog yazısına yönlendiren kısa giriş):
-- 60-130 kelime, kısa paragraflar. İlk iki satır gelişmeyi ve geliştirici için anlamını tek cümlede söylesin (LinkedIn "devamını gör"den önce yalnızca ilk 2 satırı gösterir).
+- 60-130 kelime, kısa paragraflar. İlk iki satır gelişmeyi ve okur için anlamını söylesin (LinkedIn "devamını gör"den önce yalnızca ilk 2 satırı gösterir).
 - En çarpıcı 2-3 somut nokta (• ile başlayan satırlar; varsa sayılarla).
-- İlk cümle en çarpıcı somut bilgiyle açılsın (rakam, ölçek, bir ilk: "320 bin yıldız, 240 bini son bir haftada" gibi); ürün ya da repo adıyla açma.
-- Maddeler geniş kitlenin anlayacağı etkiler olsun: ne yapıyor, nasıl denenir, kimi etkiliyor. Sürüm numarası, ortam değişkeni,
+- İlk cümle en çarpıcı somut bilgiyle açılsın (rakam, ölçek, bir ilk: "bir haftada 240 bin yıldız" gibi); ürün ya da repo adıyla açma.
+- Maddeler herkesin anlayacağı etkiler olsun: ne yapıyor, kimin işine yarıyor, nasıl denenir. Sürüm numarası, ortam değişkeni,
   platform ve sürüm gereksinimi gibi ayrıntıları blog yazısına bırak.
 - "Benim yorumum" net bir görüş olsun (neyi değiştiriyor, kimin için ne anlama geliyor); "doğrulanmadı" gibi çekingen uyarıları
   yorumun yerine koyma. Hashtag'lerden biri #YapayZeka olsun.
 - 1-2 cümlelik "Benim yorumum:".
-- Son satır tam olarak: "Detayları, nasıl deneneceğini ve kaynakları yazımda topladım:" (yazının bağlantısı paylaşırken otomatik eklenecek).
+- Hashtag'lerden önceki satır yazıya yönlendiren tek cümle ve ":" ile biter (ör. "Detayları yazımda sade bir dille anlattım:"); yazının bağlantısı paylaşırken otomatik eklenecek.
 - Haber bülteni dili ("Ne oldu?" başlığı, ajans dili) kullanma; soru cümlesiyle bitirme. En sonda 3-4 hashtag. Gövdede link verme. En fazla 1 emoji.
 - Örnek (ton ve yapı için; kalıbı ve cümleleri kopyalama, kendi konuna göre yaz):
 ---
@@ -244,7 +247,7 @@ Görevin:
 2. Abartılı veya yanıltıcı ifadeleri bul.
 3. Uydurma kişisel deneyim ifadelerini bul ("denedim", "kullandım" gibi).
    ÖNEMLİ: "Benim yorumum" kısmı Berat'ın GÖRÜŞÜDÜR; görüş, değerlendirme ve öneri cümleleri ("…için değerlendirilmeli", "kendi görevlerinizde test edin") doğrulanmış bilgide geçmek zorunda değildir ve sorun sayılmaz. Yalnızca bu kısımda yeni bir OLGU (sayı, tarih, özellik, kıyas sonucu) uydurulmuşsa sorun say.
-4. Türkçe dil ve anlatım hatalarını bul.
+4. Türkçe dil ve anlatım hatalarını bul; açıklanmamış teknik terimleri ve uzun, ağır cümleleri de bul (okur teknik bilgisi olmayan biri) ve düzeltilmiş metinde sadeleştir.
 5. LinkedIn metnini bu sorunlardan arındırılmış haliyle döndür (sorun yoksa aynen). Uzunluğu ve yapıyı koru. Doğrulanmamış iddiayı silmek ya da "kaynağa göre" diye yumuşatmak çoğu zaman yeterlidir.
 6. Blog bloklarını düzeltilmiş haliyle eksiksiz döndür (aynı blok yapısı).
 Her sorun için döndürdüğün düzeltilmiş metinde o sorunu giderdiysen "fixed": true, gideremediysen (ör. konunun kendisi doğrulanamıyor) "fixed": false yaz.
@@ -504,12 +507,14 @@ export async function reviseDraft({ cluster, v, linkedin, blog, instruction, tar
 
 ${CONTENT_RULES}
 
+${PLAIN_LANGUAGE}
+
 Görevin: Berat'ın talimatına göre mevcut taslağı düzeltmek.
 Kurallar:
 - Talimatın istediğini yap; istemediği yerleri koru (yapı, bölümler, kaynak bilgisi).
 - Yalnızca aşağıdaki doğrulanmış bilgileri kullan; listede olmayan sayı, tarih, isim, özellik, komut UYDURMA.
 - Berat'ın yaşamadığı bir deneyimi yazma; yorumlar görüş olarak kalsın.
-- LinkedIn metni: talimat aksini söylemiyorsa son satırı ("Detayları, nasıl deneneceğini ve kaynakları yazımda topladım:") ve hashtag'leri koru; 60-130 kelime.
+- LinkedIn metni: talimat aksini söylemiyorsa yazıya yönlendiren son cümleyi (":" ile biter) ve hashtag'leri koru; 60-130 kelime.
 - Blog blocks tipi yalnızca p, h2, h3, ul, quote, code. Vurgu için **kalın** kullanabilirsin. Kaynaklar listesini yazma.
 - Abartılı kalıp ("devrim", "her şey değişti", "oyunun kuralları") yok.
 Çıktı: {${shape}}
@@ -536,10 +541,10 @@ ${factSheet(cluster, v)}${wantLinkedin ? `\n\n--- Mevcut LinkedIn metni ---\n${l
 export const LINKEDIN_RULES = [
   'Açılış: ilk cümle en çarpıcı somut bilgiyle başlıyor (rakam, ölçek, bir ilk); ürün ya da repo adıyla açılmıyor',
   'İlk iki satır: tek başına konuyu söylüyor ve "devamını gör"e bastıracak merakı uyandırıyor',
-  'Maddeler: 2-3 madde, geniş kitlenin anlayacağı etkiler (ne yapıyor, nasıl denenir, kimi etkiliyor); sürüm numarası, ortam değişkeni, platform listesi yok',
+  'Maddeler: 2-3 madde, herkesin anlayacağı etkiler (ne yapıyor, kimin işine yarıyor, nasıl denenir); sürüm numarası, ortam değişkeni, platform listesi yok',
   'Yorum: "Benim yorumum" net, savunulabilir bir görüş; çekingen uyarı yok; uydurma kişisel deneyim yok',
   'Doğruluk: her bilgi doğrulanmış listede var; uydurma sayı, isim, özellik yok',
-  'Dil: akıcı, doğal Türkçe; çeviri kokan cümle, klişe ("devrim", "oyunun kuralları") ve abartı yok',
+  'Dil: sade ve anlaşılır; teknik bilgisi olmayan biri de anlıyor; teknik terim yok ya da kısaca açıklanmış ("açık ağırlıklı" değil "açık kaynak"); kısa cümleler; çeviri kokan cümle, klişe ve abartı yok',
   'Biçim: 80-140 kelime; sondan bir önceki satır yazıya yönlendiren tek cümle (":" ile biter); en sonda #YapayZeka dahil 3-4 hashtag',
 ]
 
@@ -552,6 +557,8 @@ export async function polishLinkedIn({ cluster, v, linkedin, model = WRITER_MODE
     system: `${PERSONA}
 
 ${CONTENT_RULES}
+
+${PLAIN_LANGUAGE}
 
 Sen Berat'ın LinkedIn editörüsün. Berat paylaşırken metne bakmayacak; bu yüzden yayına çıkacak son hâli SEN yazıyorsun.
 Görevin: verilen LinkedIn taslağını aşağıdaki kuralların HER BİRİNE göre tek tek denetlemek, geçmeyen her kuralı düzeltmek ve

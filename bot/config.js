@@ -26,21 +26,31 @@ export const CONTENT_RULES = `İçerik sınırları (kesin):
 - Gizlilik Geçidi (bitirme projesi) hakkında takım onayı olmadan yazı önerme.
 - Kişisel veri (telefon, adres, başkasının e-postası) yok.`
 
-// "İyi bir LinkedIn gönderisi böyle görünür": Berat'la birlikte düzeltilip yayınlanan ilk gönderi.
+// Sade dil: Berat'ın kararı ("yazıları basit ve anlaşılır yazmalıyız"). Okurun gördüğü metni yazan her ajan buna uyar.
+export const PLAIN_LANGUAGE = `Sade dil (kesin): Okur, yapay zekayı merak eden ama teknik bilgisi olmayan biri. Metni okuyunca anlamalı; yazılımcı da sıkılmamalı.
+- Kısa cümleler: çoğu cümle 20 kelimeyi geçmesin. Bir paragraf tek fikir.
+- Teknik terim zorunluysa ilk geçtiği yerde tek cümleyle ya da parantez içinde açıkla; açıklaması metne yük oluyorsa terimi hiç kullanma.
+- Yerleşik Türkçesi olan İngilizce terimi Türkçe yaz ("benchmark" → "test", "deploy" → "yayına almak", "agent" → "yapay zeka asistanı/ajanı" ve ne yaptığını söyle). Ürün, komut ve marka adları aynen kalır.
+- "Açık ağırlıklı" deme; "açık kaynak" de (lisans biliniyorsa ekle: "MIT lisansıyla açık kaynak").
+- Soyut anlatma: gündelik bir benzetme ya da somut bir örnek ver.
+- "Sen" diye hitap et; birinci tekil şahıs, net görüş, sakin ve samimi.
+- Okurun kullanmayacağı ayrıntıları (ortam değişkeni, parametre listesi, sürüm ayrıntısı, saat dilimli tarih) yazma.`
+
+// "İyi bir LinkedIn gönderisi böyle görünür": Berat'la birlikte düzeltilip sadeleştirilen gönderi.
 // Yazar ve LinkedIn editörü bunu ton ve yapı örneği olarak görür; kalıbı birebir kopyalamaz.
-export const GOLD_LINKEDIN = `GitHub'da 320 bin yıldıza ulaşan bir proje var ve bu yıldızların 240 bini son bir haftada geldi: morluto/rea.
+export const GOLD_LINKEDIN = `GitHub'da bir haftada 240 bin yıldız alan bir proje var: REA. Toplam yıldızı 320 bini geçti.
 
-Yaptığı iş net: Claude Code, Codex ya da Cursor gibi bir ajana tersine mühendislik yeteneği veriyor. Bir uygulamanın davranışından yerel ikili dosyalarına kadar inip ne yaptığını kanıtlarıyla çıkarıyor.
+Ne yapıyor? Bir uygulamanın kaynak kodunu görmeden nasıl çalıştığını çözüyor. Buna tersine mühendislik deniyor ve bugüne kadar ciddi uzmanlık isteyen bir işti.
 
-• MCP üzerinden çalışıyor, kurulumu tek komut: npx rea-agents setup
-• Electron uygulamalarından Android APK'lara, .NET derlemelerinden web sitelerine kadar analiz ediyor
-• Analiz yerelde çalışıyor; her sonucun kanıtı ve sınırı raporda yazıyor
+• Claude Code ya da Cursor gibi kod yazan yapay zeka asistanlarına ekleniyor; kurulumu tek komut
+• Bilgisayar programlarını, Android uygulamalarını ve web sitelerini inceleyebiliyor
+• İnceleme senin bilgisayarında yapılıyor; her bulgunun kanıtını da gösteriyor
 
-Benim yorumum: Tersine mühendislik uzmanlık işi olmaktan çıkıp tek bir komuta dönüşüyor. Geliştirici için büyük bir hız; uygulamasını korumak zorunda olan ekipler içinse yeni bir tehdit modeli.
+Benim yorumum: Bir uygulamanın içini görmek artık uzmanlık değil, tek bir soru. Yazılımcı için büyük bir hız; ama uygulamasının içine şifre ya da gizli bilgi koyan şirketler için ciddi bir uyarı.
 
-Nasıl kurulacağını ve sınırlarını yazımda topladım:
+Nasıl kurulacağını ve nelere dikkat etmek gerektiğini yazımda anlattım:
 
-#YapayZeka #MCP #AIAgents #ReverseEngineering`
+#YapayZeka #SiberGüvenlik #AçıkKaynak`
 
 // Bot taslaklarının sonuna eklenen şeffaflık notu (bot ve panelden üretilen içerik aynı notu taşır)
 export const BLOG_NOTE = 'Not: Bu yazının ilk taslağı, kaynakları tarayan yapay zeka destekli haber sistemim tarafından hazırlandı; yayınlamadan önce tarafımdan kontrol edildi.'
