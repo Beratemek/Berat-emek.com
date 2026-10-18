@@ -122,6 +122,9 @@ export default function TodayPage() {
   const usage = latest.stats?.usage
   const editor = latest.stats?.editor
 
+  // Karar kutusu her zaman günün en yüksek puanlı konusunu anlatır (puan ve gerekçe ona ait)
+  const topTopic = [...(latest.topics || [])].filter((t) => t.rating != null).sort((a, b) => b.rating - a.rating)[0]
+
   // Açık içerik sekmesi: seçilmediyse en son oluşturulan içerik
   const contents = dayContents(latest)
   const newest = [...contents].sort((a, b) => String(b.content.created_at || '').localeCompare(String(a.content.created_at || '')))[0]
@@ -153,7 +156,7 @@ export default function TodayPage() {
           {share && latest.best_time && <span className="verdict-time">Önerilen saat: {latest.best_time}</span>}
           <span className={`verdict-status st-${latest.status}`}>{STATUS[latest.status]}</span>
         </div>
-        {latest.headline && <h2 className="verdict-headline">{latest.headline}</h2>}
+        {(topTopic?.topic || latest.headline) && <h2 className="verdict-headline">{topTopic?.topic || latest.headline}</h2>}
         <p className="verdict-reason">{latest.reason}</p>
         {editor?.why?.length > 0 && (
           <div className="verdict-why">
@@ -181,9 +184,16 @@ export default function TodayPage() {
         )}
         {share && latest.status === 'bekliyor' && (
           <div className="verdict-actions">
-            <button className="btn btn-dark" disabled={saving} onClick={() => setStatus(latest, 'paylasildi')}>
-              <CheckCircle2 size={16} /> Paylaştım
-            </button>
+            {contents.length ? (
+              // Birden fazla içerik olabilir: paylaşım ve 'Paylaştım' işareti her içeriğin kendi kartında
+              <button className="btn btn-dark" onClick={() => openContent(currentFocus)}>
+                <CheckCircle2 size={16} /> İçeriklere git
+              </button>
+            ) : (
+              <button className="btn btn-dark" disabled={saving} onClick={() => setStatus(latest, 'paylasildi')}>
+                <CheckCircle2 size={16} /> Paylaştım
+              </button>
+            )}
             <button className="btn btn-secondary" disabled={saving} onClick={() => setStatus(latest, 'atlandi')}>
               <SkipForward size={16} /> Bugün atla
             </button>
