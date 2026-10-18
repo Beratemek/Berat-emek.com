@@ -17,6 +17,13 @@ const ACCENTS = [
 
 // Konu → ikon. Sıra önemli: ilk eşleşen kazanır (ör. "Claude Code'da skill" → terminal değil skill).
 const TOPICS = [
+  // önce projeye özgü konular (etiketlerdeki genel terimlerden önce gelsin)
+  [/haber|news/i, Newspaper],
+  [/kafe|cafe|coffee/i, Coffee],
+  [/tanışma|dating|vault/i, Heart],
+  [/uzay|moon|ay yüzeyi|rover/i, Rocket],
+  [/eğitim sistemi|öğrenci|ölçme/i, GraduationCap],
+  [/datathon|kaggle/i, ChartNoAxesColumn],
   [/\bmcp\b|model context/i, Plug],
   [/\bskill/i, Sparkles],
   [/claude code|codex|cursor|terminal|cli\b/i, SquareTerminal],
@@ -28,9 +35,6 @@ const TOPICS = [
   [/eğitim sistemi|öğrenci|ölçme/i, GraduationCap],
   [/uzay|moon|ay yüzeyi|rover/i, Rocket],
   [/hackathon|yarışma|ödül/i, Trophy],
-  [/haber|news/i, Newspaper],
-  [/kafe|cafe|coffee/i, Coffee],
-  [/tanışma|dating|vault/i, Heart],
   [/e-ticaret|mağaza|shop/i, ShoppingBag],
   [/\b3d\b|three|webxr|artırılmış/i, Box],
   [/mobil|mobile|android|ios/i, Smartphone],
