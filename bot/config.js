@@ -26,6 +26,22 @@ export const CONTENT_RULES = `İçerik sınırları (kesin):
 - Gizlilik Geçidi (bitirme projesi) hakkında takım onayı olmadan yazı önerme.
 - Kişisel veri (telefon, adres, başkasının e-postası) yok.`
 
+// "İyi bir LinkedIn gönderisi böyle görünür": Berat'la birlikte düzeltilip yayınlanan ilk gönderi.
+// Yazar ve LinkedIn editörü bunu ton ve yapı örneği olarak görür; kalıbı birebir kopyalamaz.
+export const GOLD_LINKEDIN = `GitHub'da 320 bin yıldıza ulaşan bir proje var ve bu yıldızların 240 bini son bir haftada geldi: morluto/rea.
+
+Yaptığı iş net: Claude Code, Codex ya da Cursor gibi bir ajana tersine mühendislik yeteneği veriyor. Bir uygulamanın davranışından yerel ikili dosyalarına kadar inip ne yaptığını kanıtlarıyla çıkarıyor.
+
+• MCP üzerinden çalışıyor, kurulumu tek komut: npx rea-agents setup
+• Electron uygulamalarından Android APK'lara, .NET derlemelerinden web sitelerine kadar analiz ediyor
+• Analiz yerelde çalışıyor; her sonucun kanıtı ve sınırı raporda yazıyor
+
+Benim yorumum: Tersine mühendislik uzmanlık işi olmaktan çıkıp tek bir komuta dönüşüyor. Geliştirici için büyük bir hız; uygulamasını korumak zorunda olan ekipler içinse yeni bir tehdit modeli.
+
+Nasıl kurulacağını ve sınırlarını yazımda topladım:
+
+#YapayZeka #MCP #AIAgents #ReverseEngineering`
+
 // Bot taslaklarının sonuna eklenen şeffaflık notu (bot ve panelden üretilen içerik aynı notu taşır)
 export const BLOG_NOTE = 'Not: Bu yazının ilk taslağı, kaynakları tarayan yapay zeka destekli haber sistemim tarafından hazırlandı; yayınlamadan önce tarafımdan kontrol edildi.'
 

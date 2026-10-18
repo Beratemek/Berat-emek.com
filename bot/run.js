@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url'
 import { HOURS, MODEL, WRITER_MODEL, TOP_CANDIDATES, BLOG_NOTE } from './config.js'
 import { collectAll } from './collect.js'
 import {
-  clusterNews, scoreClusters, verifyCandidate, writeDraft, checkDraft, decide, suggestIdeas, triage, sourceList,
+  clusterNews, scoreClusters, verifyCandidate, writeDraft, checkDraft, polishLinkedIn, decide, suggestIdeas, triage, sourceList,
 } from './agents.js'
 import { getUsage } from './llm.js'
 import { blocksToDoc, slugify } from './tiptap.js'
@@ -299,6 +299,12 @@ async function main() {
   log('   Taslak doğrulanmış bilgilere karşı kontrol ediliyor…')
   const checked = await checkDraft(chosen, v, draft)
   for (const i of checked.issues) log(`   [${i.severity}]${i.fixed ? ' ✓ düzeltildi' : ''} ${i.text}`)
+  log('   LinkedIn editörü metni 7 kurala göre denetliyor…')
+  const polished = await polishLinkedIn({ cluster: chosen, v, linkedin: checked.linkedin }).catch((e) => (log(`   ! ${e.message}`), null))
+  if (polished) {
+    checked.linkedin = polished.linkedin
+    log(`   Kalite ${polished.quality.score}/${polished.quality.of} · ${polished.quality.fixed} kural düzeltildi`)
+  }
   // Kontrolcünün düzelttiği sorunlar kararı etkilemez; editör yalnızca çözülemeyenlere bakar
   const openIssues = checked.issues.filter((i) => i.fixed !== true)
   const verdict = await decide({ cluster: chosen, v, linkedin: checked.linkedin, issues: openIssues, recent, today: todayLabel, cadence })
@@ -340,6 +346,7 @@ async function main() {
       linkedin: checked.linkedin,
       blocks: checked.blocks,
       issues: checked.issues,
+      quality: polished?.quality || null,
       image_prompt: draft.image_prompt || '',
       created_at: new Date().toISOString(),
     }

@@ -4,7 +4,7 @@
 // step: 'verify' | 'write' | 'check' | 'activate' (hazır içeriği günün seçili içeriği yapar)
 import { json, requireAdmin } from '../_linkedin.js'
 import { loadBrief, saveBrief, toCluster, activePatch } from '../_content.js'
-import { verifyCandidate, writeDraft, checkDraft, sourceList } from '../../bot/agents.js'
+import { verifyCandidate, writeDraft, checkDraft, polishLinkedIn, sourceList } from '../../bot/agents.js'
 import { blocksToDoc, slugify } from '../../bot/tiptap.js'
 import { insertDraftPost } from '../../bot/db.js'
 import { getUsage } from '../../bot/llm.js'
@@ -67,6 +67,8 @@ export async function POST(request) {
     const draft = topic.work?.draft
     if (!draft) return json({ error: 'Önce yazım adımı tamamlanmalı' }, 400)
     const checked = await checkDraft(cluster, topic.verification, draft)
+    // Son söz LinkedIn editöründe: Berat paylaşırken metne bakmasın diye 7 kurala göre denetleyip son hâlini yazar
+    const polished = await polishLinkedIn({ cluster, v: topic.verification, linkedin: checked.linkedin }).catch(() => null)
     const sources = sourceList(cluster)
     const row = await insertDraftPost({
       title: draft.blog.title,
@@ -79,7 +81,8 @@ export async function POST(request) {
       post_id: row.id,
       title: draft.blog.title,
       excerpt: draft.blog.excerpt || '',
-      linkedin: checked.linkedin,
+      linkedin: polished?.linkedin || checked.linkedin,
+      quality: polished?.quality || null,
       blocks: checked.blocks,
       issues: checked.issues,
       image_prompt: draft.image_prompt || '',

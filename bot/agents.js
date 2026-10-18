@@ -2,7 +2,7 @@
 // Her ajan tek bir model çağrısıdır; günde toplam ~7-8 çağrı.
 import { askJSON } from './llm.js'
 import { fetchText, mainText } from './collect.js'
-import { PERSONA, FOCUS, WRITER_MODEL, CONTENT_RULES } from './config.js'
+import { PERSONA, FOCUS, WRITER_MODEL, CONTENT_RULES, GOLD_LINKEDIN } from './config.js'
 
 const JSON_ONLY = 'Yalnızca geçerli JSON döndür; JSON dışında hiçbir şey yazma.'
 
@@ -208,6 +208,10 @@ LinkedIn gönderisi (blog yazısına yönlendiren kısa giriş):
 - 1-2 cümlelik "Benim yorumum:".
 - Son satır tam olarak: "Detayları, nasıl deneneceğini ve kaynakları yazımda topladım:" (yazının bağlantısı paylaşırken otomatik eklenecek).
 - Haber bülteni dili ("Ne oldu?" başlığı, ajans dili) kullanma; soru cümlesiyle bitirme. En sonda 3-4 hashtag. Gövdede link verme. En fazla 1 emoji.
+- Örnek (ton ve yapı için; kalıbı ve cümleleri kopyalama, kendi konuna göre yaz):
+---
+${GOLD_LINKEDIN}
+---
 - title: en fazla 70 karakter, net. excerpt: en fazla 200 karakter. tags: 2-4 kısa etiket.
 - Kaynaklar listesini yazma; sistem ekleyecek.
 - blocks içindeki type yalnızca: p, h2, h3, ul, quote, code. Vurgu için **kalın** kullanabilirsin.
@@ -522,5 +526,63 @@ ${factSheet(cluster, v)}${wantLinkedin ? `\n\n--- Mevcut LinkedIn metni ---\n${l
         ? { title: out.blog.title || blog.title, excerpt: out.blog.excerpt ?? blog.excerpt, blocks: out.blog.blocks }
         : blog,
     changedBlog: wantBlog && Array.isArray(out.blog?.blocks) && out.blog.blocks.length > 0,
+  }
+}
+
+/* ---------------------------------------------------------------
+ * 9) LINKEDIN EDİTÖRÜ — metni 7 kurala göre denetler ve son hâlini yazar (kaliteli model).
+ *    Berat paylaşırken metne bakmasın diye: her kural tek tek kontrol edilir, geçmeyen düzeltilir.
+ * ------------------------------------------------------------- */
+export const LINKEDIN_RULES = [
+  'Açılış: ilk cümle en çarpıcı somut bilgiyle başlıyor (rakam, ölçek, bir ilk); ürün ya da repo adıyla açılmıyor',
+  'İlk iki satır: tek başına konuyu söylüyor ve "devamını gör"e bastıracak merakı uyandırıyor',
+  'Maddeler: 2-3 madde, geniş kitlenin anlayacağı etkiler (ne yapıyor, nasıl denenir, kimi etkiliyor); sürüm numarası, ortam değişkeni, platform listesi yok',
+  'Yorum: "Benim yorumum" net, savunulabilir bir görüş; çekingen uyarı yok; uydurma kişisel deneyim yok',
+  'Doğruluk: her bilgi doğrulanmış listede var; uydurma sayı, isim, özellik yok',
+  'Dil: akıcı, doğal Türkçe; çeviri kokan cümle, klişe ("devrim", "oyunun kuralları") ve abartı yok',
+  'Biçim: 80-140 kelime; sondan bir önceki satır yazıya yönlendiren tek cümle (":" ile biter); en sonda #YapayZeka dahil 3-4 hashtag',
+]
+
+export async function polishLinkedIn({ cluster, v, linkedin, model = WRITER_MODEL }) {
+  const out = await askJSON({
+    label: 'linkedin editörü',
+    model,
+    temperature: 0.4,
+    maxTokens: 6000,
+    system: `${PERSONA}
+
+${CONTENT_RULES}
+
+Sen Berat'ın LinkedIn editörüsün. Berat paylaşırken metne bakmayacak; bu yüzden yayına çıkacak son hâli SEN yazıyorsun.
+Görevin: verilen LinkedIn taslağını aşağıdaki kuralların HER BİRİNE göre tek tek denetlemek, geçmeyen her kuralı düzeltmek ve
+son metni yazmak. Taslak zaten iyiyse gereksiz değiştirme. Bilgileri yalnızca doğrulanmış listeden kullan.
+
+Kurallar:
+${LINKEDIN_RULES.map((r, i) => `${i + 1}. ${r}`).join('\n')}
+
+Ton ve yapı örneği (kopyalama, örnek al):
+---
+${GOLD_LINKEDIN}
+---
+
+checks: her kural için {"rule": kural no, "ok": düzeltmeden önce geçiyor muydu, "note": tek cümle}.
+score: SON metnin 7 üzerinden kaç kuralı geçtiği (son metin bütün kuralları geçmeli; geçemiyorsa nedenini note'a yaz).
+Çıktı: {"checks":[{"rule":1,"ok":true,"note":"..."}],"score":7,"linkedin":"son metin"}
+${JSON_ONLY}`,
+    user: `${factSheet(cluster, v)}\n\n--- LinkedIn taslağı ---\n${linkedin}`,
+  })
+  const text = typeof out.linkedin === 'string' && out.linkedin.trim().length > 80 ? out.linkedin.trim() : linkedin
+  const checks = (Array.isArray(out.checks) ? out.checks : [])
+    .map((c) => ({ rule: Number(c.rule), ok: c.ok === true, note: String(c.note || '') }))
+    .filter((c) => c.rule >= 1 && c.rule <= LINKEDIN_RULES.length)
+  return {
+    linkedin: text,
+    quality: {
+      score: Math.max(0, Math.min(LINKEDIN_RULES.length, Number(out.score) || 0)),
+      of: LINKEDIN_RULES.length,
+      checks,
+      fixed: checks.filter((c) => !c.ok).length,
+      at: new Date().toISOString(),
+    },
   }
 }
