@@ -1567,3 +1567,126 @@ a.project-card:hover h3 svg {
     filter: none !important;
   }
 }
+
+/* ============================================================
+   Ölçek: yazılar, menü ve butonlar ekran büyüdükçe orantılı büyür,
+   içerik alanı genişler, bölümler arası boşluk daralır.
+   (Sonda durduğu için yukarıdaki boyutları ezer; telefonda boyutlar aynı kalır.)
+   ============================================================ */
+:root {
+  --wrap: clamp(1160px, 74vw, 1400px);
+}
+body {
+  font-size: 17px;
+}
+.header-inner {
+  height: 76px;
+}
+.brand {
+  font-size: 17px;
+}
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  font-size: 13px;
+}
+.nav a {
+  padding: 9px 14px;
+  font-size: clamp(14.5px, 0.3vw + 10px, 16.5px);
+}
+.icon-btn {
+  height: 42px;
+  min-width: 42px;
+  font-size: 13px;
+}
+.s-btn {
+  height: clamp(48px, 1.6vw + 22px, 58px);
+  padding: 0 clamp(22px, 1.2vw + 6px, 30px);
+  font-size: clamp(15px, 0.35vw + 10px, 17.5px);
+}
+.s-btn.small {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14.5px;
+}
+.kicker {
+  font-size: clamp(12.5px, 0.25vw + 9px, 14.5px);
+}
+.hero-pill {
+  padding: 8px 16px 8px 12px;
+  font-size: clamp(13px, 0.2vw + 10px, 15px);
+}
+.hero h1 {
+  font-size: clamp(42px, 5.6vw, 108px);
+}
+.hero-lead {
+  max-width: 640px;
+  font-size: clamp(17px, 0.6vw + 11px, 23px);
+}
+@media (min-width: 901px) {
+  .hero {
+    min-height: max(640px, 90svh);
+    padding: 112px 0 120px;
+  }
+  .hero-content {
+    max-width: 800px;
+  }
+}
+.section {
+  padding: clamp(64px, 7vw, 120px) 0;
+}
+.section-head {
+  margin-bottom: clamp(32px, 3.5vw, 56px);
+}
+.section-head h2,
+.about-title {
+  font-size: clamp(32px, 3.4vw, 64px);
+}
+.section-lead,
+.contact-text {
+  font-size: clamp(17px, 0.5vw + 10px, 20px);
+}
+.capability h3,
+.project-body h3,
+.post-title {
+  font-size: clamp(19px, 0.55vw + 11px, 24px);
+}
+.capability p,
+.project-body p,
+.post-excerpt,
+.highlights li {
+  font-size: clamp(15.5px, 0.3vw + 11px, 17.5px);
+}
+.featured-body h3 {
+  font-size: clamp(26px, 2.3vw, 42px);
+}
+.featured-body p {
+  font-size: clamp(16.5px, 0.35vw + 11px, 19px);
+}
+.about-text {
+  font-size: clamp(17px, 0.55vw + 10px, 21px);
+}
+.contact-title {
+  font-size: clamp(34px, 3.8vw, 72px);
+}
+.contact-value {
+  font-size: clamp(16px, 0.3vw + 11px, 18px);
+}
+.page-head h1 {
+  font-size: clamp(42px, 5vw, 84px);
+}
+.page-head p {
+  font-size: clamp(18px, 0.5vw + 11px, 21px);
+}
+.wrap.narrow {
+  max-width: clamp(780px, 46vw, 880px);
+}
+.article-head h1 {
+  font-size: clamp(32px, 3.8vw, 60px);
+}
+.prose {
+  font-size: clamp(17.5px, 0.35vw + 12px, 20px);
+}
+.site-footer {
+  font-size: 15px;
+}
