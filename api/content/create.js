@@ -86,7 +86,8 @@ export async function POST(request) {
       created_at: new Date().toISOString(),
     }
     delete topic.work
-    await saveBrief(brief.id, { topics, ...activePatch(topic) })
+    // Yeni içerik öncekini ezmesin: gün boşsa seçili içerik olur, değilse yalnızca konunun yanına eklenir
+    await saveBrief(brief.id, { topics, ...(!brief.post_id && activePatch(topic)) })
     return json({ ok: true, postId: row.id })
   } catch (e) {
     return json({ error: `${STEP_LABEL[step]} adımı başarısız: ${e.message}` }, 500)

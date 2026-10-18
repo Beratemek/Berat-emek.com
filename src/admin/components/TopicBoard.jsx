@@ -22,7 +22,7 @@ const STEPS = [
 ]
 
 /** Günün gündemi: her konu için aciliyet, gerekçe ve tek tıkla içerik üretimi. */
-export default function TopicBoard({ brief, onChanged }) {
+export default function TopicBoard({ brief, onChanged, focus, onOpen }) {
   const [run, setRun] = useState(null) // { index, step }
   const [errors, setErrors] = useState({})
   const topics = Array.isArray(brief.topics) ? brief.topics : []
@@ -36,21 +36,10 @@ export default function TopicBoard({ brief, onChanged }) {
         if (out.ok === false) throw new Error(out.error || 'Adım tamamlanamadı')
       }
       await onChanged()
+      onOpen?.(index) // yeni içerik kendi sekmesinde açılsın
     } catch (e) {
       setErrors((x) => ({ ...x, [index]: e.message }))
       await onChanged() // yarım kalan adımın kaydı (doğrulama vb.) görünsün
-    } finally {
-      setRun(null)
-    }
-  }
-
-  async function activate(index) {
-    setRun({ index, step: 'activate' })
-    try {
-      await serverApi('/api/content/create', { method: 'POST', body: { briefId: brief.id, index, step: 'activate' } })
-      await onChanged()
-    } catch (e) {
-      setErrors((x) => ({ ...x, [index]: e.message }))
     } finally {
       setRun(null)
     }
@@ -74,7 +63,8 @@ export default function TopicBoard({ brief, onChanged }) {
         {topics.map((t, i) => {
           const u = URGENCY[t.urgency]
           const trust = TRUST[t.trust] || TRUST['tek-kaynak']
-          const isActive = t.content?.post_id && t.content.post_id === brief.post_id
+          const hasContent = Boolean(t.content?.post_id)
+          const isActive = hasContent && focus === i
           const busyHere = run?.index === i
           const stepIdx = busyHere ? STEPS.findIndex((s) => s.key === run.step) : -1
           return (
@@ -146,14 +136,17 @@ export default function TopicBoard({ brief, onChanged }) {
               </div>
 
               <div className="tb-actions">
-                {isActive ? (
-                  <span className="tb-active">
-                    <Check size={14} /> Seçili içerik — aşağıda düzenleyip paylaşabilirsin
-                  </span>
-                ) : t.content?.post_id ? (
-                  <button type="button" className="btn btn-secondary btn-sm" disabled={Boolean(run)} onClick={() => activate(i)}>
-                    {busyHere ? <Loader2 size={14} className="spin" /> : <ArrowRightLeft size={14} />} Bu içeriği kullan
-                  </button>
+                {hasContent ? (
+                  <>
+                    <span className="tb-active">
+                      <Check size={14} /> {t.content.shared ? 'Paylaşıldı' : 'İçeriği hazır'}
+                    </span>
+                    {!isActive && (
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => onOpen?.(i)}>
+                        <ArrowRightLeft size={14} /> İçeriği aç
+                      </button>
+                    )}
+                  </>
                 ) : (
                   <button
                     type="button"

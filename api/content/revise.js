@@ -1,7 +1,7 @@
 // POST /api/content/revise — Berat'ın talimatıyla günün seçili içeriğini düzeltir (kaliteli model).
 // target: 'linkedin' | 'blog' | 'both'. Bilgiler yalnızca doğrulanmış listeden kullanılır.
 import { json, requireAdmin, db } from '../_linkedin.js'
-import { loadBrief, saveBrief, toCluster, activeTopicIndex } from '../_content.js'
+import { loadBrief, saveBrief, toCluster, pickTopic } from '../_content.js'
 import { reviseDraft, sourceList } from '../../bot/agents.js'
 import { blocksToDoc } from '../../bot/tiptap.js'
 import { getUsage } from '../../bot/llm.js'
@@ -22,9 +22,7 @@ export async function POST(request) {
 
   const brief = await loadBrief(input?.briefId)
   if (!brief) return json({ error: 'Günlük özet bulunamadı' }, 404)
-  const topics = Array.isArray(brief.topics) ? brief.topics : []
-  const idx = activeTopicIndex(brief)
-  const topic = idx >= 0 ? topics[idx] : null
+  const { topics, topic } = pickTopic(brief, input?.index)
   const content = topic?.content || null
 
   if (target !== 'linkedin' && !content?.blocks?.length) {
@@ -69,7 +67,9 @@ export async function POST(request) {
       Object.assign(content, { title: out.blog.title, excerpt: out.blog.excerpt || '', blocks: out.blog.blocks })
     }
     if (content) content.linkedin = out.linkedin
-    await saveBrief(brief.id, { linkedin_text: out.linkedin, ...(topic && { topics }) })
+    // Günün seçili içeriğiyse eski alan da güncel kalsın
+    const isActive = !content || content.post_id === brief.post_id
+    await saveBrief(brief.id, { ...(isActive && { linkedin_text: out.linkedin }), ...(topic && { topics }) })
     return json({ ok: true, linkedin: out.linkedin, blogUpdated: Boolean(out.changedBlog) })
   } catch (e) {
     return json({ error: `Revizyon başarısız: ${e.message}` }, 500)

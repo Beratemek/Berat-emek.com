@@ -5,9 +5,8 @@ import {
   AlertTriangle, RotateCcw, Lightbulb,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase.js'
-import LinkedInShare from '../components/LinkedInShare.jsx'
 import TopicBoard from '../components/TopicBoard.jsx'
-import ContentTools from '../components/ContentTools.jsx'
+import ContentDesk, { dayContents } from '../components/ContentDesk.jsx'
 
 const TZ = 'Europe/Istanbul'
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())
@@ -35,6 +34,7 @@ export default function TodayPage() {
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [focus, setFocus] = useState(null) // açık içerik sekmesi (konu sırası)
   const [linkedinResult] = useState(() => LINKEDIN_RESULT[new URLSearchParams(window.location.search).get('linkedin')])
 
   const load = useCallback(async () => {
@@ -122,6 +122,15 @@ export default function TodayPage() {
   const usage = latest.stats?.usage
   const editor = latest.stats?.editor
 
+  // Açık içerik sekmesi: seçilmediyse en son oluşturulan içerik
+  const contents = dayContents(latest)
+  const newest = [...contents].sort((a, b) => String(b.content.created_at || '').localeCompare(String(a.content.created_at || '')))[0]
+  const currentFocus = contents.some((x) => x.index === focus) ? focus : newest?.index ?? null
+  const openContent = (index) => {
+    setFocus(index)
+    requestAnimationFrame(() => document.getElementById('icerikler')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  }
+
   return (
     <div className="today">
       {header}
@@ -188,10 +197,10 @@ export default function TodayPage() {
       </section>
 
       {/* Günün konuları: her konuya tek tıkla içerik */}
-      <TopicBoard brief={latest} onChanged={load} />
+      <TopicBoard brief={latest} onChanged={load} focus={currentFocus} onOpen={openContent} />
 
-      {/* Seçili içerik: talimatla revize, kapak, editör */}
-      <ContentTools brief={latest} onChanged={load} />
+      {/* Günün içerikleri: her biri kendi sekmesinde revize, kapak, LinkedIn */}
+      <ContentDesk brief={latest} focus={currentFocus} onFocus={setFocus} onChanged={load} />
 
       {/* Haber zayıfsa: bilgilendirici yazı fikirleri */}
       {latest.ideas?.length > 0 && (
@@ -211,14 +220,6 @@ export default function TodayPage() {
             <Pencil size={15} /> Yeni yazı başlat
           </Link>
         </section>
-      )}
-
-      {/* LinkedIn: düzenle ve tek tıkla paylaş */}
-      {latest.linkedin_text && (
-        <LinkedInShare
-          brief={latest}
-          onShared={(patch) => setBriefs((list) => list.map((b) => (b.id === latest.id ? { ...b, ...patch } : b)))}
-        />
       )}
 
       {/* Kontrol notları */}

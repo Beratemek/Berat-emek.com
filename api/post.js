@@ -5,6 +5,8 @@
 // görünürdü. vercel.json yalnızca bu botları buraya yönlendirir; normal ziyaretçiler
 // doğrudan statik siteyi alır, bu fonksiyondan etkilenmez.
 
+import { shareableImage } from './_image.js'
+
 const SITE_URL = 'https://berat-emek.com'
 const FALLBACK_IMAGE = `${SITE_URL}/og-cover.png`
 
@@ -74,7 +76,8 @@ export async function GET(request) {
   let html = await fetch(new URL('/index.html', reqUrl.origin)).then((r) => r.text())
   try {
     const post = await fetchPost(slug)
-    if (post) html = injectMeta(html, post, pageUrl)
+    // LinkedIn WebP kapağı güvenilir göstermiyor: varsa JPEG kopyasını ver
+    if (post) html = injectMeta(html, { ...post, cover: await shareableImage(post.cover) }, pageUrl)
   } catch {
     // Supabase'e ulaşılamazsa genel etiketlerle devam et
   }

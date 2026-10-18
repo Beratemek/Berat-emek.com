@@ -2,6 +2,7 @@
 // Günlük özetin blog taslağı varsa önce yazıyı sitede yayınlar ve gönderiye yazının bağlantısını
 // kart olarak ekler (asıl amaç: ayrıntılar blogda, LinkedIn'de yorum + yönlendirme).
 import { SITE_URL, json, requireAdmin, getAuth, isConnected, db, linkedinRest, escapeLittleText, uploadLinkedInImage } from '../_linkedin.js'
+import { shareableImage } from '../_image.js'
 
 export async function POST(request) {
   if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 401)
@@ -25,9 +26,13 @@ export async function POST(request) {
   // Blog yazısı: önce sitede yayınla, sonra bağlantısını gönderiye kart olarak ekle
   let brief = null
   let article = null
-  if (briefId) brief = (await db(`daily_briefs?id=eq.${briefId}&select=id,post_id,stats`).catch(() => []))?.[0] || null
-  if (withArticle && brief?.post_id) {
-    const post = (await db(`posts?id=eq.${brief.post_id}&select=id,slug,title,excerpt,published,cover`))?.[0]
+  if (briefId) brief = (await db(`daily_briefs?id=eq.${briefId}&select=id,post_id,stats,topics`).catch(() => []))?.[0] || null
+  // Aynı gün birden fazla içerik olabilir: index verilmişse o konunun içeriği paylaşılır
+  const topics = Array.isArray(brief?.topics) ? brief.topics : []
+  const topic = Number.isInteger(input?.index) ? topics[input.index] : null
+  const postId = topic?.content?.post_id || brief?.post_id || null
+  if (withArticle && postId) {
+    const post = (await db(`posts?id=eq.${postId}&select=id,slug,title,excerpt,published,cover`))?.[0]
     if (post) {
       if (!post.published) {
         await db(`posts?id=eq.${post.id}`, {
@@ -39,7 +44,7 @@ export async function POST(request) {
       article = { source: `${SITE_URL}/blog/${post.slug}`, title: post.title, description: (post.excerpt || '').slice(0, 250) }
       // Kapak görseli kartın küçük resmi olur (yüklenemezse kart görselsiz gider)
       if (post.cover) {
-        const thumbnail = await uploadLinkedInImage(auth.access_token, auth.member_urn, post.cover)
+        const thumbnail = await uploadLinkedInImage(auth.access_token, auth.member_urn, await shareableImage(post.cover))
         if (thumbnail) article.thumbnail = thumbnail
       }
     }
@@ -78,8 +83,10 @@ export async function POST(request) {
 
   if (brief) {
     try {
-      const stats = { ...(brief.stats || {}), linkedin: { url, urn, article: article?.source || null, sharedAt: new Date().toISOString() } }
-      await db(`daily_briefs?id=eq.${brief.id}`, { method: 'PATCH', body: { status: 'paylasildi', stats }, prefer: 'return=minimal' })
+      const sharedAt = new Date().toISOString()
+      const stats = { ...(brief.stats || {}), linkedin: { url, urn, article: article?.source || null, sharedAt } }
+      if (topic?.content) topic.content.shared = { url, urn, article: article?.source || null, at: sharedAt, via: 'api' }
+      await db(`daily_briefs?id=eq.${brief.id}`, { method: 'PATCH', body: { status: 'paylasildi', stats, ...(topic && { topics }) }, prefer: 'return=minimal' })
     } catch {
       // Paylaşım yapıldı; işaretleme başarısızsa panelden elle işaretlenebilir
     }

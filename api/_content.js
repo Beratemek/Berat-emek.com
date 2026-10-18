@@ -48,3 +48,11 @@ export function activeTopicIndex(brief) {
   const topics = Array.isArray(brief.topics) ? brief.topics : []
   return topics.findIndex((t) => t.content?.post_id && t.content.post_id === brief.post_id)
 }
+
+/** İstenen içerik (konu sırası) ya da günün seçili içeriği. { topics, index, topic } */
+export function pickTopic(brief, index) {
+  const topics = Array.isArray(brief.topics) ? brief.topics : []
+  const n = Number(index)
+  const i = Number.isInteger(n) && n >= 0 && topics[n] ? n : activeTopicIndex(brief)
+  return { topics, index: i, topic: i >= 0 ? topics[i] : null }
+}

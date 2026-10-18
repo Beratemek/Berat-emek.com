@@ -48,7 +48,7 @@ export function hasDb() {
 export async function recentBriefs(days = 7) {
   const since = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10)
   return rest(
-    `daily_briefs?select=brief_date,headline,decision,status,post_id,linkedin_text,linkedin_comment,check_notes,facts,stats&brief_date=gte.${since}&order=brief_date.desc`
+    `daily_briefs?select=brief_date,headline,decision,status,post_id,linkedin_text,linkedin_comment,check_notes,facts,stats,topics&brief_date=gte.${since}&order=brief_date.desc`
   )
 }
 

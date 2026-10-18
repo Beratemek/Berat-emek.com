@@ -79,7 +79,7 @@ async function save(brief, draftPost, imagePrompt) {
     try {
       const png = await generateIllustration(imagePrompt)
       const webp = compressImage(png)
-      cover = webp ? { buf: webp, type: 'image/webp', ext: 'webp' } : { buf: png, type: 'image/png', ext: 'png' }
+      cover = webp ? { buf: webp, type: 'image/webp', ext: 'webp', png } : { buf: png, type: 'image/png', ext: 'png' }
       log(`🎨 Konuya özel görsel üretildi (${Math.round(cover.buf.length / 1024)} KB, ${imageCost()})`)
     } catch (e) {
       log(`   ! Görsel üretilemedi, markalı kapağa geçiliyor: ${e.message}`)
@@ -104,6 +104,11 @@ async function save(brief, draftPost, imagePrompt) {
     if (cover) {
       try {
         draftPost.cover = await uploadCover(`bot/${briefDate}-${draftPost.slug}.${cover.ext}`, cover.buf, cover.type)
+        // LinkedIn önizlemesi için JPEG kopyası (LinkedIn WebP'yi güvenilir göstermiyor)
+        if (cover.ext === 'webp' && cover.png) {
+          const jpg = compressImage(cover.png, { width: 1600, quality: 0.86, type: 'image/jpeg' })
+          if (jpg) await uploadCover(`bot/${briefDate}-${draftPost.slug}.jpg`, jpg, 'image/jpeg').catch(() => {})
+        }
         draftPost.cover_position = '50% 50%'
       } catch (e) {
         log(`   ! ${e.message}`)
@@ -182,6 +187,8 @@ async function main() {
   const posts = hasDb() ? await recentPosts(14).catch(() => []) : []
   const recent14 = !DRY && hasDb() ? await recentBriefs(14).catch(() => []) : []
   const sharedIds = new Set(recent14.filter((r) => r.status === 'paylasildi' || r.stats?.linkedin?.url).map((r) => r.post_id).filter(Boolean))
+  // Aynı gün birden fazla içerik olabilir: her içeriğin kendi "paylaşıldı" işareti
+  for (const r of recent14) for (const t of r.topics || []) if (t.content?.shared && t.content.post_id) sharedIds.add(t.content.post_id)
   const shared = [
     ...new Set([
       ...recent14.filter((r) => r.status === 'paylasildi').map((r) => r.headline).filter(Boolean),

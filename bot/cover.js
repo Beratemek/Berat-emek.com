@@ -96,7 +96,7 @@ export function renderCover(opts) {
  * Görseli sitede hızlı açılacak hale getirir: 1200 px genişliğe küçültüp WebP'ye çevirir
  * (~1,5 MB PNG → ~150 KB). Chrome yoksa ya da başarısız olursa null döner.
  */
-export function compressImage(buffer, { width = 1200, quality = 0.82 } = {}) {
+export function compressImage(buffer, { width = 1200, quality = 0.82, type = 'image/webp', input = 'image/png' } = {}) {
   const chrome = findChrome()
   if (!chrome) return null
   const dir = mkdtempSync(join(tmpdir(), 'sikistir-'))
@@ -110,9 +110,9 @@ img.onload = () => {
   const w = Math.min(${width}, img.naturalWidth), h = Math.round(img.naturalHeight * w / img.naturalWidth)
   const c = document.createElement('canvas'); c.width = w; c.height = h
   c.getContext('2d').drawImage(img, 0, 0, w, h)
-  document.body.textContent = 'VERI:' + c.toDataURL('image/webp', ${quality}) + ':SON'
+  document.body.textContent = 'VERI:' + c.toDataURL('${type}', ${quality}) + ':SON'
 }
-img.src = 'data:image/png;base64,${buffer.toString('base64')}'
+img.src = 'data:${input};base64,${buffer.toString('base64')}'
 </script></body>`
     )
     const r = spawnSync(
@@ -120,7 +120,7 @@ img.src = 'data:image/png;base64,${buffer.toString('base64')}'
       ['--headless=new', '--disable-gpu', '--no-sandbox', '--virtual-time-budget=8000', `--user-data-dir=${join(dir, 'profil')}`, '--dump-dom', pathToFileURL(html).href],
       { timeout: 60_000, maxBuffer: 64 * 1024 * 1024, encoding: 'utf8' }
     )
-    const m = /VERI:data:image\/webp;base64,([A-Za-z0-9+/=]+):SON/.exec(r.stdout || '')
+    const m = new RegExp(`VERI:data:${type.replace('/', '\\/')};base64,([A-Za-z0-9+/=]+):SON`).exec(r.stdout || '')
     return m ? Buffer.from(m[1], 'base64') : null
   } catch {
     return null
