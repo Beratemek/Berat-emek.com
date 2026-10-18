@@ -48,15 +48,14 @@ export function hasDb() {
 export async function recentBriefs(days = 7) {
   const since = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10)
   return rest(
-    `daily_briefs?select=brief_date,headline,decision,status&brief_date=gte.${since}&order=brief_date.desc`
+    `daily_briefs?select=brief_date,headline,decision,status,post_id,linkedin_text,linkedin_comment,check_notes,facts,stats&brief_date=gte.${since}&order=brief_date.desc`
   )
 }
 
-/** Sitede son günlerde yayınlanan yazıların başlıkları (gündem editörü aynı konuyu tekrar önermesin). */
-export async function recentPostTitles(days = 14) {
+/** Sitede son günlerde yayınlanan blog yazıları (paylaşılmış mı, hazır mı ayrımı için). */
+export async function recentPosts(days = 14) {
   const since = new Date(Date.now() - days * 864e5).toISOString()
-  const rows = await rest(`posts?kind=eq.blog&published=eq.true&created_at=gte.${since}&select=title&order=created_at.desc`)
-  return rows.map((r) => r.title)
+  return rest(`posts?kind=eq.blog&published=eq.true&created_at=gte.${since}&select=id,title,slug&order=created_at.desc`)
 }
 
 /** Blog taslağını yayınlanmamış olarak ekler. Slug çakışırsa sonuna kısa bir ek koyar. */

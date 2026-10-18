@@ -2,7 +2,7 @@
 import {
   FEEDS, HN_MIN_POINTS, HF_MAX_AGE_DAYS,
   GITHUB_MAX_AGE_DAYS, GITHUB_MIN_STARS, GITHUB_QUERIES,
-  YOUTUBE_QUERIES, YOUTUBE_MIN_VIEWS,
+  YOUTUBE_QUERIES, YOUTUBE_MIN_VIEWS, MAJOR_ORGS,
 } from './config.js'
 
 const UA = 'Mozilla/5.0 (compatible; beratemek-haber-botu/1.0; +https://berat-emek.com)'
@@ -139,6 +139,9 @@ async function fromHackerNews(since) {
     }))
 }
 
+/** "kurulus/ad" büyük bir laboratuvara/araca mı ait? Değilse trend listesi yalnızca topluluk sinyalidir. */
+const isMajor = (fullName) => MAJOR_ORGS.includes(String(fullName).split('/')[0].toLowerCase())
+
 async function fromHuggingFace() {
   const data = JSON.parse(
     await fetchText('https://huggingface.co/api/models?sort=trendingScore&direction=-1&limit=40')
@@ -153,7 +156,7 @@ async function fromHuggingFace() {
       date: new Date(m.createdAt),
       summary: `${m.pipeline_tag || 'model'} · ${m.likes ?? 0} beğeni · ${m.downloads ?? 0} indirme · trend skoru ${m.trendingScore ?? 0}`,
       source: 'Hugging Face Trend',
-      type: 'primary',
+      type: isMajor(m.id) ? 'primary' : 'community',
       engagement: m.trendingScore || 0,
     }))
 }
@@ -184,7 +187,7 @@ async function fromGitHub() {
         date: new Date(r.created_at),
         summary: `${r.stargazers_count} yıldız${r.language ? ` · ${r.language}` : ''}${r.topics?.length ? ` · ${r.topics.slice(0, 5).join(', ')}` : ''}`,
         source: 'GitHub Trend',
-        type: 'primary',
+        type: isMajor(r.full_name) ? 'primary' : 'community',
         engagement: r.stargazers_count,
       })
     }

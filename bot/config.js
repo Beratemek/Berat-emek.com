@@ -29,12 +29,22 @@ export const CONTENT_RULES = `İçerik sınırları (kesin):
 // Bot taslaklarının sonuna eklenen şeffaflık notu (bot ve panelden üretilen içerik aynı notu taşır)
 export const BLOG_NOTE = 'Not: Bu yazının ilk taslağı, kaynakları tarayan yapay zeka destekli haber sistemim tarafından hazırlandı; yayınlamadan önce tarafımdan kontrol edildi.'
 
+// Ürünleri "resmi kaynak" sayılan büyük kuruluşlar (GitHub / Hugging Face hesap adları, küçük harf).
+// Bunların dışındaki trend projeler resmi duyuru değil, topluluk sinyalidir.
+export const MAJOR_ORGS = [
+  'openai', 'anthropics', 'google', 'google-deepmind', 'google-gemini', 'googleapis', 'meta-llama', 'facebookresearch',
+  'microsoft', 'nvidia', 'deepseek-ai', 'qwen', 'qwenlm', 'mistralai', 'xai-org', 'apple', 'huggingface', 'github',
+  'modelcontextprotocol', 'ollama', 'ggml-org', 'ggerganov', 'langchain-ai', 'vercel', 'cursor', 'getcursor',
+  'moonshotai', 'zai-org', 'thudm', 'allenai', 'stabilityai', 'ibm-granite', 'cohereforai', 'amazon', 'aws',
+]
+
 // Editoryal odak: bot neyi haber sayar, neyi eler? (Kümeleyici, yazar ve editör bunu kullanır)
 export const FOCUS = `Berat bir haber sitesi DEĞİL. Sadece geliştiricilerin ve teknoloji meraklılarının
 "bunu hemen denemeliyim / bunu bilmeliyim" diyeceği, çok kişinin ilgisini çeken konuları paylaşır.
 
 İLGİLİ (öncelik sırasıyla):
-- Geliştiriciler arasında hızla yayılan yeni araçlar ve açık kaynak projeler (ör. yeni bir MCP sunucusu, ajan aracı)
+- Büyük yapay zeka laboratuvarlarının ve geliştirici araçlarının önemli sürümleri (yeni model, yeni özellik, yeni SDK)
+- Geliştiriciler arasında GERÇEKTEN yayılan açık kaynak projeler: birden çok bağımsız kaynakta konuşulan (tek başına GitHub yıldızı yetmez)
 - Yerel dil modelleri: yeni açık ağırlıklı modeller, Ollama, llama.cpp, LM Studio, kuantizasyon, kendi bilgisayarında çalıştırma
 - Ajanlar ve ajan çatıları: LangChain, LangGraph, CrewAI, ajan SDK'ları, çoklu ajan sistemleri
 - MCP: yeni MCP sunucuları, protokoldeki değişiklikler, MCP'yi destekleyen araçlar

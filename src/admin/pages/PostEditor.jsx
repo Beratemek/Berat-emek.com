@@ -364,7 +364,8 @@ export default function PostEditor() {
         </div>
       </div>
 
-      <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
+      {/* clip: köşeleri kırpar ama kaydırma kabı oluşturmaz; yoksa yapışkan araç çubuğu yazının üstüne biner */}
+      <div className="admin-card" style={{ padding: 0, overflow: 'clip' }}>
         <div className="tiptap-editor">
           <div className="tiptap-toolbar">
             <ToolbarBtn active={editor?.isActive('heading', { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>

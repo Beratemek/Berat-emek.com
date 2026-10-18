@@ -79,7 +79,9 @@ export function scoreClusters(clusters) {
       const base = media * 1.5 + (hasPrimary ? 2 : 0) + community + Math.min(3, (c.items.length - 1) * 0.5)
       const score = base * RELEVANCE_WEIGHT[c.relevance]
       // Güven seviyesi: resmi kaynak varsa en yüksek; yoksa en az 2 bağımsız medya şart
-      const trust = hasPrimary ? 'birincil' : media >= 2 ? 'coklu-medya' : 'tek-kaynak'
+      // Topluluk gündemi: resmi kaynak ya da iki medya yok ama geliştiriciler yoğun konuşuyor
+      const hn = top(c, 'Hacker News')
+      const trust = hasPrimary ? 'birincil' : media >= 2 ? 'coklu-medya' : hn >= 300 || (media >= 1 && (hn >= 150 || reddit >= 2)) ? 'topluluk' : 'tek-kaynak'
       return {
         ...c,
         score: Math.round(score * 10) / 10,
@@ -275,6 +277,15 @@ Aciliyet derecesi seç:
 - "onerilir" (7-8): doğrulanmış, odakla uyumlu, geliştiricilerin işine yarayan sağlam bir konu.
 - "istege-bagli" (5-6): fena değil ama sıradan; bu hafta hedefin gerisindeyse paylaşılabilir, değilse atlanabilir.
 - "gerek-yok" (1-4): odak dışı, doğrulanamadı, tekrar ya da çözülmemiş kritik sorun var.
+Puan çıpaları (sıkı uygula):
+- 9-10: Büyük bir laboratuvarın ya da geliştirici aracının (OpenAI, Anthropic, Google, Meta, Microsoft, NVIDIA, DeepSeek, Qwen,
+  Mistral, xAI; Claude Code, Codex, Cursor, Copilot, MCP, Ollama…) önemli sürümü/duyurusu VE birden fazla bağımsız kaynakta yayılım.
+- 7-8: Bu kuruluşların daha küçük ama geliştiriciyi doğrudan etkileyen duyuruları; ya da birden fazla bağımsız medyanın yazdığı,
+  geniş geliştirici kitlesini ilgilendiren gelişme.
+- 5-6: İlginç ama niş: tek bir GitHub projesi, hobi/deneysel araç, dar bir kitle. Yıldız sayısı ne olursa olsun 6'yı geçemez.
+- 1-4: Odak dışı, tekrar ya da zayıf.
+Takipçi testi: Berat'ı takip eden kıdemli bir geliştirici bunu akışında görünce "iyi ki takip ediyorum" der mi, yoksa
+"yine rastgele bir repo" mu der? İkincisiyse en fazla 5. "Kesin" haftada bir bile çıkmayabilir; çıkmaması normaldir.
 Haftalık durumu hesaba kat: hedefin gerisindeysen ve konu sağlamsa bir derece yükseltebilirsin; bu hafta zaten 4 paylaşım
 olduysa yalnızca "kesin" paylaşılır. Son günlerde paylaşılan konunun tekrarı "gerek-yok"tur.
 
@@ -362,7 +373,7 @@ export function sourceList(cluster) {
  * ------------------------------------------------------------- */
 const clampRating = (n) => Math.max(1, Math.min(10, Math.round(Number(n) || 1)))
 
-export async function triage({ topics, recent, today, cadence, published = [] }) {
+export async function triage({ topics, recent, today, cadence, shared = [], ready = [] }) {
   if (!topics.length) return null
   const lines = topics.map((t, i) => {
     const s = t.signals || {}
@@ -388,8 +399,19 @@ Aciliyet dereceleri:
 - "onerilir" (7-8): doğrulanmış, odakla uyumlu, geliştiricinin işine yarayan sağlam konu.
 - "istege-bagli" (5-6): fena değil ama sıradan.
 - "gerek-yok" (1-4): odak dışı, tekrar ya da zayıf.
-Tek kaynaklı ya da doğrulanamamış konu en fazla "istege-bagli" olabilir. Son günlerde paylaşılan konunun tekrarı "gerek-yok".
-Sitede zaten yazısı yayınlanmış ya da bugün içeriği hazırlanmış bir konu "gerek-yok"tur (yeni ve büyük bir gelişme yoksa).
+Puan çıpaları (sıkı uygula):
+- 9-10: Büyük bir laboratuvarın ya da geliştirici aracının (OpenAI, Anthropic, Google, Meta, Microsoft, NVIDIA, DeepSeek, Qwen,
+  Mistral, xAI; Claude Code, Codex, Cursor, Copilot, MCP, Ollama…) önemli sürümü/duyurusu VE birden fazla bağımsız kaynakta yayılım.
+- 7-8: Bu kuruluşların daha küçük ama geliştiriciyi doğrudan etkileyen duyuruları; ya da birden fazla bağımsız medyanın yazdığı,
+  geniş geliştirici kitlesini ilgilendiren gelişme.
+- 5-6: İlginç ama niş: tek bir GitHub projesi, hobi/deneysel araç, dar bir kitle. Yıldız sayısı ne olursa olsun 6'yı geçemez.
+- 1-4: Odak dışı, tekrar ya da zayıf.
+Takipçi testi: Berat'ı takip eden kıdemli bir geliştirici bunu akışında görünce "iyi ki takip ediyorum" der mi, yoksa
+"yine rastgele bir repo" mu der? İkincisiyse en fazla 5. "Kesin" haftada bir bile çıkmayabilir; çıkmaması normaldir.
+Tek kaynaklı ya da doğrulanamamış konu en fazla "istege-bagli" olabilir.
+"Paylaşıldı" sayılan tek şey Berat'ın paylaştığını onayladığı konulardır: onların tekrarı "gerek-yok".
+Sitede yazısı hazır olup Berat'ın henüz PAYLAŞMADIĞI bir konu elenmez: önemine göre puanla ve "ready" alanına o yazının
+başlığını AYNEN yaz; angle'da "Yazı hazır: LinkedIn'de paylaş" de. Hazır içerik yeni yazı gerektirmediği için değerlidir.
 Haftalık hedefin gerisindeysen sağlam bir konuyu bir derece yükseltebilirsin; bu hafta 4 paylaşım olduysa yalnızca "kesin" paylaşılır.
 
 Görevin: listedeki HER konu için:
@@ -399,7 +421,7 @@ Görevin: listedeki HER konu için:
 Ayrıca: reason (Berat'a hitaben 1-2 cümle: bugün ne yapmalı), tip (tek cümle strateji tavsiyesi), best_time (ör. "09:00-10:00").
 
 ${CONTENT_RULES}
-Çıktı: {"topics":[{"i":0,"urgency":"onerilir","rating":7,"why":["..."],"angle":"..."}],"reason":"...","tip":"...","best_time":"..."}
+Çıktı: {"topics":[{"i":0,"urgency":"onerilir","rating":7,"why":["..."],"angle":"...","ready":""}],"reason":"...","tip":"...","best_time":"..."}
 ${JSON_ONLY}`,
     user: `Bugün: ${today}
 Haftalık durum: son 7 günde ${cadence.sharedThisWeek} paylaşım (hedef 3-4) · son paylaşımdan bu yana ${cadence.daysSinceLast ?? 'hiç paylaşım yok'} gün
@@ -407,11 +429,11 @@ Haftalık durum: son 7 günde ${cadence.sharedThisWeek} paylaşım (hedef 3-4) �
 Konular:
 ${lines.join('\n')}
 
-Son 7 günün konuları (bugünkü dahil; "bekliyor" = içeriği hazır, henüz paylaşılmadı):
-${recent.length ? recent.map((r) => `- ${r.brief_date}: ${r.headline || '-'} (${r.status})`).join('\n') : '- kayıt yok'}
+Berat'ın paylaştığını onayladığı konular (son 14 gün):
+${shared.length ? shared.map((t) => `- ${t}`).join('\n') : '- yok'}
 
-Sitede son 14 günde yayınlanan yazılar:
-${published.length ? published.map((t) => `- ${t}`).join('\n') : '- yok'}`,
+Sitede yazısı hazır ama henüz paylaşılmamış konular:
+${ready.length ? ready.map((t) => `- ${t}`).join('\n') : '- yok'}`,
   })
 
   const byIndex = new Map((out.topics || []).map((t) => [Number(t.i), t]))
@@ -423,6 +445,7 @@ ${published.length ? published.map((t) => `- ${t}`).join('\n') : '- yok'}`,
         rating: clampRating(t.rating),
         why: (Array.isArray(t.why) ? t.why : []).filter(Boolean).slice(0, 3),
         angle: t.angle || '',
+        ready: typeof t.ready === 'string' ? t.ready.trim() : '',
       }
     }),
     reason: out.reason || '',

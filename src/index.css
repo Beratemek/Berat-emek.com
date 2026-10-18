@@ -150,9 +150,13 @@ button {
 body.admin-mode {
   color-scheme: light;
 }
-body.admin-mode,
-body.admin-mode #root {
+/* Kaydırmayı pencere yapar: #root kaydırma kabı olursa paneldeki yapışkan çubuklar çalışmaz */
+body.admin-mode {
   overflow: auto;
+  height: auto;
+}
+body.admin-mode #root {
+  overflow: visible;
   height: auto;
 }
 

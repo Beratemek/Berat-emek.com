@@ -17,7 +17,7 @@ import {
 } from './agents.js'
 import { getUsage } from './llm.js'
 import { blocksToDoc, slugify } from './tiptap.js'
-import { hasDb, recentBriefs, recentPostTitles, insertDraftPost, upsertBrief, uploadCover } from './db.js'
+import { hasDb, recentBriefs, recentPosts, insertDraftPost, upsertBrief, uploadCover } from './db.js'
 import { renderCover, compressImage } from './cover.js'
 import { generateIllustration, imageCost } from './image.js'
 import { recordRun } from './agentkit.js'
@@ -175,7 +175,18 @@ async function main() {
   stats.verified = candidates.filter((c) => c.verification?.verified).length
 
   const recent = !DRY && hasDb() ? await recentBriefs(7).catch(() => []) : []
-  const published = hasDb() ? await recentPostTitles(14).catch(() => []) : []
+  // "Paylaşıldı" yalnızca Berat "Paylaştım" dediyse (ya da panelden LinkedIn'e gönderdiyse).
+  // Sitede yayında olup paylaşılmamış yazı "hazır içerik"tir: elenmez, paylaşılması önerilir.
+  const posts = hasDb() ? await recentPosts(14).catch(() => []) : []
+  const recent14 = !DRY && hasDb() ? await recentBriefs(14).catch(() => []) : []
+  const sharedIds = new Set(recent14.filter((r) => r.status === 'paylasildi' || r.stats?.linkedin?.url).map((r) => r.post_id).filter(Boolean))
+  const shared = [
+    ...new Set([
+      ...recent14.filter((r) => r.status === 'paylasildi').map((r) => r.headline).filter(Boolean),
+      ...posts.filter((p) => sharedIds.has(p.id)).map((p) => p.title),
+    ]),
+  ]
+  const readyPosts = posts.filter((p) => !sharedIds.has(p.id))
   // Haftalık plan: son 7 günde kaç paylaşım yapıldı, son paylaşımdan bu yana kaç gün geçti
   const sharedDays = recent.filter((r) => r.status === 'paylasildi').map((r) => r.brief_date).sort()
   const lastShared = sharedDays[sharedDays.length - 1]
@@ -191,11 +202,23 @@ async function main() {
   const topicsRaw = pool.map(topicSummary)
   let tri = null
   try {
-    tri = await triage({ topics: topicsRaw, recent, today: todayLabel, cadence, published })
+    tri = await triage({ topics: topicsRaw, recent, today: todayLabel, cadence, shared, ready: readyPosts.map((p) => p.title) })
   } catch (e) {
     log(`   ! Gündem editörü çalışmadı, puan sırası kullanılıyor: ${e.message}`)
   }
   if (tri) topicsRaw.forEach((t, i) => Object.assign(t, tri.topics[i]))
+  for (const t of topicsRaw) {
+    const post = t.ready && readyPosts.find((p) => p.title.trim().toLowerCase() === t.ready.toLowerCase())
+    if (!post) continue
+    const origin = recent14.find((r) => r.post_id === post.id)
+    t.content = {
+      post_id: post.id,
+      title: post.title,
+      linkedin: origin?.linkedin_text || '',
+      issues: origin?.check_notes || [],
+      existing: true, // yeni yazı üretilmedi; sitede hazır olan yazı
+    }
+  }
   const order = topicsRaw
     .map((_, i) => i)
     .sort((a, b) => (topicsRaw[b].rating ?? 0) - (topicsRaw[a].rating ?? 0) || topicsRaw[b].score - topicsRaw[a].score)
@@ -205,7 +228,8 @@ async function main() {
 
   // Bomba haber mi? Değilse yalnızca sıralı liste bırakılır; içerik panelden istenince üretilir.
   const top = topics[0]
-  let chosen = top?.urgency === 'kesin' ? clustersByTopic[0] : null
+  let chosen = top?.urgency === 'kesin' && !top.content?.existing ? clustersByTopic[0] : null
+  const readyTop = top?.content?.existing ? top : null
   if (chosen && !chosen.verification?.verified) {
     await verifySafe(chosen)
     top.verification = chosen.verification
@@ -223,7 +247,7 @@ async function main() {
     for (const i of ideas) log(`   • ${i.title} — ${i.angle}`)
     await save({
       ...baseBrief,
-      decision: top?.urgency === 'onerilir' ? 'paylas' : 'paylasma',
+      decision: ['kesin', 'onerilir'].includes(top?.urgency) ? 'paylas' : 'paylasma',
       score: top?.rating ?? 2,
       reason:
         tri?.reason ||
@@ -231,7 +255,13 @@ async function main() {
           ? 'Bugün bomba bir haber yok. Aşağıdaki konulardan istediğine "İçerik oluştur" diyebilirsin.'
           : 'Bugün odağına uyan güçlü bir haber yok. Haber yerine aşağıdaki bilgilendirici yazılardan birini paylaşabilirsin.'),
       best_time: tri?.bestTime || null,
-      // headline, linkedin_text, post_id gönderilmez: gün içinde ikinci çalışma, o günün hazır içeriğini silmesin
+      // headline, linkedin_text, post_id gönderilmez: gün içinde ikinci çalışma, o günün hazır içeriğini silmesin.
+      // En iyi konunun yazısı sitede hazırsa onu günün seçili içeriği yap.
+      ...(readyTop && {
+        headline: readyTop.topic,
+        post_id: readyTop.content.post_id,
+        ...(readyTop.content.linkedin && { linkedin_text: readyTop.content.linkedin }),
+      }),
       topics,
       ideas,
       stats: {
@@ -241,7 +271,12 @@ async function main() {
       },
     })
     const u = getUsage()
-    log(`\n${LABEL[top?.urgency] || LABEL['gerek-yok']} — ${topics.length} konu listelendi; içerik panelden istenince üretilecek.`)
+    log(
+      `\n${LABEL[top?.urgency] || LABEL['gerek-yok']} — ${topics.length} konu listelendi; ` +
+        (readyTop
+          ? `en iyisinin yazısı sitede hazır ("${readyTop.content.title}"), LinkedIn'de paylaşılmayı bekliyor.`
+          : 'içerik panelden istenince üretilecek.')
+    )
     log(`   ${u.calls} model çağrısı · $${u.costUsd} · ${((Date.now() - started) / 1000).toFixed(0)} sn`)
     await logRun(true, `${topics.length} konu sıralandı · en iyisi ${top?.rating ?? '-'}/10: ${top?.topic || '-'}`, { urgency: top?.urgency })
     return

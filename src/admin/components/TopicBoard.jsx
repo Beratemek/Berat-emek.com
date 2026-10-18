@@ -12,6 +12,7 @@ const URGENCY = {
 const TRUST = {
   birincil: { label: 'Resmi kaynak', cls: 'ok' },
   'coklu-medya': { label: 'Çoklu medya', cls: 'mid' },
+  topluluk: { label: 'Topluluk gündemi', cls: 'mid' },
   'tek-kaynak': { label: 'Tek kaynak', cls: 'low' },
 }
 const STEPS = [
@@ -99,6 +100,7 @@ export default function TopicBoard({ brief, onChanged }) {
                 </span>
                 {t.verified === true && <span className="chip trust-ok">Doğrulandı</span>}
                 {t.verified === false && <span className="chip trust-low">Doğrulanamadı</span>}
+                {t.content?.existing && <span className="chip trust-ok">Yazısı sitede hazır</span>}
                 <span className="tb-sources">
                   {(t.sources || []).slice(0, 4).map((s, j) => (
                     <a key={j} href={s.url} target="_blank" rel="noreferrer" title={s.title}>
