@@ -3,46 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1c1633" />
+    <meta name="theme-color" content="#1c1410" />
+
+    <!-- Tema: sayfa çizilmeden önce ayarla (aydınlık/karanlık yanıp sönmesin) -->
+    <script>
+      (function () {
+        var t
+        try { t = localStorage.getItem('site-theme') } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = t
+      })()
+    </script>
 
     <!-- Primary Meta Tags -->
-    <title>Berat Emek — Full-Stack Developer · İzometrik 3D Portfolyo</title>
-    <meta name="title" content="Berat Emek — Full-Stack Developer · İzometrik 3D Portfolyo" />
-    <meta name="description" content="Berat Emek — Erciyes Üniversitesi Bilgisayar Mühendisliği öğrencisi, full-stack developer. React, Three.js, WebGL, Supabase ile geliştirdiğim izometrik 3D portfolyo, blog yazıları ve projeler." />
-    <meta name="keywords" content="Berat Emek, beratemek, full-stack developer, React, Three.js, WebGL, R3F, izometrik portfolyo, Supabase, Next.js, Erciyes Üniversitesi, bilgisayar mühendisliği, frontend, web developer Türkiye" />
+    <title>Berat Emek — Full-Stack &amp; AI Developer</title>
+    <meta name="title" content="Berat Emek — Full-Stack &amp; AI Developer" />
+    <meta name="description" content="Berat Emek — Full-Stack &amp; AI Developer. LLM entegrasyonları, çok ajanlı sistemler ve uçtan uca yapay zeka ürünleri; doğrulanmış kaynaklardan yapay zeka gündemi." />
+    <meta name="keywords" content="Berat Emek, beratemek, AI developer, yapay zeka geliştirici, full-stack AI developer, LLM, yapay zeka ajanları, yapay zeka haberleri, yapay zeka gündemi, Türkiye" />
     <meta name="author" content="Berat Emek" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-    <meta name="googlebot" content="index, follow" />
     <link rel="canonical" href="https://berat-emek.com/" />
 
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph / LinkedIn / Facebook (LinkedIn SVG görsel okumaz, PNG şart) -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://berat-emek.com/" />
-    <meta property="og:title" content="Berat Emek — Full-Stack Developer · İzometrik 3D Portfolyo" />
-    <meta property="og:description" content="React, Three.js ve WebGL ile inşa edilmiş izometrik 3D portfolyo. Blog yazıları, projeler ve Berat Emek hakkında." />
-    <meta property="og:image" content="https://berat-emek.com/og-cover.svg" />
+    <meta property="og:title" content="Berat Emek — Full-Stack &amp; AI Developer" />
+    <meta property="og:description" content="Yapay zekayı gerçek ürünlere dönüştürüyorum. LLM ve ajan sistemleri, uçtan uca ürünler ve doğrulanmış yapay zeka gündemi." />
+    <meta property="og:image" content="https://berat-emek.com/og-cover.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Berat Emek — Full-Stack Developer Portfolyosu" />
+    <meta property="og:image:alt" content="Berat Emek — Full-Stack &amp; AI Developer" />
     <meta property="og:locale" content="tr_TR" />
     <meta property="og:site_name" content="Berat Emek" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://berat-emek.com/" />
-    <meta name="twitter:title" content="Berat Emek — Full-Stack Developer · İzometrik 3D Portfolyo" />
-    <meta name="twitter:description" content="React, Three.js ve WebGL ile inşa edilmiş izometrik 3D portfolyo. Blog yazıları, projeler ve Berat Emek hakkında." />
-    <meta name="twitter:image" content="https://berat-emek.com/og-cover.svg" />
+    <meta name="twitter:title" content="Berat Emek — Full-Stack &amp; AI Developer" />
+    <meta name="twitter:description" content="Yapay zekayı gerçek ürünlere dönüştürüyorum." />
+    <meta name="twitter:image" content="https://berat-emek.com/og-cover.png" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
 
@@ -54,24 +62,22 @@
         "name": "Berat Emek",
         "alternateName": "beratemek",
         "url": "https://berat-emek.com",
-        "image": "https://berat-emek.com/og-cover.svg",
-        "jobTitle": "Full-Stack Developer",
-        "description": "Erciyes Üniversitesi Bilgisayar Mühendisliği öğrencisi, React, Three.js ve WebGL alanlarında çalışan full-stack developer.",
+        "image": "https://berat-emek.com/og-cover.png",
+        "jobTitle": "Full-Stack & AI Developer",
+        "description": "Full-Stack & AI Developer. LLM entegrasyonları, çok ajanlı sistemler ve uçtan uca yapay zeka ürünleri geliştiriyor; yapay zeka gündemi üzerine yazıyor.",
         "alumniOf": {
           "@type": "CollegeOrUniversity",
           "name": "Erciyes Üniversitesi",
           "department": "Bilgisayar Mühendisliği"
         },
-        "knowsAbout": ["React", "Three.js", "WebGL", "React Three Fiber", "Supabase", "Full-Stack Development", "TypeScript", "JavaScript", "Frontend Development"],
+        "knowsAbout": ["Artificial Intelligence", "Large Language Models", "AI Agents", "Full-Stack Development", "Deep Learning", "Product Engineering"],
         "nationality": "Turkish",
-        "worksFor": {
-          "@type": "Organization",
-          "name": "Freelance"
-        }
+        "email": "mailto:emekberat19@gmail.com",
+        "sameAs": ["https://github.com/Beratemek", "https://www.linkedin.com/in/beratemek"]
       }
     </script>
 
-    <!-- JSON-LD: WebSite (sitelinks search box için) -->
+    <!-- JSON-LD: WebSite -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",

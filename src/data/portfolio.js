@@ -1,56 +1,18 @@
-export const sections = [
-  {
-    id: 'about',
-    label: 'HAKKIMDA',
-    title: 'Hakkımda',
-    islandPos: [-4.2, 0, -4.2],
-    position: [-4.2, 4.8, -4.2],
-    color: '#f9b572',
-    accent: '#f59e42',
-  },
-  {
-    id: 'projects',
-    label: 'PROJELER',
-    title: 'Projeler',
-    islandPos: [4.2, 0, -4.2],
-    position: [4.2, 4.8, -4.2],
-    color: '#7dd3fc',
-    accent: '#38bdf8',
-  },
-  {
-    id: 'blog',
-    label: 'BLOG',
-    title: 'Blog',
-    islandPos: [-4.2, 0, 4.2],
-    position: [-4.2, 4.8, 4.2],
-    color: '#c4b5fd',
-    accent: '#a78bfa',
-  },
-  {
-    id: 'contact',
-    label: 'ILETISIM',
-    title: 'İletişim',
-    islandPos: [4.2, 0, 4.2],
-    position: [4.2, 4.8, 4.2],
-    color: '#f9a8d4',
-    accent: '#f472b6',
-  },
-]
+import { SITE } from './site.js'
 
+// Supabase'den veri gelmezse (ilk kurulum, bağlantı hatası) gösterilecek yedek içerik.
 export const content = {
   about: {
-    title: 'Hakkımda',
-    kicker: 'Full-Stack Developer',
-    body: "Erciyes Üniversitesi Bilgisayar Mühendisliği 6. dönem öğrencisiyim. JavaScript ve MERN Stack (MongoDB, Express, React, Node.js) teknolojilerine odaklanan bir Full-Stack Geliştiriciyim. Modern web mimarileri, 3D / WebGL deneyimleri ve AI entegrasyonları üzerine çalışıyorum.",
+    kicker: 'Full-Stack & AI Developer',
+    body: "Yapay zekayı uçtan uca ürünlere dönüştüren bir geliştiriciyim. Büyük dil modeli entegrasyonlarından çok ajanlı otomasyonlara, ölçeklenebilir backend mimarilerinden kullanıcı arayüzlerine kadar ürünün tamamında çalışıyorum. VizioWise AI'da yapay zeka ürün akışları geliştirdim; TÜBİTAK 2209-A kapsamında derin öğrenme araştırması yürüttüm.",
     highlights: [
-      'Erciyes Üniversitesi — Bilgisayar Mühendisliği',
-      'Full-Stack · MERN · TypeScript',
-      'WebGL · R3F · AI Entegrasyonları',
+      'LLM entegrasyonları ve çok ajanlı sistemler',
+      'Uçtan uca ürün geliştirme',
+      'Derin öğrenme araştırması — TÜBİTAK 2209-A',
+      'Bilgisayar Mühendisliği — Erciyes Üniversitesi',
     ],
   },
   projects: {
-    title: 'Projeler',
-    kicker: 'Seçilmiş çalışmalar',
     items: [
       {
         name: 'TÜBİTAK 2209-A',
@@ -59,49 +21,23 @@ export const content = {
       },
       {
         name: "Cucu's Cafe",
-        desc: 'Uçtan uca MERN stack ile geliştirilmiş ticari platform. Ürün yönetimi, sipariş akışı ve admin paneli.',
-        tags: ['MongoDB', 'Express', 'React', 'Node.js'],
+        desc: 'Uçtan uca geliştirdiğim ticari platform: ürün yönetimi, sipariş akışı ve yönetim paneli.',
+        tags: ['E-ticaret', 'Full-Stack', 'Yönetim Paneli'],
       },
       {
         name: 'VizioWise AI',
-        desc: 'Full-Stack Developer olarak görev aldım. Modern web mimarileri ve AI ürün akışları üzerine çalıştım.',
-        tags: ['Next.js', 'API', 'AI Integration'],
-      },
-    ],
-  },
-  blog: {
-    title: 'Blog',
-    kicker: 'Son yazılar',
-    posts: [
-      {
-        title: 'React Three Fiber ile İzometrik Dünyalar',
-        date: '2026-04-15',
-        tag: 'WebGL',
-        excerpt: 'Jesse-Zhou tarzı sahneleri R3F + drei ile inşa ederken öğrendiklerim.',
-      },
-      {
-        title: 'MERN Stack Production Notları',
-        date: '2026-03-28',
-        tag: 'Backend',
-        excerpt: 'Gerçek bir e-ticaret projesini uçtan uca yayına aldığımda karşılaştığım 7 dert.',
-      },
-      {
-        title: 'Framer Motion ile Yumuşak UI',
-        date: '2026-03-10',
-        tag: 'Frontend',
-        excerpt: "Spring fizik değerlerini user-research ile eşleştirmenin kısa rehberi.",
+        desc: 'Yapay zeka ürün akışları ve modern web mimarileri üzerine full-stack geliştirici olarak çalıştım.',
+        tags: ['AI Ürün', 'LLM', 'Full-Stack'],
       },
     ],
   },
   contact: {
-    title: 'İletişim',
-    kicker: 'Birlikte bir şey inşa edelim',
-    body: "VizioWise AI'da Full-Stack Geliştirici olarak görev aldım. Yeni bir ürün, ortaklık veya sadece bir fikir için benimle iletişime geçebilirsin.",
     links: [
-      { label: 'E-posta', value: 'hello@beratemek.com', href: 'mailto:hello@beratemek.com', icon: 'mail' },
-      { label: 'GitHub', value: 'github.com/beratemek', href: 'https://github.com/', icon: 'github' },
-      { label: 'LinkedIn', value: 'linkedin.com/in/beratemek', href: 'https://linkedin.com/', icon: 'linkedin' },
-      { label: 'Web', value: 'beratemek.com', href: 'https://beratemek.com', icon: 'globe' },
+      { label: 'E-posta', value: SITE.email, href: `mailto:${SITE.email}`, icon: 'mail' },
+      { label: 'GitHub', value: SITE.github.replace('https://', ''), href: SITE.github, icon: 'github' },
+      ...(SITE.linkedin
+        ? [{ label: 'LinkedIn', value: SITE.linkedin.replace(/^https:\/\/(www\.)?/, ''), href: SITE.linkedin, icon: 'linkedin' }]
+        : []),
     ],
   },
 }

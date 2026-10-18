@@ -10,8 +10,6 @@
     "sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
-    "@react-three/drei": "^9.122.0",
-    "@react-three/fiber": "^8.17.10",
     "@supabase/supabase-js": "^2.104.1",
     "@tiptap/extension-image": "^3.22.4",
     "@tiptap/extension-link": "^3.22.4",
@@ -20,13 +18,11 @@
     "@tiptap/pm": "^3.22.4",
     "@tiptap/react": "^3.22.4",
     "@tiptap/starter-kit": "^3.22.4",
-    "framer-motion": "^11.11.17",
     "lucide-react": "^0.453.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-helmet-async": "^2.0.5",
-    "react-router-dom": "^7.14.2",
-    "three": "^0.170.0"
+    "react-router-dom": "^7.14.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",

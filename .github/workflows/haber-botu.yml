@@ -1,0 +1,41 @@
+# Her sabah 08:00'de (Türkiye) yapay zeka gündemini toplar ve admin paneline günlük özet bırakır.
+# Elle çalıştırmak için: GitHub → Actions → "Haber botu" → Run workflow
+name: Haber botu
+
+on:
+  schedule:
+    - cron: '0 5 * * *' # 05:00 UTC = 08:00 Türkiye
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "Deneme modu (Supabase'e yazmaz, sonucu kayda basar)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: haber-botu
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Bot paket kullanmıyor; kurulum adımı yok
+      - name: Botu çalıştır
+        working-directory: bot
+        run: node run.js ${{ inputs.dry && '--dry' || '' }}
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # GitHub'ın otomatik verdiği token: "hızla yükselen projeler" aramasının sınırını yükseltir
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # İsteğe bağlı: YouTube'da çok izlenen yapay zeka videolarını da tarar
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          BOT_MODEL: ${{ vars.BOT_MODEL }}
+          BOT_WRITER_MODEL: ${{ vars.BOT_WRITER_MODEL }}

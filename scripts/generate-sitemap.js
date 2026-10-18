@@ -15,6 +15,7 @@ const anonKey = process.env.VITE_SUPABASE_ANON_KEY
 
 const staticUrls = [
   { loc: `${SITE}/`, priority: '1.0', changefreq: 'weekly' },
+  { loc: `${SITE}/blog`, priority: '0.9', changefreq: 'daily' },
 ]
 
 async function build() {

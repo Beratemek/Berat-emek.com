@@ -1,5 +1,27 @@
 {
   "rewrites": [
+    {
+      "source": "/blog/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(LinkedInBot|facebookexternalhit|Facebot|Twitterbot|Slackbot|WhatsApp|TelegramBot|Discordbot|redditbot|Applebot|SkypeUriPreview|Pinterest|Embedly|Iframely).*"
+        }
+      ],
+      "destination": "/api/post?kind=blog&slug=:slug"
+    },
+    {
+      "source": "/project/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(LinkedInBot|facebookexternalhit|Facebot|Twitterbot|Slackbot|WhatsApp|TelegramBot|Discordbot|redditbot|Applebot|SkypeUriPreview|Pinterest|Embedly|Iframely).*"
+        }
+      ],
+      "destination": "/api/post?kind=project&slug=:slug"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

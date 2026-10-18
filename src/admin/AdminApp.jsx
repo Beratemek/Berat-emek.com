@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom'
-import { FileText, FolderGit2, User, Phone, LogOut, Loader2, Settings } from 'lucide-react'
+import { FileText, FolderGit2, User, Phone, LogOut, Loader2, Settings, Newspaper } from 'lucide-react'
 
 import './admin.css'
 import { useAuth, signOut } from './AuthProvider.jsx'
 import Login from './Login.jsx'
+import TodayPage from './pages/TodayPage.jsx'
 import PostsList from './pages/PostsList.jsx'
 import PostEditor from './pages/PostEditor.jsx'
 import AboutEditor from './pages/AboutEditor.jsx'
@@ -95,7 +96,8 @@ export default function AdminApp() {
       <Sidebar />
       <main className="admin-main">
         <Routes>
-          <Route index element={<Navigate to="posts" replace />} />
+          <Route index element={<Navigate to="today" replace />} />
+          <Route path="today" element={<TodayPage />} />
           <Route path="posts" element={<PostsList />} />
           <Route path="posts/new" element={<PostEditor />} />
           <Route path="posts/:id" element={<PostEditor />} />
@@ -103,7 +105,7 @@ export default function AdminApp() {
           <Route path="about" element={<AboutEditor />} />
           <Route path="contact" element={<ContactEditor />} />
           <Route path="settings" element={<SettingsPage />} />
-          <Route path="*" element={<Navigate to="posts" replace />} />
+          <Route path="*" element={<Navigate to="today" replace />} />
         </Routes>
       </main>
     </div>
@@ -126,6 +128,9 @@ function Sidebar() {
       <div className="brand">Admin Panel</div>
       <div className="brand-name">beratemek</div>
 
+      <NavLink to="/admin/today" className={navItem}>
+        <Newspaper size={17} /> Bugün
+      </NavLink>
       <NavLink to="/admin/posts" className={navItem}>
         <FileText size={17} /> Blog
       </NavLink>

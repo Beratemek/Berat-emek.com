@@ -13,3 +13,6 @@ dist-ssr
 !.vscode/extensions.json
 Berat-emek.com
 .vercel
+
+# Haber botu çıktıları (--dry)
+bot/out/

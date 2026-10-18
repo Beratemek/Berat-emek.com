@@ -1,0 +1,15 @@
+{
+  "name": "beratemek-haber-botu",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Her sabah yapay zeka gündemini toplar, doğrular, LinkedIn ve blog taslağı hazırlar.",
+  "scripts": {
+    "start": "node run.js",
+    "dry": "node run.js --dry",
+    "collect": "node run.js --collect-only"
+  },
+  "engines": {
+    "node": ">=20.12"
+  }
+}

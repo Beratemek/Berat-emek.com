@@ -1,0 +1,321 @@
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import {
+  ArrowRight, ArrowUpRight, ArrowDown, Copy, Check, Globe, BrainCircuit, Layers, AudioWaveform,
+} from 'lucide-react'
+import Layout from '../site/Layout.jsx'
+import NeuralHero from '../site/NeuralHero.jsx'
+import Reveal from '../site/Reveal.jsx'
+import GenCover from '../site/GenCover.jsx'
+import { PostList, FeaturedPost, PostListSkeleton } from '../site/PostList.jsx'
+import { iconMap, LinkedinIcon } from '../site/icons.jsx'
+import { coverWord, postPath } from '../site/format.js'
+import { usePortfolioContent } from '../hooks/usePortfolioContent.js'
+import { useI18n } from '../i18n/I18nProvider.jsx'
+import { content as fallback } from '../data/portfolio.js'
+import { SITE } from '../data/site.js'
+
+const CAPABILITY_ICONS = [BrainCircuit, Layers, AudioWaveform]
+
+/** Başlığı kelime kelime canlandırır; vurgulu kısmı gradyanla gösterir. */
+function AnimatedHeadline({ text, accent }) {
+  const i = accent ? text.indexOf(accent) : -1
+  const parts = i < 0 ? [{ text }] : [{ text: text.slice(0, i) }, { text: accent, em: true }, { text: text.slice(i + accent.length) }]
+  let n = 0
+  return (
+    <h1>
+      {parts.map((part, pi) => {
+        const words = part.text.split(/(\s+)/).filter(Boolean).map((w, wi) =>
+          /^\s+$/.test(w) ? ' ' : (
+            <span key={wi} className="word" style={{ '--i': n++ }}>{w}</span>
+          )
+        )
+        return part.em ? <em key={pi}>{words}</em> : <span key={pi}>{words}</span>
+      })}
+    </h1>
+  )
+}
+
+/** Bölüm başlığı: vurgulu kısım italik ve renkli. */
+function Accent({ text, accent }) {
+  const i = accent ? text.indexOf(accent) : -1
+  if (i < 0) return text
+  return (
+    <>
+      {text.slice(0, i)}
+      <em>{accent}</em>
+      {text.slice(i + accent.length)}
+    </>
+  )
+}
+
+function spotlight(e) {
+  const r = e.currentTarget.getBoundingClientRect()
+  e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`)
+  e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
+}
+
+function tilt(e) {
+  const el = e.currentTarget
+  const r = el.getBoundingClientRect()
+  const x = (e.clientX - r.left) / r.width
+  const y = (e.clientY - r.top) / r.height
+  el.style.setProperty('--rx', `${((0.5 - y) * 7).toFixed(2)}deg`)
+  el.style.setProperty('--ry', `${((x - 0.5) * 9).toFixed(2)}deg`)
+}
+function untilt(e) {
+  e.currentTarget.style.setProperty('--rx', '0deg')
+  e.currentTarget.style.setProperty('--ry', '0deg')
+}
+
+export default function HomePage() {
+  const { t, lang } = useI18n()
+  const { profile, blogPosts, projectPosts, contact, loading } = usePortfolioContent()
+
+  // Hakkımda metni admin panelinden Türkçe girilir; diğer dillerde çevirisi gösterilir
+  const about =
+    lang === 'tr'
+      ? { body: profile?.body || t('about.body'), highlights: profile?.highlights?.length ? profile.highlights : t('about.highlights') }
+      : { body: t('about.body'), highlights: t('about.highlights') }
+  // Başlık her zaman sitenin kimliği; admin panelindeki eski "kicker" metni kullanılmaz
+  const aboutTitle = t('hero.role')
+
+  const projects = projectPosts.length
+    ? projectPosts.map((p) => ({
+        title: p.title, desc: p.excerpt, tags: p.tags || [], href: postPath(p),
+        cover: p.cover, coverPosition: p.cover_position, seed: p.slug, word: coverWord(p),
+      }))
+    : loading
+      ? []
+      : fallback.projects.items.map((p) => ({ title: p.name, desc: p.desc, tags: p.tags, seed: p.name, word: p.tags[0] }))
+
+  const links = contact.length ? contact : loading ? [] : fallback.contact.links
+  const linkedin = links.find((l) => l.icon === 'linkedin' || /linkedin\.com/.test(l.href || ''))
+
+  const [featured, ...restPosts] = blogPosts
+
+  return (
+    <Layout overlay>
+      <Helmet>
+        <title>{`${SITE.name} — ${t('hero.role')}`}</title>
+        <meta name="description" content={`${t('hero.headline')} ${t('hero.intro')}`} />
+        <link rel="canonical" href={`${SITE.url}/`} />
+      </Helmet>
+
+      {/* ---------------- Giriş ---------------- */}
+      <section className="hero tone">
+        <NeuralHero />
+        <div className="wrap">
+          <div className="hero-content">
+            {featured ? (
+              <Link to={postPath(featured)} className="hero-pill fade-in" style={{ '--i': 0 }}>
+                <span className="dot" aria-hidden />
+                <span className="hero-pill-label">{t('hero.latest')}</span>
+                <span className="hero-pill-title">{featured.title}</span>
+                <ArrowRight size={14} />
+              </Link>
+            ) : (
+              <span className="hero-pill-space" />
+            )}
+            <p className="kicker fade-in" style={{ '--i': 1 }}>{t('hero.role')}</p>
+            <AnimatedHeadline text={t('hero.headline')} accent={t('hero.accent')} />
+            <p className="hero-lead fade-in" style={{ '--i': 6 }}>{t('hero.intro')}</p>
+            <div className="hero-actions fade-in" style={{ '--i': 8 }}>
+              <Link to="/blog" className="s-btn accent">
+                {t('hero.ctaPosts')} <ArrowRight size={17} />
+              </Link>
+              {linkedin && (
+                <a href={linkedin.href} target="_blank" rel="noreferrer" className="s-btn ghost">
+                  <LinkedinIcon size={16} /> {t('hero.ctaLinkedin')}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="hero-foot fade-in" style={{ '--i': 10 }}>
+          <div className="wrap hero-foot-inner">
+            <span />
+            <a href="#yetkinlikler" className="scroll-hint">
+              {t('hero.scroll')} <ArrowDown size={14} />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- Neler yapıyorum ---------------- */}
+      <section className="section" id="yetkinlikler">
+        <div className="wrap">
+          <Reveal className="section-head">
+            <div>
+              <p className="kicker">{t('caps.kicker')}</p>
+              <h2><Accent text={t('caps.title')} accent={t('caps.accent')} /></h2>
+            </div>
+          </Reveal>
+          <div className="capabilities">
+            {t('caps.items').map((c, i) => {
+              const Icon = CAPABILITY_ICONS[i] ?? BrainCircuit
+              return (
+                <Reveal as="article" key={c.title} delay={i * 120} className="capability" onMouseMove={spotlight}>
+                  <div className="capability-top">
+                    <span className="capability-icon"><Icon size={20} /></span>
+                    <span className="capability-num">0{i + 1}</span>
+                  </div>
+                  <h3>{c.title}</h3>
+                  <p>{c.text}</p>
+                </Reveal>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- Yazılar ---------------- */}
+      <section className="section" id="yazilar">
+        <div className="wrap">
+          <Reveal className="section-head">
+            <div>
+              <p className="kicker">{t('posts.kicker')}</p>
+              <h2>{t('posts.title')}</h2>
+            </div>
+            {blogPosts.length > 0 && (
+              <Link to="/blog" className="more-link">
+                {t('posts.all')} <ArrowRight size={15} />
+              </Link>
+            )}
+          </Reveal>
+          {loading ? (
+            <PostListSkeleton />
+          ) : featured ? (
+            <>
+              <Reveal><FeaturedPost post={featured} /></Reveal>
+              {restPosts.length > 0 && <Reveal delay={100}><PostList posts={restPosts.slice(0, 3)} /></Reveal>}
+            </>
+          ) : (
+            <p className="empty">{t('posts.empty')}</p>
+          )}
+        </div>
+      </section>
+
+      {/* ---------------- Projeler ---------------- */}
+      <section className="section band" id="projeler">
+        <div className="wrap">
+          <Reveal className="section-head">
+            <div>
+              <p className="kicker">{t('projects.kicker')}</p>
+              <h2>{t('projects.title')}</h2>
+            </div>
+          </Reveal>
+          <div className="project-grid">
+            {projects.map((p, i) => {
+              const body = (
+                <>
+                  {p.cover ? (
+                    <div className="project-cover" style={{ backgroundImage: `url(${p.cover})`, backgroundPosition: p.coverPosition || 'center' }} />
+                  ) : (
+                    <GenCover className="project-cover" seed={p.seed || p.title} word={p.word} />
+                  )}
+                  <div className="project-body">
+                    <h3>
+                      {p.title}
+                      {p.href && <ArrowUpRight size={18} />}
+                    </h3>
+                    {p.desc && <p>{p.desc}</p>}
+                    {p.tags?.length > 0 && (
+                      <div className="s-tags">
+                        {p.tags.map((tag) => <span key={tag} className="s-tag">{tag}</span>)}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )
+              return (
+                <Reveal key={p.title} delay={(i % 2) * 120}>
+                  {p.href ? (
+                    <Link to={p.href} className="project-card" onMouseMove={tilt} onMouseLeave={untilt}>{body}</Link>
+                  ) : (
+                    <article className="project-card" onMouseMove={tilt} onMouseLeave={untilt}>{body}</article>
+                  )}
+                </Reveal>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- Hakkımda ---------------- */}
+      <section className="section" id="hakkimda">
+        <div className="wrap about-grid">
+          <Reveal>
+            <p className="kicker">{t('about.kicker')}</p>
+            <h2 className="about-title">{aboutTitle}</h2>
+          </Reveal>
+          <Reveal delay={120}>
+            <p className="about-text">{about.body}</p>
+            <ul className="highlights">
+              {about.highlights.map((h, i) => (
+                <li key={h}>
+                  <span>{String(i + 1).padStart(2, '0')}</span>
+                  {h}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ---------------- İletişim ---------------- */}
+      <section className="section tone grain contact" id="iletisim">
+        <div className="wrap contact-grid">
+          <Reveal>
+            <p className="kicker">{t('contact.kicker')}</p>
+            <h2 className="contact-title"><Accent text={t('contact.title')} accent={t('contact.accent')} /></h2>
+            <p className="contact-text">{t('contact.text')}</p>
+          </Reveal>
+          <Reveal as="ul" className="contact-links" delay={120}>
+            {links.map((l, i) => (
+              <ContactRow key={`${l.label}-${i}`} link={l} />
+            ))}
+          </Reveal>
+        </div>
+      </section>
+    </Layout>
+  )
+}
+
+function ContactRow({ link }) {
+  const { t } = useI18n()
+  const [copied, setCopied] = useState(false)
+  const Icon = iconMap[link.icon] ?? Globe
+  const isMail = link.href?.startsWith('mailto:')
+  const external = link.href && !isMail
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(link.href.replace('mailto:', ''))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch {
+      // Pano erişimi yoksa sessizce geç
+    }
+  }
+
+  return (
+    <li>
+      <a href={link.href || '#'} {...(external && { target: '_blank', rel: 'noreferrer' })}>
+        <span className="contact-icon"><Icon size={17} /></span>
+        <span style={{ minWidth: 0 }}>
+          <span className="contact-label">{link.label}</span>
+          <span className="contact-value">{link.value}</span>
+        </span>
+        {!isMail && <ArrowUpRight size={18} className="contact-arrow" />}
+      </a>
+      {isMail && (
+        <button type="button" className="copy-btn" onClick={copy} aria-label={t('ui.copyEmail')}>
+          {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? t('ui.copied') : t('ui.copy')}
+        </button>
+      )}
+    </li>
+  )
+}

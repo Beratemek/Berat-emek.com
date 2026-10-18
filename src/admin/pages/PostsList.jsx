@@ -37,8 +37,8 @@ export default function PostsList({ filterKind }) {
   const kicker = kind === 'blog' ? 'Tüm yazılar' : 'Tüm projeler'
 
   const helpText = kind === 'blog'
-    ? 'Buradan eklediğin yazılar 3D sitedeki sol reklam panosunda dönüşümlü gösterilir ve "BLOG" bölümünün yan panelinde listelenir. Sadece "Yayında" olarak işaretlediklerin görünür.'
-    : 'Buradan eklediğin projeler 3D sitedeki sağ reklam panosunda dönüşümlü gösterilir ve "PROJELER" bölümünün yan panelinde listelenir. Sadece "Yayında" olarak işaretlediklerin görünür.'
+    ? 'Buradan eklediğin yazılar ana sayfadaki "Son yazılar" bölümünde ve /blog sayfasında listelenir. Haber botunun hazırladığı taslaklar da burada "Taslak" olarak görünür. Sadece "Yayında" olarak işaretlediklerin sitede görünür.'
+    : 'Buradan eklediğin projeler ana sayfadaki "Projeler" bölümünde kart olarak gösterilir; kapak görseli eklersen kartta görünür. Sadece "Yayında" olarak işaretlediklerin sitede görünür.'
 
   return (
     <div>

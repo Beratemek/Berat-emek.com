@@ -1,112 +1,102 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { supabase } from '../lib/supabase.js'
-import { ArrowLeft, Calendar, Tag, Clock, ExternalLink } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Link2, Check, Headphones, Pause, Play, Square } from 'lucide-react'
 import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
-import TiptapLink from '@tiptap/extension-link'
 import TiptapImage from '@tiptap/extension-image'
+import { supabase } from '../lib/supabase.js'
+import Layout from '../site/Layout.jsx'
+import { PostList } from '../site/PostList.jsx'
+import { LinkedinIcon } from '../site/icons.jsx'
+import { fmtDate, parseContent, readMinutes } from '../site/format.js'
+import { SITE } from '../data/site.js'
+import { useI18n } from '../i18n/I18nProvider.jsx'
+import NotFound from './NotFound.jsx'
 
-const SITE_URL = 'https://berat-emek.com'
-
-export default function PostPage() {
-  const { slug } = useParams()
-  const [post, setPost] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
+/** Sayfanın üstünde okuma ilerleme çubuğu */
+function ReadProgress() {
+  const ref = useRef(null)
   useEffect(() => {
-    document.body.style.overflow = 'auto'
-    document.body.style.height = 'auto'
-    document.documentElement.style.overflow = 'auto'
-    const root = document.getElementById('root')
-    if (root) { root.style.overflow = 'auto'; root.style.height = 'auto' }
-
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      ref.current?.style.setProperty('--p', max > 0 ? Math.min(1, window.scrollY / max) : 0)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
     return () => {
-      document.body.style.overflow = ''
-      document.body.style.height = ''
-      document.documentElement.style.overflow = ''
-      if (root) { root.style.overflow = ''; root.style.height = '' }
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
     }
   }, [])
+  return <div className="read-progress" aria-hidden="true"><span ref={ref} /></div>
+}
+
+export default function PostPage() {
+  const { t, locale } = useI18n()
+  const { slug } = useParams()
+  const [state, setState] = useState({ loading: true, post: null })
+  const [related, setRelated] = useState([])
 
   useEffect(() => {
     let cancel = false
+    setState({ loading: true, post: null })
+    setRelated([])
     ;(async () => {
-      setLoading(true)
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('posts')
         .select('*')
         .eq('slug', slug)
         .eq('published', true)
-        .single()
-
+        .maybeSingle()
       if (cancel) return
-      if (error) {
-        setError('Yazı bulunamadı.')
-      } else {
-        setPost(data)
-      }
-      setLoading(false)
+      setState({ loading: false, post: data || null })
+      if (!data) return
+
+      const rel = await supabase
+        .from('posts')
+        .select('id, slug, kind, title, excerpt, tags, created_at, content')
+        .eq('published', true)
+        .eq('kind', data.kind)
+        .neq('id', data.id)
+        .order('created_at', { ascending: false })
+        .limit(3)
+      if (!cancel && rel.data) setRelated(rel.data)
     })()
-    return () => { cancel = true }
+    return () => {
+      cancel = true
+    }
   }, [slug])
+
+  const { loading, post } = state
 
   if (loading) {
     return (
-      <div style={pageWrap}>
-        <div style={container}>
-          <div style={{ textAlign: 'center', padding: '120px 0', color: '#888' }}>
-            Yükleniyor...
-          </div>
+      <Layout>
+        <div className="wrap narrow article" aria-busy="true">
+          <div className="skeleton" style={{ height: 14, width: 90 }} />
+          <div className="skeleton" style={{ height: 44, width: '85%', marginTop: 32 }} />
+          <div className="skeleton" style={{ height: 20, width: '65%', marginTop: 18 }} />
+          <div className="skeleton" style={{ height: 300, marginTop: 44 }} />
         </div>
-      </div>
+      </Layout>
     )
   }
 
-  if (error || !post) {
-    return (
-      <div style={pageWrap}>
-        <div style={container}>
-          <div style={{ textAlign: 'center', padding: '120px 0' }}>
-            <div style={{ fontSize: 64, marginBottom: 16 }}>📄</div>
-            <h1 style={{ fontSize: 28, fontWeight: 700, color: '#3a2a4a', marginBottom: 8 }}>
-              Yazı Bulunamadı
-            </h1>
-            <p style={{ color: '#888', marginBottom: 24 }}>
-              Aradığın yazı silinmiş veya yayından kaldırılmış olabilir.
-            </p>
-            <Link to="/" style={backBtnStyle}>
-              <ArrowLeft size={16} /> Ana Sayfa
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
+  if (!post) {
+    return <NotFound title={t('post.notFoundTitle')} text={t('post.notFoundText')} />
   }
 
-  const fmtDate = (iso) =>
-    new Date(iso).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })
-
-  const readTime = () => {
-    if (!post.content) return '1 dk'
-    const text = JSON.stringify(post.content)
-    const words = text.split(/\s+/).length
-    return `${Math.max(1, Math.ceil(words / 200))} dk okuma`
-  }
-
-  const htmlContent = renderContent(post.content)
-
-  const pathPrefix = post.kind === 'project' ? 'project' : 'blog'
-  const canonicalUrl = `${SITE_URL}/${pathPrefix}/${post.slug}`
-  const metaDescription = post.excerpt || `${post.title} — Berat Emek`
-  const ogImage = post.cover || `${SITE_URL}/og-cover.svg`
-  const ogType = post.kind === 'project' ? 'website' : 'article'
+  const isProject = post.kind === 'project'
+  const canonicalUrl = `${SITE.url}/${isProject ? 'project' : 'blog'}/${post.slug}`
+  const metaDescription = post.excerpt || `${post.title} — ${SITE.name}`
+  const ogImage = post.cover || `${SITE.url}/og-cover.png`
+  const html = renderContent(post.content)
 
   const articleSchema = {
     '@context': 'https://schema.org',
-    '@type': post.kind === 'project' ? 'CreativeWork' : 'BlogPosting',
+    '@type': isProject ? 'CreativeWork' : 'BlogPosting',
     headline: post.title,
     description: metaDescription,
     image: ogImage,
@@ -115,47 +105,31 @@ export default function PostPage() {
     url: canonicalUrl,
     inLanguage: 'tr-TR',
     keywords: (post.tags || []).join(', '),
-    author: {
-      '@type': 'Person',
-      name: 'Berat Emek',
-      url: SITE_URL,
-    },
-    publisher: {
-      '@type': 'Person',
-      name: 'Berat Emek',
-      url: SITE_URL,
-    },
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': canonicalUrl,
-    },
+    author: { '@type': 'Person', name: SITE.name, url: SITE.url },
+    publisher: { '@type': 'Person', name: SITE.name, url: SITE.url },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
   }
 
   return (
-    <div style={pageWrap}>
+    <Layout>
       <Helmet>
-        <title>{`${post.title} — Berat Emek`}</title>
+        <title>{`${post.title} — ${SITE.name}`}</title>
         <meta name="description" content={metaDescription} />
         <link rel="canonical" href={canonicalUrl} />
         {post.tags?.length > 0 && <meta name="keywords" content={post.tags.join(', ')} />}
 
-        <meta property="og:type" content={ogType} />
+        <meta property="og:type" content={isProject ? 'website' : 'article'} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:image" content={ogImage} />
         <meta property="og:locale" content="tr_TR" />
-        <meta property="og:site_name" content="Berat Emek" />
-        {ogType === 'article' && post.created_at && (
-          <meta property="article:published_time" content={post.created_at} />
-        )}
-        {ogType === 'article' && (post.updated_at || post.created_at) && (
-          <meta property="article:modified_time" content={post.updated_at || post.created_at} />
-        )}
-        {ogType === 'article' && <meta property="article:author" content="Berat Emek" />}
+        <meta property="og:site_name" content={SITE.name} />
+        {!isProject && <meta property="article:published_time" content={post.created_at} />}
+        {!isProject && <meta property="article:modified_time" content={post.updated_at || post.created_at} />}
+        {!isProject && <meta property="article:author" content={SITE.name} />}
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content={canonicalUrl} />
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content={ogImage} />
@@ -163,182 +137,172 @@ export default function PostPage() {
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
       </Helmet>
 
-      <div style={container}>
-        {/* Geri butonu */}
-        <Link to="/" style={backBtnStyle}>
-          <ArrowLeft size={16} /> Ana Sayfa
+      <ReadProgress />
+      <article className="wrap narrow article">
+        <Link to={isProject ? '/#projeler' : '/blog'} className="crumb">
+          <ArrowLeft size={15} /> {isProject ? t('post.backProjects') : t('post.back')}
         </Link>
 
-        {/* Kapak görseli */}
-        {post.cover && (
-          <div style={{
-            width: '100%', height: 'clamp(200px, 40vw, 420px)',
-            borderRadius: 16, overflow: 'hidden', marginBottom: 32,
-            background: `url(${post.cover}) ${post.cover_position || 'center'}/cover`,
-            boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
-          }} />
-        )}
-
-        {/* Meta bilgiler */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 16, alignItems: 'center' }}>
-          {post.tags?.length > 0 && post.tags.map((t) => (
-            <span key={t} style={tagStyle}>
-              <Tag size={12} /> {t}
+        <header className="article-head">
+          {post.tags?.length > 0 && (
+            <div className="s-tags">
+              {post.tags.map((t) => (
+                <span key={t} className="s-tag">{t}</span>
+              ))}
+            </div>
+          )}
+          <h1>{post.title}</h1>
+          {post.excerpt && <p className="article-lead">{post.excerpt}</p>}
+          <div className="article-meta">
+            <time dateTime={post.created_at}>{fmtDate(post.created_at, 'long', locale)}</time>
+            <span>{t('posts.minLong', { n: readMinutes(post.content) })}</span>
+            <span className="meta-actions">
+              <ListenButton title={post.title} html={html} />
+              {post.project_url && (
+                <a href={post.project_url} target="_blank" rel="noopener noreferrer" className="s-btn primary small">
+                  <ExternalLink size={15} /> {t('post.visit')}
+                </a>
+              )}
             </span>
-          ))}
-          <span style={metaStyle}>
-            <Calendar size={13} /> {fmtDate(post.created_at)}
-          </span>
-          <span style={metaStyle}>
-            <Clock size={13} /> {readTime()}
-          </span>
-        </div>
+          </div>
+        </header>
 
-        {/* Başlık */}
-        <h1 style={titleStyle}>{post.title}</h1>
-
-        {/* Özet */}
-        {post.excerpt && (
-          <p style={excerptStyle}>{post.excerpt}</p>
+        {post.cover && (
+          <div
+            className="article-cover"
+            role="img"
+            aria-label={post.title}
+            style={{ backgroundImage: `url(${post.cover})`, backgroundPosition: post.cover_position || 'center' }}
+          />
         )}
 
-        {/* Proje / Site Linki CTA */}
-        {post.project_url && (
-          <a
-            href={post.project_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={projectLinkStyle}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 12px 32px rgba(124,58,237,0.35)'
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(124,58,237,0.25)'
-            }}
-          >
-            <ExternalLink size={18} /> Siteyi Ziyaret Et
-          </a>
+        <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+
+        <ShareRow url={canonicalUrl} />
+
+        {related.length > 0 && (
+          <section className="related">
+            <p className="kicker">{t('post.more')}</p>
+            <h2>{isProject ? t('post.otherProjects') : t('post.otherPosts')}</h2>
+            <PostList posts={related} />
+          </section>
         )}
+      </article>
+    </Layout>
+  )
+}
 
-        {/* Ayırıcı */}
-        <div style={{
-          height: 2, width: 80,
-          background: 'linear-gradient(90deg, #7c3aed, #f472b6)',
-          borderRadius: 1, margin: '32px 0',
-        }} />
+/**
+ * Yazıyı cihazın Türkçe sesiyle sesli okur (Web Speech API — ücretsiz, sunucu gerektirmez).
+ * Yazılar Türkçe olduğu için arayüz dili ne olursa olsun Türkçe ses kullanılır.
+ */
+function ListenButton({ title, html }) {
+  const { t } = useI18n()
+  const [state, setState] = useState('idle') // idle | playing | paused
+  const supported = typeof window !== 'undefined' && 'speechSynthesis' in window
 
-        {/* İçerik */}
-        <article
-          className="post-content"
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-        />
+  useEffect(() => () => supported && window.speechSynthesis.cancel(), [supported])
+  if (!supported) return null
+  const synth = window.speechSynthesis
 
-        {/* Alt geri butonu */}
-        <div style={{ borderTop: '1px solid #e8e5f0', paddingTop: 32, marginTop: 48 }}>
-          <Link to="/" style={backBtnStyle}>
-            <ArrowLeft size={16} /> Ana Sayfaya Dön
-          </Link>
-        </div>
+  function start() {
+    synth.cancel()
+    const doc = new DOMParser().parseFromString(html, 'text/html')
+    const blocks = [title, ...[...doc.body.querySelectorAll('h1, h2, h3, p, li, blockquote')].map((el) => el.textContent.trim())]
+      .filter(Boolean)
+    // Tarayıcılar uzun metni yarıda kesebildiği için her bloğu kısa parçalara böl
+    const chunks = []
+    for (const block of blocks) {
+      let current = ''
+      for (const sentence of block.match(/[^.!?…]+[.!?…]*/g) || [block]) {
+        if (current && current.length + sentence.length > 200) {
+          chunks.push(current)
+          current = ''
+        }
+        current = `${current} ${sentence.trim()}`.trim()
+      }
+      if (current) chunks.push(current)
+    }
+    const voice = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith('tr'))
+    chunks.forEach((text, i) => {
+      const u = new SpeechSynthesisUtterance(text)
+      u.lang = 'tr-TR'
+      if (voice) u.voice = voice
+      if (i === chunks.length - 1) u.onend = () => setState('idle')
+      synth.speak(u)
+    })
+    setState('playing')
+  }
+
+  if (state === 'idle') {
+    return (
+      <button type="button" className="s-btn ghost small" onClick={start}>
+        <Headphones size={15} /> {t('post.listen')}
+      </button>
+    )
+  }
+  return (
+    <span className="listen-controls">
+      {state === 'playing' ? (
+        <button type="button" className="s-btn ghost small" onClick={() => { synth.pause(); setState('paused') }}>
+          <Pause size={15} /> {t('post.pause')}
+        </button>
+      ) : (
+        <button type="button" className="s-btn ghost small" onClick={() => { synth.resume(); setState('playing') }}>
+          <Play size={15} /> {t('post.resume')}
+        </button>
+      )}
+      <button type="button" className="icon-btn" onClick={() => { synth.cancel(); setState('idle') }} aria-label={t('post.stop')} title={t('post.stop')}>
+        <Square size={13} />
+      </button>
+    </span>
+  )
+}
+
+function ShareRow({ url }) {
+  const { t } = useI18n()
+  const [copied, setCopied] = useState(false)
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch {
+      // Pano erişimi yoksa sessizce geç
+    }
+  }
+
+  return (
+    <div className="share-row">
+      <p>{t('post.share')}</p>
+      <div className="share-actions">
+        <a
+          className="s-btn ghost small"
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <LinkedinIcon size={15} /> {t('post.shareLinkedin')}
+        </a>
+        <button type="button" className="s-btn ghost small" onClick={copy}>
+          {copied ? <Check size={15} /> : <Link2 size={15} />} {copied ? t('ui.copied') : t('post.copyLink')}
+        </button>
       </div>
     </div>
   )
 }
 
-/* --- Styles --- */
-const pageWrap = {
-  minHeight: '100vh',
-  background: 'linear-gradient(180deg, #f8f7fc 0%, #fff 40%)',
-  fontFamily: "'Inter', system-ui, sans-serif",
-  padding: '40px 20px 80px',
-}
-
-const container = {
-  maxWidth: 720,
-  margin: '0 auto',
-}
-
-const backBtnStyle = {
-  display: 'inline-flex', alignItems: 'center', gap: 6,
-  color: '#7c3aed', textDecoration: 'none', fontWeight: 600,
-  fontSize: 14, marginBottom: 24,
-  padding: '8px 16px', borderRadius: 8,
-  background: 'rgba(124,58,237,0.06)',
-  border: '1px solid rgba(124,58,237,0.15)',
-  transition: 'all 0.2s',
-}
-
-const tagStyle = {
-  display: 'inline-flex', alignItems: 'center', gap: 4,
-  fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase',
-  padding: '5px 12px', borderRadius: 999,
-  background: 'rgba(124,58,237,0.08)', color: '#7c3aed',
-  border: '1px solid rgba(124,58,237,0.18)', fontWeight: 700,
-}
-
-const metaStyle = {
-  display: 'inline-flex', alignItems: 'center', gap: 5,
-  fontSize: 13, color: '#999',
-}
-
-const titleStyle = {
-  fontSize: 'clamp(28px, 5vw, 48px)',
-  fontWeight: 800, lineHeight: 1.15,
-  color: '#1c1633', letterSpacing: -1,
-  marginBottom: 16,
-}
-
-const excerptStyle = {
-  fontSize: 18, lineHeight: 1.7,
-  color: '#666', fontStyle: 'italic',
-}
-
-const projectLinkStyle = {
-  display: 'inline-flex', alignItems: 'center', gap: 8,
-  marginTop: 24,
-  padding: '14px 28px', borderRadius: 12,
-  background: 'linear-gradient(135deg, #7c3aed 0%, #f472b6 100%)',
-  color: '#fff', textDecoration: 'none',
-  fontSize: 15, fontWeight: 700, letterSpacing: 0.3,
-  boxShadow: '0 6px 20px rgba(124,58,237,0.25)',
-  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-}
-
-/**
- * İçeriği güvenli şekilde HTML'e çevirir.
- * Supabase JSONB bazen string, bazen obje döner — hepsini handle eder.
- */
+/** Tiptap JSON içeriğini HTML'e çevirir (StarterKit v3 link desteğini zaten içerir). */
 function renderContent(raw) {
-  if (!raw) return ''
-
-  let content = raw
-
-  // Eğer string olarak geldiyse JSON parse dene
-  if (typeof content === 'string') {
-    try {
-      content = JSON.parse(content)
-    } catch {
-      // Parse edilemiyorsa düz HTML/metin olarak kullan
-      return content
-    }
+  const content = parseContent(raw)
+  if (!content) return ''
+  if (typeof content === 'string') return content
+  if (content.type !== 'doc' || !Array.isArray(content.content) || !content.content.length) return ''
+  try {
+    return generateHTML(content, [StarterKit, TiptapImage])
+  } catch (e) {
+    console.error('[PostPage] İçerik çevrilemedi:', e)
+    return ''
   }
-
-  // TipTap JSON: { type: 'doc', content: [...] }
-  if (content && typeof content === 'object' && content.type === 'doc') {
-    const children = content.content
-    if (!Array.isArray(children) || children.length === 0) return ''
-    try {
-      return generateHTML(content, [
-        StarterKit,
-        TiptapLink.configure({ openOnClick: true }),
-        TiptapImage,
-      ])
-    } catch (e) {
-      console.error('[PostPage] generateHTML hatası:', e, 'content:', content)
-      return ''
-    }
-  }
-
-  return ''
 }
