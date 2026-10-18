@@ -2413,3 +2413,80 @@ body.admin-mode {
   background: var(--a-ok-soft);
   color: var(--a-ok);
 }
+
+/* LinkedIn'de paylaş */
+.li-share {
+  display: grid;
+  gap: 14px;
+}
+.li-share h3 svg {
+  color: #0a66c2;
+}
+.li-conn {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.li-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--a-ok-soft);
+  color: var(--a-ok);
+  font-size: 13px;
+  font-weight: 550;
+}
+.li-badge.is-warn {
+  background: var(--a-warn-soft);
+  color: var(--a-warn);
+}
+.li-field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--a-ink-2);
+}
+.li-field span {
+  display: flex;
+  justify-content: space-between;
+}
+.li-field em {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--a-muted);
+  font-variant-numeric: tabular-nums;
+}
+.li-field em.is-over {
+  color: var(--a-bad);
+  font-weight: 600;
+}
+.li-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--a-line-strong);
+  border-radius: 12px;
+  background: var(--a-panel);
+  color: var(--a-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  resize: vertical;
+}
+.li-field textarea:focus {
+  outline: 2px solid var(--a-accent-soft);
+  border-color: var(--a-accent);
+}
+.li-field textarea:disabled {
+  opacity: 0.75;
+}
+.li-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}

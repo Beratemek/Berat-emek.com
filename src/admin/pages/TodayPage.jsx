@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Loader2, Copy, Check, ExternalLink, Pencil, CheckCircle2, SkipForward,
+  Loader2, Pencil, CheckCircle2, SkipForward,
   ShieldCheck, ShieldAlert, AlertTriangle, RotateCcw, Lightbulb,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase.js'
+import LinkedInShare from '../components/LinkedInShare.jsx'
 
 const TZ = 'Europe/Istanbul'
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())
@@ -17,34 +18,12 @@ const TRUST = {
   'tek-kaynak': { label: 'Tek kaynak', cls: 'low' },
 }
 const STATUS = { bekliyor: 'Bekliyor', paylasildi: 'Paylaşıldı', atlandi: 'Atlandı' }
-
-async function copyText(text) {
-  try {
-    await navigator.clipboard.writeText(text)
-  } catch {
-    const ta = document.createElement('textarea')
-    ta.value = text
-    document.body.appendChild(ta)
-    ta.select()
-    document.execCommand('copy')
-    ta.remove()
-  }
-}
-
-function CopyButton({ text, label = 'Kopyala' }) {
-  const [done, setDone] = useState(false)
-  return (
-    <button
-      className="btn btn-secondary"
-      onClick={async () => {
-        await copyText(text)
-        setDone(true)
-        setTimeout(() => setDone(false), 1800)
-      }}
-    >
-      {done ? <Check size={15} /> : <Copy size={15} />} {done ? 'Kopyalandı' : label}
-    </button>
-  )
+// LinkedIn bağlantı akışından dönüşte gösterilecek mesaj (?linkedin=…)
+const LINKEDIN_RESULT = {
+  ok: ['ok', 'LinkedIn hesabın bağlandı. Artık gönderiyi buradan tek tıkla paylaşabilirsin.'],
+  iptal: ['err', 'LinkedIn bağlantısı iptal edildi.'],
+  gecersiz: ['err', 'Bağlantı isteğinin süresi doldu ya da geçersiz; yeniden dene.'],
+  hata: ['err', 'LinkedIn bağlantısı kurulamadı. Uygulamadaki yönlendirme adresini ve ürünleri kontrol et.'],
 }
 
 export default function TodayPage() {
@@ -52,6 +31,7 @@ export default function TodayPage() {
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [linkedinResult] = useState(() => LINKEDIN_RESULT[new URLSearchParams(window.location.search).get('linkedin')])
 
   useEffect(() => {
     let cancel = false
@@ -141,6 +121,7 @@ export default function TodayPage() {
   return (
     <div className="today">
       {header}
+      {linkedinResult && <div className={`alert ${linkedinResult[0]}`}>{linkedinResult[1]}</div>}
 
       {!isToday && (
         <div className="today-notice">
@@ -196,40 +177,17 @@ export default function TodayPage() {
         </section>
       )}
 
-      {/* LinkedIn metni */}
+      {/* LinkedIn: düzenle ve tek tıkla paylaş */}
       {latest.linkedin_text && (
-        <section className="admin-card">
-          <div className="card-head">
-            <h3>LinkedIn gönderisi</h3>
-            <div className="card-actions">
-              <CopyButton text={latest.linkedin_text} />
-              <a
-                className="btn btn-secondary"
-                href="https://www.linkedin.com/feed/?shareActive=true"
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => copyText(latest.linkedin_text)}
-              >
-                <ExternalLink size={15} /> Kopyala ve LinkedIn'i aç
-              </a>
-            </div>
-          </div>
-          <pre className="linkedin-text">{latest.linkedin_text}</pre>
-          {latest.linkedin_comment && (
-            <>
-              <div className="card-head sub">
-                <h4>İlk yoruma ekle</h4>
-                <CopyButton text={latest.linkedin_comment} />
-              </div>
-              <pre className="linkedin-text small">{latest.linkedin_comment}</pre>
-            </>
-          )}
-          {latest.post_id && (
-            <Link to={`/admin/posts/${latest.post_id}`} className="btn btn-secondary" style={{ marginTop: 14 }}>
-              <Pencil size={15} /> Blog taslağını düzenle ve yayınla
-            </Link>
-          )}
-        </section>
+        <LinkedInShare
+          brief={latest}
+          onShared={(patch) => setBriefs((list) => list.map((b) => (b.id === latest.id ? { ...b, ...patch } : b)))}
+        />
+      )}
+      {latest.post_id && (
+        <Link to={`/admin/posts/${latest.post_id}`} className="btn btn-secondary" style={{ justifySelf: 'start' }}>
+          <Pencil size={15} /> Blog taslağını düzenle ve yayınla
+        </Link>
       )}
 
       {/* Kontrol notları */}

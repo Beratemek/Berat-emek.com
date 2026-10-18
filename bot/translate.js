@@ -74,7 +74,7 @@ async function translateOne(post, lang) {
       user: JSON.stringify(input),
       model: TRANSLATE_MODEL,
       temperature: 0.2,
-      maxTokens: Math.min(16000, Math.max(2000, approxTokens * 2)),
+      maxTokens: Math.min(16000, Math.max(4000, approxTokens * 3)),
     })
     if (!Array.isArray(out.texts) || out.texts.length !== nodes.length || !Array.isArray(out.tags)) {
       console.warn(`  ! ${post.slug} → ${lang}: parça sayısı tutmadı (${out.texts?.length}/${nodes.length}), deneme ${attempt}`)
