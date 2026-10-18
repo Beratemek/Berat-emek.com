@@ -200,6 +200,11 @@ Blog yazısı (ana ürün, Berat'ın ağzından, sade ve profesyonel):
 LinkedIn gönderisi (blog yazısına yönlendiren kısa giriş):
 - 60-130 kelime, kısa paragraflar. İlk iki satır gelişmeyi ve geliştirici için anlamını tek cümlede söylesin (LinkedIn "devamını gör"den önce yalnızca ilk 2 satırı gösterir).
 - En çarpıcı 2-3 somut nokta (• ile başlayan satırlar; varsa sayılarla).
+- İlk cümle en çarpıcı somut bilgiyle açılsın (rakam, ölçek, bir ilk: "320 bin yıldız, 240 bini son bir haftada" gibi); ürün ya da repo adıyla açma.
+- Maddeler geniş kitlenin anlayacağı etkiler olsun: ne yapıyor, nasıl denenir, kimi etkiliyor. Sürüm numarası, ortam değişkeni,
+  platform ve sürüm gereksinimi gibi ayrıntıları blog yazısına bırak.
+- "Benim yorumum" net bir görüş olsun (neyi değiştiriyor, kimin için ne anlama geliyor); "doğrulanmadı" gibi çekingen uyarıları
+  yorumun yerine koyma. Hashtag'lerden biri #YapayZeka olsun.
 - 1-2 cümlelik "Benim yorumum:".
 - Son satır tam olarak: "Detayları, nasıl deneneceğini ve kaynakları yazımda topladım:" (yazının bağlantısı paylaşırken otomatik eklenecek).
 - Haber bülteni dili ("Ne oldu?" başlığı, ajans dili) kullanma; soru cümlesiyle bitirme. En sonda 3-4 hashtag. Gövdede link verme. En fazla 1 emoji.
