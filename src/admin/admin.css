@@ -2404,3 +2404,12 @@ body.admin-mode {
     white-space: normal;
   }
 }
+
+/* Kontrolcünün düzelttiği notlar: sönük ve yeşil etiketli */
+.notes .is-fixed {
+  opacity: 0.6;
+}
+.notes .is-fixed span {
+  background: var(--a-ok-soft);
+  color: var(--a-ok);
+}

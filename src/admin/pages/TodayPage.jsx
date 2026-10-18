@@ -238,8 +238,8 @@ export default function TodayPage() {
           <h3>Kontrol notları</h3>
           <ul className="notes">
             {latest.check_notes.map((n, i) => (
-              <li key={i} className={`sev-${n.severity}`}>
-                <span>{n.severity}</span> {n.text}
+              <li key={i} className={`sev-${n.severity}${n.fixed ? ' is-fixed' : ''}`}>
+                <span>{n.fixed ? 'düzeltildi' : n.severity}</span> {n.text}
               </li>
             ))}
           </ul>

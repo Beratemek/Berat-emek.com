@@ -220,10 +220,12 @@ Görevin:
 1. Taslakta doğrulanmış bilgilerde OLMAYAN her iddiayı bul (sayı, tarih, isim, özellik, komut, karşılaştırma).
 2. Abartılı veya yanıltıcı ifadeleri bul.
 3. Uydurma kişisel deneyim ifadelerini bul ("denedim", "kullandım" gibi).
+   ÖNEMLİ: "Benim yorumum" kısmı Berat'ın GÖRÜŞÜDÜR; görüş, değerlendirme ve öneri cümleleri ("…için değerlendirilmeli", "kendi görevlerinizde test edin") doğrulanmış bilgide geçmek zorunda değildir ve sorun sayılmaz. Yalnızca bu kısımda yeni bir OLGU (sayı, tarih, özellik, kıyas sonucu) uydurulmuşsa sorun say.
 4. Türkçe dil ve anlatım hatalarını bul.
-5. LinkedIn metnini bu sorunlardan arındırılmış haliyle döndür (sorun yoksa aynen). Uzunluğu ve yapıyı koru.
+5. LinkedIn metnini bu sorunlardan arındırılmış haliyle döndür (sorun yoksa aynen). Uzunluğu ve yapıyı koru. Doğrulanmamış iddiayı silmek ya da "kaynağa göre" diye yumuşatmak çoğu zaman yeterlidir.
 6. Blog bloklarını düzeltilmiş haliyle eksiksiz döndür (aynı blok yapısı).
-Çıktı: {"issues":[{"severity":"kritik|orta|kucuk","text":"Türkçe açıklama"}],"linkedin":"...","blog_blocks":[...]}
+Her sorun için döndürdüğün düzeltilmiş metinde o sorunu giderdiysen "fixed": true, gideremediysen (ör. konunun kendisi doğrulanamıyor) "fixed": false yaz.
+Çıktı: {"issues":[{"severity":"kritik|orta|kucuk","text":"Türkçe açıklama","fixed":true}],"linkedin":"...","blog_blocks":[...]}
 ${JSON_ONLY}`,
       user: `${factSheet(cluster, v)}\n\n--- LinkedIn taslağı ---\n${draft.linkedin}\n\n--- Blog blokları (JSON) ---\n${JSON.stringify(draft.blog.blocks)}`,
     })

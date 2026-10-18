@@ -158,11 +158,13 @@ async function main() {
   // 5) Kontrol et
   log('5/6 Taslak doğrulanmış bilgilere karşı kontrol ediliyor…')
   const checked = await checkDraft(chosen, v, draft)
-  for (const i of checked.issues) log(`   [${i.severity}] ${i.text}`)
+  for (const i of checked.issues) log(`   [${i.severity}]${i.fixed ? ' ✓ düzeltildi' : ''} ${i.text}`)
+  // Kontrolcünün düzelttiği sorunlar kararı etkilemez; editör yalnızca çözülemeyenlere bakar
+  const openIssues = checked.issues.filter((i) => i.fixed !== true)
 
   // 6) Karar
   log('6/6 Editör kararını veriyor…')
-  const verdict = await decide({ cluster: chosen, v, linkedin: checked.linkedin, issues: checked.issues, recent, today: todayLabel })
+  const verdict = await decide({ cluster: chosen, v, linkedin: checked.linkedin, issues: openIssues, recent, today: todayLabel })
 
   const sources = sourceList(chosen)
   const ideas = verdict.decision === 'paylasma' ? await suggestIdeas({ topics, recent }) : []
