@@ -238,7 +238,9 @@ async function main() {
         }
       : null
 
-  await save(brief, draftPost, draft.image_prompt)
+  // Görsel bütçesi: konuya özel AI kapak (~0,07 $) yalnızca "kesin paylaş" günlerinde;
+  // diğer günler ücretsiz markalı kapak. Toplam harcamanın büyük kısmı görsellerden geliyordu.
+  await save(brief, draftPost, verdict.urgency === 'kesin' ? draft.image_prompt : null)
 
   const u = getUsage()
   const LABEL = { kesin: '🔥 BUGÜN KESİN PAYLAŞ', onerilir: '✅ BUGÜN PAYLAŞ', 'istege-bagli': '🟡 İSTERSEN PAYLAŞ', 'gerek-yok': '⏸️  BUGÜN PAYLAŞMA' }
