@@ -1685,8 +1685,9 @@ body {
   font-size: clamp(16.5px, 0.4vw + 11px, 20px);
 }
 @media (min-width: 901px) {
+  /* Giriş ekranı tam yükseklik: alttaki rakam bandı yarım görünmesin, kaydırınca gelsin */
   .hero {
-    min-height: max(640px, 90svh);
+    min-height: max(640px, 100svh);
     padding: 112px 0 120px;
   }
   .hero-content {
