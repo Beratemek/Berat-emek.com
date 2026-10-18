@@ -9,7 +9,7 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { SITE } from '../data/site.js'
 
 export default function BlogPage() {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const { blogPosts, loading } = usePortfolioContent()
   const [params, setParams] = useSearchParams()
   const active = params.get('etiket')
@@ -37,7 +37,7 @@ export default function BlogPage() {
           <p className="kicker">{t('blog.kicker')}</p>
           <h1>{t('blog.title')}</h1>
           <p>{t('blog.intro')}</p>
-          {t('blog.langNote') && <p className="lang-note">{t('blog.langNote')}</p>}
+          {lang !== 'tr' && blogPosts.some((p) => p._lang === 'tr') && t('blog.langNote') && <p className="lang-note">{t('blog.langNote')}</p>}
         </Reveal>
 
         {tags.length > 1 && (

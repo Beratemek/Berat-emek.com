@@ -8,7 +8,7 @@ function config() {
   return { url: url.replace(/\/$/, ''), key }
 }
 
-async function rest(path, { method = 'GET', body, prefer } = {}) {
+export async function rest(path, { method = 'GET', body, prefer } = {}) {
   const { url, key } = config()
   const headers = { apikey: key, 'Content-Type': 'application/json' }
   // Eski tip (JWT) anahtarlar Authorization başlığı da ister; yeni "sb_secret_" anahtarlar istemez

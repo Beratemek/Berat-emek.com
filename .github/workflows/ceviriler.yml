@@ -1,0 +1,38 @@
+name: Çeviriler
+
+# Yazı ve projeleri 9 dile çevirir. Yalnızca yeni ya da Türkçesi değişen içerikler çevrilir;
+# değişiklik yoksa model çağrısı yapılmaz (ücretsiz geçer).
+on:
+  schedule:
+    - cron: "15 */6 * * *" # 6 saatte bir
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Yalnızca bu içerik (slug); boş = hepsi"
+        required: false
+        default: ""
+
+concurrency:
+  group: ceviriler
+  cancel-in-progress: false
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Çevirileri güncelle
+        run: node translate.js ${{ inputs.only && format('--only={0}', inputs.only) || '' }}
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BOT_MODEL: ${{ vars.BOT_MODEL }}
+          BOT_TRANSLATE_MODEL: ${{ vars.BOT_TRANSLATE_MODEL }}

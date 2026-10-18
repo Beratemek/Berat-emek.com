@@ -351,7 +351,7 @@ export default function HomePage() {
 }
 
 function ContactRow({ link }) {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const [copied, setCopied] = useState(false)
   const Icon = iconMap[link.icon] ?? Globe
   const isMail = link.href?.startsWith('mailto:')
@@ -372,7 +372,7 @@ function ContactRow({ link }) {
       <a href={link.href || '#'} {...(external && { target: '_blank', rel: 'noreferrer' })}>
         <span className="contact-icon"><Icon size={17} /></span>
         <span style={{ minWidth: 0 }}>
-          <span className="contact-label">{link.label}</span>
+          <span className="contact-label">{lang !== 'tr' && link.icon === 'mail' ? t('contact.emailLabel') : link.label}</span>
           <span className="contact-value">{link.value}</span>
         </span>
         {!isMail && <ArrowUpRight size={18} className="contact-arrow" />}

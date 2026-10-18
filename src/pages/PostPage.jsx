@@ -6,6 +6,8 @@ import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapImage from '@tiptap/extension-image'
 import { supabase } from '../lib/supabase.js'
+import { loadTranslations, translatePost } from '../lib/translations.js'
+import { LANGS } from '../i18n/translations.js'
 import Layout from '../site/Layout.jsx'
 import { PostList } from '../site/PostList.jsx'
 import { LinkedinIcon } from '../site/icons.jsx'
@@ -34,7 +36,7 @@ function ReadProgress() {
 }
 
 export default function PostPage() {
-  const { t, locale } = useI18n()
+  const { t, locale, lang } = useI18n()
   const { slug } = useParams()
   const [state, setState] = useState({ loading: true, post: null })
   const [related, setRelated] = useState([])
@@ -51,8 +53,14 @@ export default function PostPage() {
         .eq('published', true)
         .maybeSingle()
       if (cancel) return
-      setState({ loading: false, post: data || null })
-      if (!data) return
+      if (!data) {
+        setState({ loading: false, post: null })
+        return
+      }
+      // Seçili dilde çevirisi varsa onu göster, yoksa Türkçe
+      const trs = await loadTranslations(lang, [data.id], { withContent: true })
+      if (cancel) return
+      setState({ loading: false, post: translatePost(data, trs.get(data.id), lang) })
 
       const rel = await supabase
         .from('posts')
@@ -62,12 +70,14 @@ export default function PostPage() {
         .neq('id', data.id)
         .order('created_at', { ascending: false })
         .limit(3)
-      if (!cancel && rel.data) setRelated(rel.data)
+      if (cancel || !rel.data) return
+      const relTrs = await loadTranslations(lang, rel.data.map((p) => p.id))
+      if (!cancel) setRelated(rel.data.map((p) => translatePost(p, relTrs.get(p.id), lang)))
     })()
     return () => {
       cancel = true
     }
-  }, [slug])
+  }, [slug, lang])
 
   const { loading, post } = state
 
@@ -103,7 +113,7 @@ export default function PostPage() {
     datePublished: post.created_at,
     dateModified: post.updated_at || post.created_at,
     url: canonicalUrl,
-    inLanguage: 'tr-TR',
+    inLanguage: LANGS.find((l) => l.code === post._lang)?.locale || 'tr-TR',
     keywords: (post.tags || []).join(', '),
     author: { '@type': 'Person', name: SITE.name, url: SITE.url },
     publisher: { '@type': 'Person', name: SITE.name, url: SITE.url },
@@ -152,7 +162,7 @@ export default function PostPage() {
             <time dateTime={post.created_at}>{fmtDate(post.created_at, 'long', locale)}</time>
             <span>{t('posts.minLong', { n: readMinutes(post.content) })}</span>
             <span className="meta-actions">
-              <ListenButton title={post.title} html={html} />
+              <ListenButton title={post.title} html={html} lang={post._lang} />
               {post.project_url && (
                 <a href={post.project_url} target="_blank" rel="noopener noreferrer" className="s-btn primary small">
                   <ExternalLink size={15} /> {t('post.visit')}
@@ -189,9 +199,9 @@ export default function PostPage() {
 
 /**
  * Yazıyı cihazın Türkçe sesiyle sesli okur (Web Speech API — ücretsiz, sunucu gerektirmez).
- * Yazılar Türkçe olduğu için arayüz dili ne olursa olsun Türkçe ses kullanılır.
+ * Yazı hangi dilde gösteriliyorsa (çeviri ya da Türkçe asıl) o dilin sesiyle okunur.
  */
-function ListenButton({ title, html }) {
+function ListenButton({ title, html, lang = 'tr' }) {
   const { t } = useI18n()
   const [state, setState] = useState('idle') // idle | playing | paused
   const supported = typeof window !== 'undefined' && 'speechSynthesis' in window
@@ -209,7 +219,7 @@ function ListenButton({ title, html }) {
     const chunks = []
     for (const block of blocks) {
       let current = ''
-      for (const sentence of block.match(/[^.!?…]+[.!?…]*/g) || [block]) {
+      for (const sentence of block.match(/[^.!?…。！？]+[.!?…。！？]*/g) || [block]) {
         if (current && current.length + sentence.length > 200) {
           chunks.push(current)
           current = ''
@@ -218,10 +228,11 @@ function ListenButton({ title, html }) {
       }
       if (current) chunks.push(current)
     }
-    const voice = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith('tr'))
+    const speechLocale = LANGS.find((l) => l.code === lang)?.locale || 'tr-TR'
+    const voice = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith(lang))
     chunks.forEach((text, i) => {
       const u = new SpeechSynthesisUtterance(text)
-      u.lang = 'tr-TR'
+      u.lang = speechLocale
       if (voice) u.voice = voice
       if (i === chunks.length - 1) u.onend = () => setState('idle')
       synth.speak(u)

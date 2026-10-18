@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
+import { loadTranslations, translatePost } from '../lib/translations.js'
+import { useI18n } from '../i18n/I18nProvider.jsx'
 
 const EMPTY = { profile: null, blogPosts: [], projectPosts: [], contact: [], loading: true }
 
@@ -28,10 +30,12 @@ function writeCache(data) {
 }
 
 export function usePortfolioContent() {
+  const { lang } = useI18n()
   const [data, setData] = useState(() => {
     const cached = readCache()
     return cached ? { ...cached, loading: false } : EMPTY
   })
+  const [translations, setTranslations] = useState({ lang: 'tr', map: new Map() })
 
   useEffect(() => {
     let cancel = false
@@ -70,5 +74,25 @@ export function usePortfolioContent() {
     }
   }, [])
 
-  return data
+  // Seçili dil Türkçe değilse yazı/proje başlık, özet ve etiketlerinin çevirileri
+  const ids = useMemo(() => [...data.blogPosts, ...data.projectPosts].map((p) => p.id).filter(Boolean), [data.blogPosts, data.projectPosts])
+  useEffect(() => {
+    let cancel = false
+    if (lang === 'tr' || !ids.length) {
+      setTranslations({ lang, map: new Map() })
+      return
+    }
+    loadTranslations(lang, ids).then((map) => {
+      if (!cancel) setTranslations({ lang, map })
+    })
+    return () => {
+      cancel = true
+    }
+  }, [lang, ids])
+
+  return useMemo(() => {
+    if (translations.lang !== lang || lang === 'tr') return data
+    const tr = (p) => translatePost(p, translations.map.get(p.id), lang)
+    return { ...data, blogPosts: data.blogPosts.map(tr), projectPosts: data.projectPosts.map(tr) }
+  }, [data, translations, lang])
 }

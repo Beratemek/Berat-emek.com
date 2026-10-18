@@ -79,6 +79,7 @@ export const DICT = {
       title: "İletişim kurmak istersen buradayım.",
       accent: "buradayım",
       text: "Yazılarım ya da projelerim hakkında bir sorun veya önerin varsa aşağıdaki kanallardan ulaşabilirsin.",
+      emailLabel: "E-posta",
     },
     blog: {
       kicker: "Blog",
@@ -170,6 +171,7 @@ export const DICT = {
       title: "If you'd like to get in touch, I'm here.",
       accent: "I'm here",
       text: "If you have a question or suggestion about my posts or projects, you can reach me through the channels below.",
+      emailLabel: "Email",
     },
     blog: {
       kicker: "Blog",
@@ -177,7 +179,7 @@ export const DICT = {
       intro: "On agents, MCP, local models and enterprise AI: what I've tried, and what I've verified at the source.",
       all: "All",
       emptyTag: "No posts with this tag.",
-      langNote: "Articles are written in Turkish.",
+      langNote: "Some articles haven't been translated yet and are shown in Turkish.",
       filter: "Filter by tag",
     },
     post: {
@@ -261,6 +263,7 @@ export const DICT = {
       title: "Wenn du Kontakt aufnehmen möchtest, bin ich hier.",
       accent: "bin ich hier",
       text: "Wenn du eine Frage oder Anregung zu meinen Beiträgen oder Projekten hast, erreichst du mich über die Kanäle unten.",
+      emailLabel: "E-Mail",
     },
     blog: {
       kicker: "Blog",
@@ -268,7 +271,7 @@ export const DICT = {
       intro: "Über Agenten, MCP, lokale Modelle und KI im Unternehmen: was ich ausprobiert und an der Quelle überprüft habe.",
       all: "Alle",
       emptyTag: "Keine Beiträge mit diesem Tag.",
-      langNote: "Die Beiträge sind auf Türkisch verfasst.",
+      langNote: "Einige Beiträge sind noch nicht übersetzt und werden auf Türkisch angezeigt.",
       filter: "Nach Tag filtern",
     },
     post: {
@@ -360,6 +363,7 @@ export const DICT = {
       title: "Si tu veux me contacter, je suis là.",
       accent: "je suis là",
       text: "Si tu as une question ou une suggestion sur mes articles ou mes projets, tu peux me joindre via les canaux ci-dessous.",
+      emailLabel: "E-mail",
     },
     blog: {
       kicker: "Blog",
@@ -367,7 +371,7 @@ export const DICT = {
       intro: "Sur les agents, MCP, les modèles locaux et l'IA d'entreprise : ce que j'ai testé et vérifié à la source.",
       all: "Tous",
       emptyTag: "Aucun article avec ce tag.",
-      langNote: "Les articles sont rédigés en turc.",
+      langNote: "Certains articles ne sont pas encore traduits et s'affichent en turc.",
       filter: "Filtrer par tag",
     },
     post: {
@@ -459,6 +463,7 @@ export const DICT = {
       title: "Si quieres contactarme, aquí estoy.",
       accent: "aquí estoy",
       text: "Si tienes una pregunta o sugerencia sobre mis artículos o proyectos, puedes escribirme por los canales de abajo.",
+      emailLabel: "Correo",
     },
     blog: {
       kicker: "Blog",
@@ -466,7 +471,7 @@ export const DICT = {
       intro: "Sobre agentes, MCP, modelos locales e IA empresarial: lo que he probado y lo que he verificado en la fuente.",
       all: "Todos",
       emptyTag: "No hay artículos con esta etiqueta.",
-      langNote: "Los artículos están escritos en turco.",
+      langNote: "Algunos artículos aún no están traducidos y se muestran en turco.",
       filter: "Filtrar por etiqueta",
     },
     post: {
@@ -558,6 +563,7 @@ export const DICT = {
       title: "Se vuoi contattarmi, sono qui.",
       accent: "sono qui",
       text: "Se hai una domanda o un suggerimento sui miei articoli o progetti, puoi scrivermi tramite i canali qui sotto.",
+      emailLabel: "Email",
     },
     blog: {
       kicker: "Blog",
@@ -565,7 +571,7 @@ export const DICT = {
       intro: "Su agenti, MCP, modelli locali e IA aziendale: ciò che ho provato e verificato alla fonte.",
       all: "Tutti",
       emptyTag: "Nessun articolo con questo tag.",
-      langNote: "Gli articoli sono scritti in turco.",
+      langNote: "Alcuni articoli non sono ancora tradotti e vengono mostrati in turco.",
       filter: "Filtra per tag",
     },
     post: {
@@ -649,6 +655,7 @@ export const DICT = {
       title: "Se quiser entrar em contato, estou aqui.",
       accent: "estou aqui",
       text: "Se você tiver uma pergunta ou sugestão sobre meus textos ou projetos, pode me encontrar pelos canais abaixo.",
+      emailLabel: "E-mail",
     },
     blog: {
       kicker: "Blog",
@@ -656,7 +663,7 @@ export const DICT = {
       intro: "Sobre agentes, MCP, modelos locais e IA corporativa: o que testei e o que verifiquei na fonte.",
       all: "Todos",
       emptyTag: "Nenhum artigo com esta tag.",
-      langNote: "Os artigos são escritos em turco.",
+      langNote: "Alguns textos ainda não foram traduzidos e aparecem em turco.",
       filter: "Filtrar por tag",
     },
     post: {
@@ -740,6 +747,7 @@ export const DICT = {
       title: "Если хотите связаться — я здесь.",
       accent: "я здесь",
       text: "Если у вас есть вопрос или предложение по моим статьям или проектам, напишите мне через каналы ниже.",
+      emailLabel: "Почта",
     },
     blog: {
       kicker: "Блог",
@@ -747,7 +755,7 @@ export const DICT = {
       intro: "Об агентах, MCP, локальных моделях и корпоративном ИИ: что я попробовал и проверил по первоисточнику.",
       all: "Все",
       emptyTag: "Статей с этим тегом нет.",
-      langNote: "Статьи написаны на турецком языке.",
+      langNote: "Некоторые статьи ещё не переведены и показаны на турецком.",
       filter: "Фильтр по тегу",
     },
     post: {
@@ -803,8 +811,16 @@ export const DICT = {
       body: "我在 VizioWise 开发 Morf：一个企业级 AI 平台，让工业企业从 ERP 到 SCADA 分散的数据可以用自然语言查询，并接入自动化。我最感兴趣的，是让语言模型的回答在企业环境中变得可信的一切：正确的数据访问、工具设计、评测与成本。\n\n此前，我在 TÜBİTAK 2209-A 项目中研究了基于深度学习的肺音分类，在 Trendyol Datathon 中取得 0.903 的 F1 分数，我们团队在 TUA Astro 黑客松的 19 支队伍中排名第 6。这里的文章就是这些工作的笔记。",
       highlights: ["Morf — VizioWise 的企业级 AI 平台", "智能体、MCP 与工具调用设计", "深度学习研究 — TÜBİTAK 2209-A", "计算机工程 — 埃尔吉耶斯大学"],
     },
-    contact: { kicker: "05 — 联系", title: "如需联系，我在这里。", accent: "我在这里", text: "如果你对我的文章或项目有问题或建议，可以通过下方渠道联系我。" },
-    blog: { kicker: "博客", title: "文章", intro: "关于智能体、MCP、本地模型和企业 AI：我亲自尝试过、并在源头核实过的内容。", all: "全部", emptyTag: "该标签下暂无文章。", langNote: "文章以土耳其语撰写。", filter: "按标签筛选" },
+    contact: { kicker: "05 — 联系", title: "如需联系，我在这里。", accent: "我在这里", text: "如果你对我的文章或项目有问题或建议，可以通过下方渠道联系我。", emailLabel: "邮箱" },
+    blog: {
+      kicker: "博客",
+      title: "文章",
+      intro: "关于智能体、MCP、本地模型和企业 AI：我亲自尝试过、并在源头核实过的内容。",
+      all: "全部",
+      emptyTag: "该标签下暂无文章。",
+      langNote: "部分文章尚未翻译，暂以土耳其语显示。",
+      filter: "按标签筛选",
+    },
     post: {
       listen: "收听（土耳其语）",
       pause: "暂停",
@@ -858,14 +874,14 @@ export const DICT = {
       body: "VizioWiseで、産業企業のERPからSCADAまで散在するデータを自然言語で問い合わせ、自動化につなげられるようにする企業向けAIプラットフォーム「Morf」を開発しています。最も関心があるのは、企業環境で言語モデルの回答を信頼できるものにするすべての要素、つまり適切なデータへのアクセス、ツール設計、評価、コストです。\n\nこれまでにTÜBİTAK 2209-Aの枠組みで深層学習による肺音分類の研究を行い、Trendyol DatathonではF1スコア0.903を達成し、TUA Astro Hackathonではチームで19チーム中6位になりました。ここに載せている記事は、こうした仕事から生まれたノートです。",
       highlights: ["Morf — VizioWiseの企業向けAIプラットフォーム", "エージェント、MCP、ツール呼び出し設計", "深層学習研究 — TÜBİTAK 2209-A", "コンピュータ工学 — エルジエス大学"],
     },
-    contact: { kicker: "05 — お問い合わせ", title: "ご連絡はこちらから。", accent: "こちらから", text: "記事やプロジェクトについての質問やご意見があれば、下記の方法でご連絡ください。" },
+    contact: { kicker: "05 — お問い合わせ", title: "ご連絡はこちらから。", accent: "こちらから", text: "記事やプロジェクトについての質問やご意見があれば、下記の方法でご連絡ください。", emailLabel: "メール" },
     blog: {
       kicker: "ブログ",
       title: "記事",
       intro: "エージェント、MCP、ローカルモデル、企業向けAIについて。実際に試し、一次情報で確かめたことを書いています。",
       all: "すべて",
       emptyTag: "このタグの記事はありません。",
-      langNote: "記事はトルコ語で書かれています。",
+      langNote: "一部の記事はまだ翻訳されておらず、トルコ語で表示されています。",
       filter: "タグで絞り込む",
     },
     post: {
