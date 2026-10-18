@@ -32,12 +32,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "Yeni yazı",
-      headline: "Yapay zekanın zor kısmı demo değil, üretim.",
-      accent: "üretim",
-      intro: "VizioWise'da, fabrikaların ERP'den SCADA'ya dağınık verisini tek bir yapay zeka katmanında sorgulanabilir hale getiren Morf'u geliştiriyorum. Burada sahada öğrendiklerimi yazıyorum: neyin gerçekten çalıştığını ve neyin yalnızca demoda iyi göründüğünü.",
+      headline: "Fikir senden, yapay zeka benden.",
+      accent: "yapay zeka benden",
+      intro: "Dil modelleri, ajanlar ve otomasyonla web'den kurumsal sistemlere uzanan yapay zeka ürünleri geliştiriyorum. Şu an VizioWise AI'da Morf üzerinde çalışıyorum; aklında bir fikir varsa, birlikte kuralım.",
       ctaPosts: "Yazıları oku",
       ctaLinkedin: "LinkedIn'de takip et",
       scroll: "Aşağı kaydır",
+      ctaWork: "Birlikte çalışalım",
     },
     caps: {
       kicker: "01 — Odak",
@@ -74,8 +75,8 @@ export const DICT = {
     },
     contact: {
       kicker: "05 — İletişim",
-      title: "Zor bir problemin varsa konuşalım.",
-      accent: "konuşalım",
+      title: "Fikrin hazırsa başlayalım.",
+      accent: "başlayalım",
       text: "Kurumsal yapay zeka, ajan sistemleri ya da yazılardan biri hakkında yazabilirsin. Kısa ve net mesajlara daha hızlı dönüyorum.",
     },
     blog: {
@@ -121,12 +122,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "New post",
-      headline: "The hard part of AI isn't the demo. It's production.",
-      accent: "production",
-      intro: "At VizioWise I build Morf, an enterprise AI layer that makes factory data, scattered from ERP to SCADA, queryable in one place. Here I write down what I learn in the field: what actually works, and what only looks good in a demo.",
+      headline: "You bring the idea. I bring the AI.",
+      accent: "I bring the AI",
+      intro: "I build AI products with language models, agents and automation, from the web to enterprise systems. Right now I'm working on Morf at VizioWise AI; if you have an idea, let's build it together.",
       ctaPosts: "Read the writing",
       ctaLinkedin: "Follow on LinkedIn",
       scroll: "Scroll",
+      ctaWork: "Let's work together",
     },
     caps: {
       kicker: "01 — Focus",
@@ -163,8 +165,8 @@ export const DICT = {
     },
     contact: {
       kicker: "05 — Contact",
-      title: "Got a hard problem? Let's talk.",
-      accent: "Let's talk",
+      title: "If your idea is ready, let's start.",
+      accent: "let's start",
       text: "Write to me about enterprise AI, agent systems or any of the posts. Short, clear messages get faster replies.",
     },
     blog: {
@@ -210,12 +212,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "Neuer Beitrag",
-      headline: "Das Schwierige an KI ist nicht die Demo, sondern die Produktion.",
-      accent: "die Produktion",
-      intro: "Bei VizioWise entwickle ich Morf, eine KI-Schicht für Unternehmen, die verstreute Fabrikdaten von ERP bis SCADA an einem Ort abfragbar macht. Hier schreibe ich auf, was ich in der Praxis lerne: was wirklich funktioniert und was nur in der Demo gut aussieht.",
+      headline: "Du bringst die Idee, ich die KI.",
+      accent: "ich die KI",
+      intro: "Ich entwickle KI-Produkte mit Sprachmodellen, Agenten und Automatisierung – vom Web bis zu Unternehmenssystemen. Derzeit arbeite ich bei VizioWise AI an Morf; wenn du eine Idee hast, bauen wir sie gemeinsam.",
       ctaPosts: "Beiträge lesen",
       ctaLinkedin: "Auf LinkedIn folgen",
       scroll: "Scrollen",
+      ctaWork: "Lass uns zusammenarbeiten",
     },
     caps: {
       kicker: "01 — Fokus",
@@ -252,8 +255,8 @@ export const DICT = {
     },
     contact: {
       kicker: "05 — Kontakt",
-      title: "Ein schwieriges Problem? Lass uns reden.",
-      accent: "Lass uns reden",
+      title: "Wenn deine Idee steht, legen wir los.",
+      accent: "legen wir los",
       text: "Schreib mir zu KI im Unternehmen, Agentensystemen oder einem der Beiträge. Kurze, klare Nachrichten beantworte ich schneller.",
     },
     blog: {
@@ -307,12 +310,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "Nouvel article",
-      headline: "Le plus dur avec l'IA, ce n'est pas la démo. C'est la production.",
-      accent: "la production",
-      intro: "Chez VizioWise, je développe Morf, une couche d'IA d'entreprise qui rend interrogeables en un seul endroit les données d'usine dispersées, de l'ERP au SCADA. J'écris ici ce que j'apprends sur le terrain : ce qui marche vraiment, et ce qui n'a l'air bien qu'en démo.",
+      headline: "L'idée vient de toi, l'IA vient de moi.",
+      accent: "l'IA vient de moi",
+      intro: "Je développe des produits d'IA avec des modèles de langage, des agents et de l'automatisation, du web aux systèmes d'entreprise. Je travaille actuellement sur Morf chez VizioWise AI ; si tu as une idée, construisons-la ensemble.",
       ctaPosts: "Lire les articles",
       ctaLinkedin: "Suivre sur LinkedIn",
       scroll: "Défiler",
+      ctaWork: "Travaillons ensemble",
     },
     caps: {
       kicker: "01 — Focus",
@@ -349,8 +353,8 @@ export const DICT = {
     },
     contact: {
       kicker: "05 — Contact",
-      title: "Un problème difficile ? Parlons-en.",
-      accent: "Parlons-en",
+      title: "Si ton idée est prête, commençons.",
+      accent: "commençons",
       text: "Écris-moi au sujet de l'IA en entreprise, des systèmes d'agents ou d'un des articles. Les messages courts et clairs reçoivent des réponses plus rapides.",
     },
     blog: {
@@ -404,12 +408,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "Nuevo artículo",
-      headline: "Lo difícil de la IA no es la demo. Es la producción.",
-      accent: "la producción",
-      intro: "En VizioWise desarrollo Morf, una capa de IA empresarial que permite consultar en un solo lugar los datos de fábrica dispersos, del ERP al SCADA. Aquí escribo lo que aprendo en el terreno: lo que de verdad funciona y lo que solo luce bien en una demo.",
+      headline: "Tú pones la idea, yo pongo la IA.",
+      accent: "yo pongo la IA",
+      intro: "Desarrollo productos de IA con modelos de lenguaje, agentes y automatización, desde la web hasta sistemas empresariales. Ahora trabajo en Morf en VizioWise AI; si tienes una idea, construyámosla juntos.",
       ctaPosts: "Leer los artículos",
       ctaLinkedin: "Seguir en LinkedIn",
       scroll: "Desplázate",
+      ctaWork: "Trabajemos juntos",
     },
     caps: {
       kicker: "01 — Enfoque",
@@ -446,8 +451,8 @@ export const DICT = {
     },
     contact: {
       kicker: "05 — Contacto",
-      title: "¿Tienes un problema difícil? Hablemos.",
-      accent: "Hablemos",
+      title: "Si tu idea está lista, empecemos.",
+      accent: "empecemos",
       text: "Escríbeme sobre IA empresarial, sistemas de agentes o cualquiera de los artículos. Los mensajes breves y claros reciben respuesta antes.",
     },
     blog: {
@@ -501,12 +506,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "Nuovo articolo",
-      headline: "La parte difficile dell'IA non è la demo. È la produzione.",
-      accent: "la produzione",
-      intro: "In VizioWise sviluppo Morf, un livello di IA aziendale che rende interrogabili in un unico punto i dati di fabbrica sparsi, dall'ERP allo SCADA. Qui scrivo ciò che imparo sul campo: cosa funziona davvero e cosa sembra buono solo in una demo.",
+      headline: "Tu porti l'idea, io porto l'IA.",
+      accent: "io porto l'IA",
+      intro: "Sviluppo prodotti di IA con modelli linguistici, agenti e automazione, dal web ai sistemi aziendali. Ora lavoro a Morf in VizioWise AI; se hai un'idea, costruiamola insieme.",
       ctaPosts: "Leggi gli articoli",
       ctaLinkedin: "Seguimi su LinkedIn",
       scroll: "Scorri",
+      ctaWork: "Lavoriamo insieme",
     },
     caps: {
       kicker: "01 — Focus",
@@ -543,8 +549,8 @@ export const DICT = {
     },
     contact: {
       kicker: "05 — Contatti",
-      title: "Hai un problema difficile? Parliamone.",
-      accent: "Parliamone",
+      title: "Se la tua idea è pronta, iniziamo.",
+      accent: "iniziamo",
       text: "Scrivimi di IA aziendale, sistemi di agenti o di uno degli articoli. Ai messaggi brevi e chiari rispondo prima.",
     },
     blog: {
@@ -590,12 +596,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "Novo artigo",
-      headline: "A parte difícil da IA não é a demo. É a produção.",
-      accent: "a produção",
-      intro: "Na VizioWise eu desenvolvo o Morf, uma camada de IA corporativa que torna consultáveis, em um só lugar, os dados de fábrica espalhados do ERP ao SCADA. Aqui escrevo o que aprendo na prática: o que realmente funciona e o que só parece bom numa demo.",
+      headline: "Você traz a ideia, eu trago a IA.",
+      accent: "eu trago a IA",
+      intro: "Desenvolvo produtos de IA com modelos de linguagem, agentes e automação, da web a sistemas corporativos. Hoje trabalho no Morf na VizioWise AI; se você tem uma ideia, vamos construí-la juntos.",
       ctaPosts: "Ler os artigos",
       ctaLinkedin: "Seguir no LinkedIn",
       scroll: "Role",
+      ctaWork: "Vamos trabalhar juntos",
     },
     caps: {
       kicker: "01 — Foco",
@@ -632,8 +639,8 @@ export const DICT = {
     },
     contact: {
       kicker: "05 — Contato",
-      title: "Tem um problema difícil? Vamos conversar.",
-      accent: "Vamos conversar",
+      title: "Se a sua ideia está pronta, vamos começar.",
+      accent: "vamos começar",
       text: "Escreva sobre IA corporativa, sistemas de agentes ou algum dos textos. Mensagens curtas e claras recebem resposta mais rápido.",
     },
     blog: {
@@ -679,12 +686,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "Новая статья",
-      headline: "Самое сложное в ИИ — не демо, а продакшн.",
-      accent: "продакшн",
-      intro: "В VizioWise я разрабатываю Morf — корпоративный ИИ-слой, который делает разрозненные заводские данные, от ERP до SCADA, доступными для запросов в одном месте. Здесь я записываю то, чему учусь на практике: что действительно работает, а что хорошо выглядит только в демо.",
+      headline: "Идея — ваша, ИИ — мой.",
+      accent: "ИИ — мой",
+      intro: "Я создаю ИИ-продукты на основе языковых моделей, агентов и автоматизации — от веба до корпоративных систем. Сейчас работаю над Morf в VizioWise AI; если у вас есть идея, давайте воплотим её вместе.",
       ctaPosts: "Читать статьи",
       ctaLinkedin: "Подписаться в LinkedIn",
       scroll: "Листайте",
+      ctaWork: "Давайте работать вместе",
     },
     caps: {
       kicker: "01 — Фокус",
@@ -721,8 +729,8 @@ export const DICT = {
     },
     contact: {
       kicker: "05 — Контакты",
-      title: "Есть сложная задача? Давайте обсудим.",
-      accent: "Давайте обсудим",
+      title: "Если идея готова — начнём.",
+      accent: "начнём",
       text: "Пишите о корпоративном ИИ, агентных системах или о любой из статей. На короткие и ясные сообщения я отвечаю быстрее.",
     },
     blog: {
@@ -760,12 +768,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "新文章",
-      headline: "AI 最难的部分不是演示，而是生产环境。",
-      accent: "生产环境",
-      intro: "我在 VizioWise 开发 Morf：一个企业级 AI 层，让工厂里从 ERP 到 SCADA 分散的数据可以在同一个地方查询。我在这里记录实践中学到的东西：哪些真正有效，哪些只是在演示里好看。",
+      headline: "你出想法，我出 AI。",
+      accent: "我出 AI",
+      intro: "我用语言模型、智能体和自动化打造 AI 产品，从网页到企业系统。目前我在 VizioWise AI 开发 Morf；如果你有想法，我们一起把它做出来。",
       ctaPosts: "阅读文章",
       ctaLinkedin: "在 LinkedIn 关注",
       scroll: "向下滚动",
+      ctaWork: "一起合作",
     },
     caps: {
       kicker: "01 — 专注",
@@ -785,7 +794,7 @@ export const DICT = {
       body: "我在 VizioWise 开发 Morf：一个企业级 AI 平台，让工业企业从 ERP 到 SCADA 分散的数据可以用自然语言查询，并接入自动化。我最感兴趣的，是让语言模型的回答在企业环境中变得可信的一切：正确的数据访问、工具设计、评测与成本。\n\n此前，我在 TÜBİTAK 2209-A 项目中研究了基于深度学习的肺音分类，在 Trendyol Datathon 中取得 0.903 的 F1 分数，我们团队在 TUA Astro 黑客松的 19 支队伍中排名第 6。这里的文章就是这些工作的笔记。",
       highlights: ["Morf — VizioWise 的企业级 AI 平台", "智能体、MCP 与工具调用设计", "深度学习研究 — TÜBİTAK 2209-A", "计算机工程 — 埃尔吉耶斯大学"],
     },
-    contact: { kicker: "05 — 联系", title: "有难题？我们聊聊。", accent: "我们聊聊", text: "欢迎就企业 AI、智能体系统或任何一篇文章与我联系。简短清晰的消息，我回复得更快。" },
+    contact: { kicker: "05 — 联系", title: "想法准备好了，就开始吧。", accent: "就开始吧", text: "欢迎就企业 AI、智能体系统或任何一篇文章与我联系。简短清晰的消息，我回复得更快。" },
     blog: { kicker: "博客", title: "文章", intro: "关于智能体、MCP、本地模型和企业 AI：我亲自尝试过、并在源头核实过的内容。", all: "全部", emptyTag: "该标签下暂无文章。", langNote: "文章以土耳其语撰写。", filter: "按标签筛选" },
     post: {
       listen: "收听（土耳其语）",
@@ -813,12 +822,13 @@ export const DICT = {
     hero: {
       role: ROLE,
       latest: "新着記事",
-      headline: "AIで難しいのはデモではなく、本番運用だ。",
-      accent: "本番運用",
-      intro: "VizioWiseで、工場のERPからSCADAまで散らばったデータを一か所で問い合わせられるようにする企業向けAIレイヤー「Morf」を開発しています。ここでは現場で学んだこと、つまり本当に機能するものと、デモでしか良く見えないものを書いています。",
+      headline: "アイデアはあなたに、AIは私に。",
+      accent: "AIは私に",
+      intro: "言語モデル、エージェント、自動化を使って、Webから企業システムまでAIプロダクトを開発しています。現在はVizioWise AIでMorfに取り組んでいます。アイデアがあれば、一緒に形にしましょう。",
       ctaPosts: "記事を読む",
       ctaLinkedin: "LinkedIn でフォロー",
       scroll: "スクロール",
+      ctaWork: "一緒に取り組みましょう",
     },
     caps: {
       kicker: "01 — フォーカス",
@@ -838,7 +848,7 @@ export const DICT = {
       body: "VizioWiseで、産業企業のERPからSCADAまで散在するデータを自然言語で問い合わせ、自動化につなげられるようにする企業向けAIプラットフォーム「Morf」を開発しています。最も関心があるのは、企業環境で言語モデルの回答を信頼できるものにするすべての要素、つまり適切なデータへのアクセス、ツール設計、評価、コストです。\n\nこれまでにTÜBİTAK 2209-Aの枠組みで深層学習による肺音分類の研究を行い、Trendyol DatathonではF1スコア0.903を達成し、TUA Astro Hackathonではチームで19チーム中6位になりました。ここに載せている記事は、こうした仕事から生まれたノートです。",
       highlights: ["Morf — VizioWiseの企業向けAIプラットフォーム", "エージェント、MCP、ツール呼び出し設計", "深層学習研究 — TÜBİTAK 2209-A", "コンピュータ工学 — エルジエス大学"],
     },
-    contact: { kicker: "05 — お問い合わせ", title: "難しい課題がありますか？話しましょう。", accent: "話しましょう", text: "企業向けAI、エージェントシステム、または記事についてお気軽にご連絡ください。短く明確なメッセージほど早く返信できます。" },
+    contact: { kicker: "05 — お問い合わせ", title: "アイデアが固まったら、始めましょう。", accent: "始めましょう", text: "企業向けAI、エージェントシステム、または記事についてお気軽にご連絡ください。短く明確なメッセージほど早く返信できます。" },
     blog: {
       kicker: "ブログ",
       title: "記事",

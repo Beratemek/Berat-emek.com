@@ -692,6 +692,12 @@ body.admin-mode #root {
   font-style: normal;
   color: var(--accent-ink);
 }
+/* Geniş ekranda vurgulu kısım bölünmeden bir bütün olarak alt satıra geçsin */
+@media (min-width: 701px) {
+  .hero h1 em {
+    display: inline-block;
+  }
+}
 .word {
   display: inline-block;
   opacity: 0;
@@ -2169,5 +2175,19 @@ body {
   .contact-icon {
     width: 38px;
     height: 38px;
+  }
+}
+
+/* Dar telefonlarda ana düğmeye yer aç: LinkedIn yalnızca ikon */
+@media (max-width: 400px) {
+  .hero-actions {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .hero-actions .s-btn.ghost {
+    width: 50px;
+    padding: 0;
+  }
+  .hero-actions .lbl-short {
+    display: none;
   }
 }

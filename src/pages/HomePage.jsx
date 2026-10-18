@@ -147,11 +147,11 @@ export default function HomePage() {
               {leadRest && <span className="lead-rest">{/[。！？]$/.test(leadFirst) ? '' : ' '}{leadRest}</span>}
             </p>
             <div className="hero-actions fade-in" style={{ '--i': 8 }}>
-              <Link to="/blog" className="s-btn accent">
-                {t('hero.ctaPosts')} <ArrowRight size={17} />
-              </Link>
+              <a href="#iletisim" className="s-btn accent">
+                {t('hero.ctaWork')} <ArrowRight size={17} />
+              </a>
               {linkedin && (
-                <a href={linkedin.href} target="_blank" rel="noreferrer" className="s-btn ghost">
+                <a href={linkedin.href} target="_blank" rel="noreferrer" className="s-btn ghost" aria-label={t('hero.ctaLinkedin')}>
                   <LinkedinIcon size={16} />
                   <span className="lbl-long">{t('hero.ctaLinkedin')}</span>
                   <span className="lbl-short">LinkedIn</span>
