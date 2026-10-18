@@ -161,8 +161,8 @@ export default function SpendPage() {
   const untracked = budget?.usageMonthly != null ? Math.max(0, budget.usageMonthly - m.monthTracked) : null
   const daysLeft = budget?.remaining != null && m.perDay > 0 ? Math.floor(budget.remaining / m.perDay) : null
   const catRows = CATS.map((c) => ({ ...c, ...m.byCat[c.key] })).filter((c) => c.total > 0).sort((a, b) => b.total - a.total)
-  if (untracked > 0.005) catRows.push({ key: 'untracked', label: 'Takip öncesi', hint: 'Kayıt başlamadan önceki harcama (ör. sitedeki kapakların toplu üretimi)', total: untracked, count: null })
   const catMax = Math.max(0.0001, ...catRows.map((c) => c.total))
+  if (untracked > 0.005) catRows.push({ key: 'untracked', label: 'Takip öncesi', hint: 'Kayıt başlamadan önceki harcama (ör. sitedeki kapakların toplu üretimi)', total: untracked, count: null })
 
   // Grafik ölçüleri
   const W = 720
@@ -280,7 +280,7 @@ export default function SpendPage() {
           ) : (
             <ul className="cat-list">
               {catRows.map((c) => (
-                <li key={c.key} title={c.hint}>
+                <li key={c.key} title={c.hint} className={c.key === 'untracked' ? 'is-untracked' : ''}>
                   <div className="cat-top">
                     <span className="cat-name">{c.label}</span>
                     <span className="cat-num">
@@ -289,7 +289,7 @@ export default function SpendPage() {
                     </span>
                   </div>
                   <div className="meter thin">
-                    <span style={{ width: `${(c.total / catMax) * 100}%` }} className={c.key === 'untracked' ? 'is-muted' : ''} />
+                    <span style={{ width: c.key === 'untracked' ? '100%' : `${(c.total / catMax) * 100}%` }} className={c.key === 'untracked' ? 'is-muted' : ''} />
                   </div>
                   {c.hint && <span className="cat-hint">{c.hint}</span>}
                 </li>
@@ -322,7 +322,9 @@ export default function SpendPage() {
                     <td className="when">{fmtTime(r.started_at)}</td>
                     <td>
                       <span className="chip">{CAT[classify(r)]?.label}</span>
-                      <span className="what">{r.summary}</span>
+                      <span className="what" title={r.summary}>
+                        {r.summary?.length > 140 ? `${r.summary.slice(0, 140)}…` : r.summary}
+                      </span>
                     </td>
                     <td className="num">{usdSmall(Number(r.cost_usd))}</td>
                   </tr>

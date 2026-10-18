@@ -327,6 +327,6 @@ async function verifySafe(c) {
 
 main().catch(async (e) => {
   console.error('\n❌ Bot hata verdi:', e.message)
-  await logRun(false, `Hata: ${e.message}`).catch(() => {})
+  await logRun(false, `Hata: ${e.message.slice(0, 160)}`).catch(() => {})
   process.exit(1)
 })

@@ -269,6 +269,15 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+.sugg.kind-weekly-report .sugg-body {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.spend-head a {
+  color: var(--a-accent-ink);
+  text-decoration: none;
+}
 .sugg-body.is-clamped {
   max-height: 8.2em;
   overflow: hidden;
