@@ -22,6 +22,17 @@
       ],
       "destination": "/api/post?kind=project&slug=:slug"
     },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "functions": {
+    "api/content/*.js": {
+      "maxDuration": 300
+    },
+    "api/agents/*.js": {
+      "maxDuration": 60
+    }
+  }
 }

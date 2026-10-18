@@ -6,9 +6,12 @@ import TiptapLink from '@tiptap/extension-link'
 import TiptapImage from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
 import { qualityCheck } from '../lib/quality.js'
+import { serverApi } from '../lib/serverApi.js'
 import {
   ArrowLeft,
   Save,
+  ShieldCheck,
+  X as XIcon,
   Bold,
   Italic,
   Strikethrough,
@@ -50,6 +53,8 @@ export default function PostEditor() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [err, setErr] = useState(null)
+  const [review, setReview] = useState(null) // yapay zekalı kalite incelemesi
+  const [reviewing, setReviewing] = useState(false)
 
   // "Kaydedildi" bildirimini birkaç saniye sonra otomatik gizle
   useEffect(() => {
@@ -184,6 +189,23 @@ export default function PostEditor() {
       setErr(e.message)
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Kalite kapısı, ikinci aşama: dil, abartı, uydurma deneyim ve içerik sınırlarını yapay zeka okur (~0,001 $)
+  async function aiReview() {
+    setReviewing(true)
+    setReview(null)
+    try {
+      const out = await serverApi('/api/agents/quality', {
+        method: 'POST',
+        body: { title: form.title, excerpt: form.excerpt, text: editor?.getText() || '', kind: form.kind },
+      })
+      setReview(out)
+    } catch (e) {
+      setReview({ error: e.message })
+    } finally {
+      setReviewing(false)
     }
   }
 
@@ -398,6 +420,42 @@ export default function PostEditor() {
         </div>
       </div>
 
+      {review && (
+        <div className={`admin-card review-card ${review.error ? 'is-error' : review.verdict === 'yayinlanabilir' ? 'is-ok' : 'is-fix'}`}>
+          <div className="card-head">
+            <h3>
+              <ShieldCheck size={16} />{' '}
+              {review.error ? 'İnceleme yapılamadı' : review.verdict === 'yayinlanabilir' ? 'Yayınlanabilir' : 'Düzeltilmeli'}
+            </h3>
+            <button type="button" className="icon-button" onClick={() => setReview(null)} aria-label="Kapat">
+              <XIcon size={16} />
+            </button>
+          </div>
+          {review.error ? (
+            <p className="muted-line">{review.error}</p>
+          ) : (
+            <>
+              {review.summary && <p className="review-summary">{review.summary}</p>}
+              {review.issues?.length > 0 ? (
+                <ul className="review-list">
+                  {review.issues.map((i, k) => (
+                    <li key={k} className={`lvl-${i.level}`}>
+                      <span className="review-level">{i.level === 'kritik' ? 'Kritik' : i.level === 'uyari' ? 'Uyarı' : 'Öneri'}</span>
+                      <div>
+                        {i.text}
+                        {i.quote && <q>{i.quote}</q>}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="muted-line">Not edilecek bir şey bulunmadı.</p>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       <div className="save-bar">
         <span className={`save-state ${form.published ? 'is-live' : ''}`}>
           {form.published ? 'Yayında' : 'Taslak'}
@@ -407,6 +465,10 @@ export default function PostEditor() {
             Sitede gör
           </a>
         )}
+        <button type="button" onClick={aiReview} disabled={reviewing || saving} className="btn btn-secondary" title="Dil, abartı, uydurma deneyim ve içerik sınırları · ~0,001 $">
+          {reviewing ? <Loader2 size={14} className="spin" /> : <ShieldCheck size={14} />}
+          Yapay zekayla kontrol et
+        </button>
         <Link to={`/admin/${form.kind === 'project' ? 'projects' : 'posts'}`} className="btn btn-secondary">İptal</Link>
         <button onClick={handleSave} disabled={saving} className="btn btn-primary">
           {saving ? <Loader2 size={14} className="spin" /> : <Save size={14} />}

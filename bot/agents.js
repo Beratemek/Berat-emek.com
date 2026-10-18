@@ -343,3 +343,135 @@ ${recent.length ? recent.map((r) => `- ${r.headline || '-'}`).join('\n') : '- ka
     return []
   }
 }
+
+
+/* ---------------------------------------------------------------
+ * Ortak: yazının "Kaynaklar" listesi (resmi → medya; topluluk gönderileri hariç)
+ * ------------------------------------------------------------- */
+export function sourceList(cluster) {
+  const order = { primary: 0, media: 1, community: 2 }
+  return [...(cluster.items || [])]
+    .sort((a, b) => order[a.type] - order[b.type])
+    .filter((i) => i.type !== 'community')
+    .slice(0, 4)
+}
+
+/* ---------------------------------------------------------------
+ * 7) GÜNDEM EDİTÖRÜ — günün konularını yazmadan önce tek çağrıda sıralar (ucuz model).
+ *    Her konuya aciliyet, puan, gerekçe ve yazının açısını verir.
+ * ------------------------------------------------------------- */
+const clampRating = (n) => Math.max(1, Math.min(10, Math.round(Number(n) || 1)))
+
+export async function triage({ topics, recent, today, cadence, published = [] }) {
+  if (!topics.length) return null
+  const lines = topics.map((t, i) => {
+    const s = t.signals || {}
+    const v = t.verification
+    const check = v ? (v.verified ? `doğrulandı — ${v.whatHappened}` : 'kaynak metinlerde doğrulanamadı') : 'henüz doğrulanmadı'
+    return `${i}. ${t.topic}
+   kategori ${t.category} · odak ${t.relevance}/3 · güven ${t.trust} · ${t.sourceCount ?? '?'} kaynak · resmi kaynak ${s.hasPrimary ? 'var' : 'yok'} · bağımsız medya ${s.media ?? 0} · HN ${s.hn || 0} puan · GitHub ${s.github || 0} yıldız · HF ${s.hf || 0} · Reddit ${s.reddit || 0}
+   ${check}`
+  })
+
+  const out = await askJSON({
+    label: 'gündem editörü',
+    maxTokens: 3000,
+    system: `Sen Berat'ın LinkedIn büyüme stratejistisin. Berat, yapay zeka alanındaki güncel gelişmeleri kendi blog
+yazılarıyla anlatan, tanınan bir geliştirici sesi olmak istiyor. Haber sitesi değil: az ama nitelikli, düzenli paylaşım.
+Haftalık hedef 3-4 paylaşım, günde en fazla 1.
+
+${FOCUS}
+
+Aciliyet dereceleri:
+- "kesin" (9-10): büyük bir laboratuvarın/aracın önemli sürümü ya da geliştiricilerin bugün konuştuğu gelişme; birden fazla
+  bağımsız kaynak ve güçlü topluluk sinyali var. NADİRDİR: en fazla bir konuya ver, çoğu gün hiçbir konu "kesin" değildir.
+- "onerilir" (7-8): doğrulanmış, odakla uyumlu, geliştiricinin işine yarayan sağlam konu.
+- "istege-bagli" (5-6): fena değil ama sıradan.
+- "gerek-yok" (1-4): odak dışı, tekrar ya da zayıf.
+Tek kaynaklı ya da doğrulanamamış konu en fazla "istege-bagli" olabilir. Son günlerde paylaşılan konunun tekrarı "gerek-yok".
+Sitede zaten yazısı yayınlanmış ya da bugün içeriği hazırlanmış bir konu "gerek-yok"tur (yeni ve büyük bir gelişme yoksa).
+Haftalık hedefin gerisindeysen sağlam bir konuyu bir derece yükseltebilirsin; bu hafta 4 paylaşım olduysa yalnızca "kesin" paylaşılır.
+
+Görevin: listedeki HER konu için:
+- urgency ve rating (1-10)
+- why: 2-3 kısa madde, sayılarla (kaç bağımsız kaynak, resmi kaynak, HN puanı / GitHub yıldızı, odak uyumu); abartma
+- angle: Berat'ın yazısı neye odaklanmalı — geliştirici gözüyle tek cümle; haber bülteni cümlesi değil
+Ayrıca: reason (Berat'a hitaben 1-2 cümle: bugün ne yapmalı), tip (tek cümle strateji tavsiyesi), best_time (ör. "09:00-10:00").
+
+${CONTENT_RULES}
+Çıktı: {"topics":[{"i":0,"urgency":"onerilir","rating":7,"why":["..."],"angle":"..."}],"reason":"...","tip":"...","best_time":"..."}
+${JSON_ONLY}`,
+    user: `Bugün: ${today}
+Haftalık durum: son 7 günde ${cadence.sharedThisWeek} paylaşım (hedef 3-4) · son paylaşımdan bu yana ${cadence.daysSinceLast ?? 'hiç paylaşım yok'} gün
+
+Konular:
+${lines.join('\n')}
+
+Son 7 günün konuları (bugünkü dahil; "bekliyor" = içeriği hazır, henüz paylaşılmadı):
+${recent.length ? recent.map((r) => `- ${r.brief_date}: ${r.headline || '-'} (${r.status})`).join('\n') : '- kayıt yok'}
+
+Sitede son 14 günde yayınlanan yazılar:
+${published.length ? published.map((t) => `- ${t}`).join('\n') : '- yok'}`,
+  })
+
+  const byIndex = new Map((out.topics || []).map((t) => [Number(t.i), t]))
+  return {
+    topics: topics.map((_, i) => {
+      const t = byIndex.get(i) || {}
+      return {
+        urgency: URGENCY.includes(t.urgency) ? t.urgency : 'gerek-yok',
+        rating: clampRating(t.rating),
+        why: (Array.isArray(t.why) ? t.why : []).filter(Boolean).slice(0, 3),
+        angle: t.angle || '',
+      }
+    }),
+    reason: out.reason || '',
+    tip: out.tip || '',
+    bestTime: out.best_time || '',
+  }
+}
+
+/* ---------------------------------------------------------------
+ * 8) REVİZYON — Berat'ın talimatıyla LinkedIn metnini ve/veya blog yazısını düzeltir (kaliteli model)
+ * ------------------------------------------------------------- */
+export async function reviseDraft({ cluster, v, linkedin, blog, instruction, target = 'both' }) {
+  const wantLinkedin = target !== 'blog'
+  const wantBlog = target !== 'linkedin' && Boolean(blog?.blocks?.length)
+  const shape = [
+    wantLinkedin && '"linkedin":"..."',
+    wantBlog && '"blog":{"title":"...","excerpt":"...","blocks":[{"type":"p","text":"..."}]}',
+  ].filter(Boolean).join(',')
+
+  const out = await askJSON({
+    label: 'revizyon',
+    model: WRITER_MODEL,
+    temperature: 0.5,
+    maxTokens: 10000,
+    system: `${PERSONA}
+
+${CONTENT_RULES}
+
+Görevin: Berat'ın talimatına göre mevcut taslağı düzeltmek.
+Kurallar:
+- Talimatın istediğini yap; istemediği yerleri koru (yapı, bölümler, kaynak bilgisi).
+- Yalnızca aşağıdaki doğrulanmış bilgileri kullan; listede olmayan sayı, tarih, isim, özellik, komut UYDURMA.
+- Berat'ın yaşamadığı bir deneyimi yazma; yorumlar görüş olarak kalsın.
+- LinkedIn metni: talimat aksini söylemiyorsa son satırı ("Detayları, nasıl deneneceğini ve kaynakları yazımda topladım:") ve hashtag'leri koru; 60-130 kelime.
+- Blog blocks tipi yalnızca p, h2, h3, ul, quote, code. Vurgu için **kalın** kullanabilirsin. Kaynaklar listesini yazma.
+- Abartılı kalıp ("devrim", "her şey değişti", "oyunun kuralları") yok.
+Çıktı: {${shape}}
+${JSON_ONLY}`,
+    user: `Talimat: ${instruction}
+
+${factSheet(cluster, v)}${wantLinkedin ? `\n\n--- Mevcut LinkedIn metni ---\n${linkedin}` : ''}${wantBlog ? `\n\n--- Mevcut blog yazısı (JSON) ---\n${JSON.stringify({ title: blog.title, excerpt: blog.excerpt, blocks: blog.blocks })}` : ''}`,
+  })
+
+  return {
+    linkedin: wantLinkedin && typeof out.linkedin === 'string' && out.linkedin.trim() ? out.linkedin.trim() : linkedin,
+    blog:
+      wantBlog && Array.isArray(out.blog?.blocks) && out.blog.blocks.length
+        ? { title: out.blog.title || blog.title, excerpt: out.blog.excerpt ?? blog.excerpt, blocks: out.blog.blocks }
+        : blog,
+    changedBlog: wantBlog && Array.isArray(out.blog?.blocks) && out.blog.blocks.length > 0,
+  }
+}

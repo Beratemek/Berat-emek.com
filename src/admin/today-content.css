@@ -1,0 +1,231 @@
+/* Bugün sayfası: günün konuları (TopicBoard) ve seçili içerik araçları (ContentTools) */
+
+.tb .card-head {
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+.tb-legacy {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--a-warn-soft);
+  color: var(--a-warn);
+  font-size: 13px;
+}
+.tb-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tb-topic {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding: 16px 16px 16px 20px;
+  border: 1px solid var(--a-line);
+  border-radius: 16px;
+  background: var(--a-panel);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.tb-topic::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: 0;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--a-line-strong);
+}
+.tb-topic.u-hot::before {
+  background: var(--a-gradient);
+}
+.tb-topic.u-good::before {
+  background: var(--a-ok-strong);
+}
+.tb-topic.u-mid::before {
+  background: var(--a-warn);
+}
+.tb-topic.is-active {
+  border-color: color-mix(in srgb, var(--a-accent) 45%, var(--a-line));
+  box-shadow: 0 0 0 3px var(--a-accent-soft);
+}
+.tb-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.tb-urgency {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.tb-urgency.u-hot {
+  background: var(--a-gradient);
+  color: #2a1508;
+}
+.tb-urgency.u-good {
+  background: var(--a-ok-soft);
+  color: var(--a-ok);
+}
+.tb-urgency.u-mid {
+  background: var(--a-warn-soft);
+  color: var(--a-warn);
+}
+.tb-urgency.u-low {
+  background: var(--a-panel-2);
+  color: var(--a-muted);
+}
+.tb-rating {
+  color: var(--a-muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.tb-title {
+  flex-basis: 100%;
+  font-size: 15.5px;
+  line-height: 1.4;
+}
+.tb-angle {
+  margin: 0;
+  color: var(--a-ink-2);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.tb-why {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--a-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.tb-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.tb-sources {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-left: 4px;
+  font-size: 12px;
+}
+.tb-sources a {
+  color: var(--a-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--a-line-strong);
+  text-underline-offset: 3px;
+}
+.tb-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.tb-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--a-accent-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.tb-steps {
+  display: grid;
+  gap: 6px;
+  margin: 2px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--a-panel-2);
+  list-style: none;
+}
+.tb-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--a-muted);
+  font-size: 13px;
+}
+.tb-steps li.done {
+  color: var(--a-ok);
+}
+.tb-steps li.now {
+  color: var(--a-ink);
+  font-weight: 700;
+}
+
+/* Seçili içerik araçları */
+.ct-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.ct-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+.ct-chip {
+  padding: 5px 10px;
+  border: 1px dashed var(--a-line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--a-ink-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.ct-chip:hover {
+  border-style: solid;
+  color: var(--a-accent-ink);
+}
+.ct-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ct-revise .muted-line {
+  margin-top: 10px;
+  font-size: 12px;
+}
+.ct-cover {
+  display: grid;
+  gap: 10px;
+}
+.ct-thumb {
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--a-line);
+  border-radius: 14px;
+  background: var(--a-panel-2) center / cover no-repeat;
+}
+.ct-thumb.is-empty span {
+  padding: 0 14px;
+  color: var(--a-muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+.ct .alert {
+  margin-top: 14px;
+}
+
+@media (max-width: 860px) {
+  .ct-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

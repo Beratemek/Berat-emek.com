@@ -24,12 +24,14 @@ function parseJSON(text) {
  * Geçici hatalarda (429, 5xx, bozuk JSON) 3 kez dener.
  * Düşünme (reasoning) varsayılan olarak kapalı: açıkken model token hakkını düşünmeye harcayıp
  * boş cevap dönebiliyor ve maliyet katlanıyor. Gerçekten gereken çağrıda reasoning: true verilir.
+ * Düşünmesi kapatılamayan modellerde (ör. Claude Sonnet 5.5) otomatik olarak en düşük seviyeye geçilir.
  */
 export async function askJSON({ label, system, user, model = MODEL, temperature = 0.2, maxTokens = 4000, reasoning = false }) {
   const key = process.env.OPENROUTER_API_KEY
   if (!key) throw new Error('OPENROUTER_API_KEY tanımlı değil')
 
   let lastErr
+  let reasoningMode = reasoning ? { effort: 'medium' } : { enabled: false }
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -46,7 +48,7 @@ export async function askJSON({ label, system, user, model = MODEL, temperature 
           max_tokens: maxTokens,
           response_format: { type: 'json_object' },
           usage: { include: true },
-          reasoning: reasoning ? { effort: 'medium' } : { enabled: false },
+          reasoning: reasoningMode,
           messages: [
             { role: 'system', content: system },
             { role: 'user', content: user },
@@ -56,6 +58,12 @@ export async function askJSON({ label, system, user, model = MODEL, temperature 
       })
       const body = await res.text()
       if (!res.ok) {
+        // Düşünmesi zorunlu model: en ucuz seviyeyle hemen tekrar dene (deneme hakkından yemez)
+        if (res.status === 400 && reasoningMode.enabled === false && /reasoning is mandatory|cannot be disabled/i.test(body)) {
+          reasoningMode = { effort: 'low' }
+          attempt--
+          continue
+        }
         const err = new Error(`OpenRouter HTTP ${res.status}: ${body.slice(0, 300)}`)
         // Anahtar/kredi/istek hatası tekrar denemekle düzelmez
         err.fatal = [400, 401, 402, 403, 404].includes(res.status)

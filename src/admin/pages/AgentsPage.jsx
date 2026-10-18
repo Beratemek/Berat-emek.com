@@ -16,8 +16,8 @@ export const AGENTS = [
     icon: Newspaper,
     ai: true,
     schedule: 'Her sabah 08:00',
-    desc: 'Yapay zeka gündemini tarar, konuları önem sırasına koyar; bomba haber günü yazıyı, LinkedIn metnini ve kapağı hazırlar.',
-    note: 'Konu listesi, "İçerik oluştur" ve "Revize et" OpenRouter bakiyesi yüklenince açılacak.',
+    desc: 'Yapay zeka gündemini tarar, konuları önem sırasına koyar; bomba haber günü yazıyı, LinkedIn metnini ve kapağı hazırlar. Diğer günler Bugün sayfasından istediğin konuya "İçerik oluştur" ve "Revize et" diyebilirsin.',
+    note: 'Okurun gördüğü metni kaliteli model (Claude Sonnet) yazar; sıralama, doğrulama ve kontrol en ucuz modelde.',
   },
   {
     key: 'ceviri',
@@ -41,8 +41,7 @@ export const AGENTS = [
     icon: ShieldCheck,
     ai: true,
     schedule: 'Her yayında',
-    desc: 'Yayından önce metni tarar: şirket içi bilgi, kişisel veri, kaldırılan projeler, klişe ve abartı.',
-    note: 'Kural tabanlı kontrol açık; yapay zekalı inceleme bakiye yüklenince eklenecek.',
+    desc: 'Yayından önce metni tarar: şirket içi bilgi, kişisel veri, kaldırılan projeler, klişe ve abartı. Kural kontrolü her kayıtta; yazı editöründeki "Yapay zekayla kontrol et" dili ve içeriği de okur.',
   },
   {
     key: 'demo',

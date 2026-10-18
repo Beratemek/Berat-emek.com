@@ -58,7 +58,7 @@ export default function LinkedInShare({ brief, onShared }) {
   useEffect(() => {
     setText(brief.linkedin_text || '')
     setComment('')
-  }, [brief.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [brief.id, brief.linkedin_text]) // revize ya da yeni içerik gelince metin yenilensin
 
   useEffect(() => {
     api('status')

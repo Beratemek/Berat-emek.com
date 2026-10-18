@@ -4,7 +4,9 @@
 // OpenRouter model kimlikleri — https://openrouter.ai/models
 export const MODEL = process.env.BOT_MODEL || 'deepseek/deepseek-v4.1-flash'
 // Yazar ajanı için istersen daha güçlü bir model seçebilirsin (ör. deepseek/deepseek-v4-pro)
-export const WRITER_MODEL = process.env.BOT_WRITER_MODEL || MODEL
+// Okurun gördüğü metni yazan adım (yazar + revizyon) kaliteli modelde; mekanik adımlar ucuz modelde kalır.
+// Yazı başı ~0,03 $; yalnızca "kesin paylaş" günlerinde ve panelden "İçerik oluştur" denince çalışır.
+export const WRITER_MODEL = process.env.BOT_WRITER_MODEL || 'anthropic/claude-sonnet-5.5'
 
 // Kaç saat geriye dönük haber toplanacak
 export const HOURS = Number(process.env.BOT_HOURS || 36)
@@ -23,6 +25,9 @@ export const CONTENT_RULES = `İçerik sınırları (kesin):
 - TÜBİTAK başvurusu ve akciğer sesi projesi hiç geçmesin.
 - Gizlilik Geçidi (bitirme projesi) hakkında takım onayı olmadan yazı önerme.
 - Kişisel veri (telefon, adres, başkasının e-postası) yok.`
+
+// Bot taslaklarının sonuna eklenen şeffaflık notu (bot ve panelden üretilen içerik aynı notu taşır)
+export const BLOG_NOTE = 'Not: Bu yazının ilk taslağı, kaynakları tarayan yapay zeka destekli haber sistemim tarafından hazırlandı; yayınlamadan önce tarafımdan kontrol edildi.'
 
 // Editoryal odak: bot neyi haber sayar, neyi eler? (Kümeleyici, yazar ve editör bunu kullanır)
 export const FOCUS = `Berat bir haber sitesi DEĞİL. Sadece geliştiricilerin ve teknoloji meraklılarının

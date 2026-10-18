@@ -434,6 +434,76 @@
   line-height: 1.5;
 }
 
+/* Yazı editörü: yapay zekalı kalite incelemesi */
+.review-card {
+  margin-top: 16px;
+  border-left: 4px solid var(--a-line-strong);
+}
+.review-card.is-ok {
+  border-left-color: var(--a-ok-strong);
+}
+.review-card.is-fix {
+  border-left-color: var(--a-warn);
+}
+.review-card.is-error {
+  border-left-color: var(--a-bad);
+}
+.review-card.is-ok .card-head h3 {
+  color: var(--a-ok);
+}
+.review-card.is-fix .card-head h3 {
+  color: var(--a-warn);
+}
+.review-summary {
+  margin: 0 0 12px;
+  color: var(--a-ink-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.review-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.review-list li {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--a-panel-2);
+  color: var(--a-ink);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.review-level {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--a-panel);
+  color: var(--a-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+.review-list li.lvl-kritik .review-level {
+  background: var(--a-bad-soft);
+  color: var(--a-bad);
+}
+.review-list li.lvl-uyari .review-level {
+  background: var(--a-warn-soft);
+  color: var(--a-warn);
+}
+.review-list q {
+  display: block;
+  margin-top: 4px;
+  color: var(--a-muted);
+  font-size: 12.5px;
+  font-style: italic;
+}
+
 @media (max-width: 1100px) {
   .agents-top {
     grid-template-columns: minmax(0, 1fr);

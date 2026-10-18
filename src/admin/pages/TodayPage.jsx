@@ -1,22 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Loader2, Pencil, CheckCircle2, SkipForward,
-  ShieldCheck, ShieldAlert, AlertTriangle, RotateCcw, Lightbulb,
+  AlertTriangle, RotateCcw, Lightbulb,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase.js'
 import LinkedInShare from '../components/LinkedInShare.jsx'
+import TopicBoard from '../components/TopicBoard.jsx'
+import ContentTools from '../components/ContentTools.jsx'
 
 const TZ = 'Europe/Istanbul'
 const todayKey = () => new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())
 const fmtDay = (d, opts = { weekday: 'long', day: 'numeric', month: 'long' }) =>
   new Date(`${d}T12:00:00`).toLocaleDateString('tr-TR', opts)
 
-const TRUST = {
-  birincil: { label: 'Resmi kaynak', cls: 'ok' },
-  'coklu-medya': { label: 'Çoklu medya', cls: 'mid' },
-  'tek-kaynak': { label: 'Tek kaynak', cls: 'low' },
-}
 const STATUS = { bekliyor: 'Bekliyor', paylasildi: 'Paylaşıldı', atlandi: 'Atlandı' }
 // Editörün aciliyet derecesi (bot/agents.js → decide)
 const URGENCY_LABEL = {
@@ -40,21 +37,20 @@ export default function TodayPage() {
   const [saving, setSaving] = useState(false)
   const [linkedinResult] = useState(() => LINKEDIN_RESULT[new URLSearchParams(window.location.search).get('linkedin')])
 
-  useEffect(() => {
-    let cancel = false
-    ;(async () => {
-      const { data, error } = await supabase
-        .from('daily_briefs')
-        .select('*')
-        .order('brief_date', { ascending: false })
-        .limit(14)
-      if (cancel) return
-      if (error) setErr(error)
-      else setBriefs(data || [])
-      setLoading(false)
-    })()
-    return () => { cancel = true }
+  const load = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('daily_briefs')
+      .select('*')
+      .order('brief_date', { ascending: false })
+      .limit(14)
+    if (error) setErr(error)
+    else setBriefs(data || [])
+    setLoading(false)
   }, [])
+
+  useEffect(() => {
+    load()
+  }, [load])
 
   async function setStatus(brief, status) {
     setSaving(true)
@@ -191,6 +187,12 @@ export default function TodayPage() {
         )}
       </section>
 
+      {/* Günün konuları: her konuya tek tıkla içerik */}
+      <TopicBoard brief={latest} onChanged={load} />
+
+      {/* Seçili içerik: talimatla revize, kapak, editör */}
+      <ContentTools brief={latest} onChanged={load} />
+
       {/* Haber zayıfsa: bilgilendirici yazı fikirleri */}
       {latest.ideas?.length > 0 && (
         <section className="admin-card">
@@ -217,11 +219,6 @@ export default function TodayPage() {
           brief={latest}
           onShared={(patch) => setBriefs((list) => list.map((b) => (b.id === latest.id ? { ...b, ...patch } : b)))}
         />
-      )}
-      {latest.post_id && (
-        <Link to={`/admin/posts/${latest.post_id}`} className="btn btn-secondary" style={{ justifySelf: 'start' }}>
-          <Pencil size={15} /> Blog taslağını düzenle ve yayınla
-        </Link>
       )}
 
       {/* Kontrol notları */}
@@ -253,39 +250,6 @@ export default function TodayPage() {
             ))}
           </ul>
         </details>
-      )}
-
-      {/* Gündem */}
-      {latest.topics?.length > 0 && (
-        <section className="admin-card">
-          <h3>Günün gündemi</h3>
-          <p className="muted">Puan: kaç bağımsız kaynağın yazdığı, resmi kaynak olup olmadığı ve topluluk ilgisi.</p>
-          <ol className="topics">
-            {latest.topics.map((t, i) => {
-              const trust = TRUST[t.trust] || TRUST['tek-kaynak']
-              return (
-                <li key={i}>
-                  <div className="topic-line">
-                    <strong>{t.topic}</strong>
-                    <span className="chip">%{t.share} gündem</span>
-                    <span className={`chip trust-${trust.cls}`}>
-                      {trust.cls === 'low' ? <ShieldAlert size={12} /> : <ShieldCheck size={12} />} {trust.label}
-                    </span>
-                    {t.verified === true && <span className="chip trust-ok">Doğrulandı</span>}
-                    {t.verified === false && <span className="chip trust-low">Doğrulanamadı</span>}
-                  </div>
-                  <div className="topic-sources">
-                    {t.sources.map((s, j) => (
-                      <a key={j} href={s.url} target="_blank" rel="noreferrer" title={s.title}>
-                        {s.name}
-                      </a>
-                    ))}
-                  </div>
-                </li>
-              )
-            })}
-          </ol>
-        </section>
       )}
 
       {/* Geçmiş */}

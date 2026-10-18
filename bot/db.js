@@ -52,6 +52,13 @@ export async function recentBriefs(days = 7) {
   )
 }
 
+/** Sitede son günlerde yayınlanan yazıların başlıkları (gündem editörü aynı konuyu tekrar önermesin). */
+export async function recentPostTitles(days = 14) {
+  const since = new Date(Date.now() - days * 864e5).toISOString()
+  const rows = await rest(`posts?kind=eq.blog&published=eq.true&created_at=gte.${since}&select=title&order=created_at.desc`)
+  return rows.map((r) => r.title)
+}
+
 /** Blog taslağını yayınlanmamış olarak ekler. Slug çakışırsa sonuna kısa bir ek koyar. */
 export async function insertDraftPost(post) {
   for (let attempt = 0; attempt < 3; attempt++) {
