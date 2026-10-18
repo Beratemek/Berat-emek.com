@@ -2,6 +2,18 @@ import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { signInWithPassword, signInWithMagicLink } from './AuthProvider.jsx'
 
+/** Supabase'in İngilizce/teknik hatalarını anlaşılır Türkçeye çevirir */
+function loginError(e) {
+  const msg = String(e?.message || '')
+  if (/fetch|network|json|load failed/i.test(msg)) {
+    return 'Veritabanına ulaşılamıyor. Supabase projesi duraklatılmış olabilir; panelden "Restore" ile yeniden aç.'
+  }
+  if (/invalid login credentials/i.test(msg)) return 'E-posta ya da şifre hatalı. Şifreni hatırlamıyorsan "Sihirli Link" ile giriş yap.'
+  if (/email not confirmed/i.test(msg)) return 'E-posta adresin henüz doğrulanmamış. Gelen kutundaki onay e-postasına bak.'
+  if (/rate limit|too many/i.test(msg)) return 'Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.'
+  return msg || 'Giriş başarısız'
+}
+
 export default function Login() {
   const [mode, setMode] = useState('password') // 'password' | 'magic'
   const [email, setEmail] = useState('')
@@ -26,7 +38,7 @@ export default function Login() {
         setOk('E-postana sihirli giriş linki gönderildi. Linke tıklayınca /admin sayfasına otomatik döneceksin.')
       }
     } catch (e) {
-      setErr(e.message || 'Giriş başarısız')
+      setErr(loginError(e))
     } finally {
       setLoading(false)
     }
