@@ -384,7 +384,8 @@ function ContactRow({ link }) {
       </a>
       {isMail && (
         <button type="button" className="copy-btn" onClick={copy} aria-label={t('ui.copyEmail')}>
-          {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? t('ui.copied') : t('ui.copy')}
+          {copied ? <Check size={14} /> : <Copy size={14} />}
+          <span className="copy-label">{copied ? t('ui.copied') : t('ui.copy')}</span>
         </button>
       )}
     </li>
