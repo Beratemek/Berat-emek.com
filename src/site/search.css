@@ -1,0 +1,77 @@
+/* Yazılar sayfası: arama kutusu */
+.blog-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 640px;
+  margin: 0 0 22px;
+  padding: 0 14px 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--muted);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.blog-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--hi-bg);
+  color: var(--accent);
+}
+.blog-search input {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+}
+.blog-search input::placeholder {
+  color: var(--muted);
+}
+.blog-search input::-webkit-search-cancel-button {
+  display: none;
+}
+.blog-search kbd {
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.blog-search-clear {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.blog-search-clear:hover {
+  color: var(--ink);
+}
+.blog-search-count {
+  margin: -8px 0 18px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .blog-search {
+    margin-bottom: 16px;
+  }
+  .blog-search input {
+    height: 48px;
+  }
+  .blog-search kbd {
+    display: none;
+  }
+}
