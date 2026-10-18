@@ -35,6 +35,11 @@ export function usePortfolioContent() {
 
   useEffect(() => {
     let cancel = false
+    // Veritabanı yavaşsa ya da kapalıysa sayfa iskelette takılı kalmasın:
+    // 2,5 sn içinde cevap gelmezse yedek içerik gösterilir, gerçek veri sonra gelirse yerine geçer.
+    const fallbackTimer = setTimeout(() => {
+      if (!cancel) setData((d) => (d.loading ? { ...d, loading: false } : d))
+    }, 2500)
     ;(async () => {
       const [profileRes, postsRes, contactRes] = await Promise.all([
         supabase.from('profile').select('*').eq('id', 1).maybeSingle(),
@@ -46,6 +51,7 @@ export function usePortfolioContent() {
         supabase.from('contact_links').select('*').order('position'),
       ])
 
+      clearTimeout(fallbackTimer)
       if (cancel) return
 
       const allPosts = postsRes.data || []
@@ -60,6 +66,7 @@ export function usePortfolioContent() {
     })()
     return () => {
       cancel = true
+      clearTimeout(fallbackTimer)
     }
   }, [])
 
