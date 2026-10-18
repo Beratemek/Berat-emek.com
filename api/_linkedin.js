@@ -97,3 +97,23 @@ export async function linkedinRest(path, token, body) {
   }
   return last
 }
+
+/** Görseli LinkedIn'e yükler (gönderideki yazı kartının küçük resmi); görsel URN'sini döndürür, olmazsa null. */
+export async function uploadLinkedInImage(token, owner, imageUrl) {
+  try {
+    const init = await linkedinRest('images?action=initializeUpload', token, { initializeUploadRequest: { owner } })
+    if (!init.res.ok) return null
+    const { value } = JSON.parse(init.text)
+    const img = await fetch(imageUrl, { signal: AbortSignal.timeout(15_000) })
+    if (!img.ok || !value?.uploadUrl) return null
+    const put = await fetch(value.uploadUrl, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: await img.arrayBuffer(),
+      signal: AbortSignal.timeout(30_000),
+    })
+    return put.ok ? value.image : null
+  } catch {
+    return null
+  }
+}

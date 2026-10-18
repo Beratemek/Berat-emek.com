@@ -10,7 +10,8 @@ import { collectAll } from './collect.js'
 import { clusterNews, scoreClusters, verifyCandidate, writeDraft, checkDraft, decide, suggestIdeas } from './agents.js'
 import { getUsage } from './llm.js'
 import { blocksToDoc, slugify } from './tiptap.js'
-import { hasDb, recentBriefs, insertDraftPost, upsertBrief } from './db.js'
+import { hasDb, recentBriefs, insertDraftPost, upsertBrief, uploadCover } from './db.js'
+import { renderCover } from './cover.js'
 
 const envFile = fileURLToPath(new URL('./.env', import.meta.url))
 if (existsSync(envFile)) process.loadEnvFile(envFile)
@@ -22,6 +23,7 @@ const COLLECT_ONLY = args.has('--collect-only')
 const TZ = 'Europe/Istanbul'
 const briefDate = new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())
 const todayLabel = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())
+const dateShort = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())
 
 const log = (...a) => console.log(...a)
 
@@ -47,16 +49,31 @@ function sourceList(cluster) {
 }
 
 async function save(brief, draftPost) {
+  // Kapak görseli: blog kapağı, bağlantı önizlemesi ve LinkedIn kart görseli olarak kullanılır
+  let coverPng = null
+  if (draftPost) {
+    coverPng = renderCover({ title: draftPost.title, kicker: 'Yapay zeka gündemi', date: dateShort })
+    log(coverPng ? '🖼️  Kapak görseli üretildi' : '🖼️  Kapak üretilemedi (Chrome bulunamadı); kapaksız devam ediliyor')
+  }
   if (DRY || !hasDb()) {
     const dir = fileURLToPath(new URL('./out/', import.meta.url))
     mkdirSync(dir, { recursive: true })
     const file = `${dir}${briefDate}.json`
     writeFileSync(file, JSON.stringify({ brief, draftPost }, null, 2))
+    if (coverPng) writeFileSync(`${dir}${briefDate}.png`, coverPng)
     log(`\n💾 Supabase'e yazılmadı (${DRY ? '--dry' : 'anahtar yok'}). Sonuç: ${file}`)
     if (brief.linkedin_text) log(`\n--- LinkedIn taslağı ---\n${brief.linkedin_text}\n\n${brief.linkedin_comment}`)
     return
   }
   if (draftPost) {
+    if (coverPng) {
+      try {
+        draftPost.cover = await uploadCover(`bot/${briefDate}-${draftPost.slug}.png`, coverPng)
+        draftPost.cover_position = '50% 50%'
+      } catch (e) {
+        log(`   ! ${e.message}`)
+      }
+    }
     const row = await insertDraftPost(draftPost)
     brief.post_id = row.id
     log(`📝 Blog taslağı eklendi: ${row.title} (/admin/posts/${row.id})`)

@@ -1,7 +1,7 @@
 // POST /api/linkedin/share — admin'in onayladığı metni LinkedIn profilinde yayınlar.
 // Günlük özetin blog taslağı varsa önce yazıyı sitede yayınlar ve gönderiye yazının bağlantısını
 // kart olarak ekler (asıl amaç: ayrıntılar blogda, LinkedIn'de yorum + yönlendirme).
-import { SITE_URL, json, requireAdmin, getAuth, isConnected, db, linkedinRest, escapeLittleText } from '../_linkedin.js'
+import { SITE_URL, json, requireAdmin, getAuth, isConnected, db, linkedinRest, escapeLittleText, uploadLinkedInImage } from '../_linkedin.js'
 
 export async function POST(request) {
   if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 401)
@@ -27,7 +27,7 @@ export async function POST(request) {
   let article = null
   if (briefId) brief = (await db(`daily_briefs?id=eq.${briefId}&select=id,post_id,stats`).catch(() => []))?.[0] || null
   if (withArticle && brief?.post_id) {
-    const post = (await db(`posts?id=eq.${brief.post_id}&select=id,slug,title,excerpt,published`))?.[0]
+    const post = (await db(`posts?id=eq.${brief.post_id}&select=id,slug,title,excerpt,published,cover`))?.[0]
     if (post) {
       if (!post.published) {
         await db(`posts?id=eq.${post.id}`, {
@@ -37,18 +37,29 @@ export async function POST(request) {
         })
       }
       article = { source: `${SITE_URL}/blog/${post.slug}`, title: post.title, description: (post.excerpt || '').slice(0, 250) }
+      // Kapak görseli kartın küçük resmi olur (yüklenemezse kart görselsiz gider)
+      if (post.cover) {
+        const thumbnail = await uploadLinkedInImage(auth.access_token, auth.member_urn, post.cover)
+        if (thumbnail) article.thumbnail = thumbnail
+      }
     }
   }
 
-  const post = await linkedinRest('posts', auth.access_token, {
+  const body = (art) => ({
     author: auth.member_urn,
     commentary: escapeLittleText(text),
     visibility: 'PUBLIC',
     distribution: { feedDistribution: 'MAIN_FEED', targetEntities: [], thirdPartyDistributionChannels: [] },
-    ...(article && { content: { article } }),
+    ...(art && { content: { article: art } }),
     lifecycleState: 'PUBLISHED',
     isReshareDisabledByAuthor: false,
   })
+  let post = await linkedinRest('posts', auth.access_token, body(article))
+  // Görsel henüz işlenmediyse ya da reddedildiyse kartı görselsiz yeniden dene
+  if (!post.res.ok && article?.thumbnail) {
+    const { thumbnail, ...rest } = article
+    post = await linkedinRest('posts', auth.access_token, body(rest))
+  }
   if (!post.res.ok) return json({ error: `LinkedIn paylaşımı reddetti (${post.res.status}): ${post.text.slice(0, 300)}` }, 502)
 
   const urn = post.res.headers.get('x-restli-id') || post.res.headers.get('x-linkedin-id')
