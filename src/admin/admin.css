@@ -2490,3 +2490,78 @@ body.admin-mode {
   align-items: center;
   gap: 10px;
 }
+
+/* Bugün: aciliyet, gerekçe, haftalık plan, blog bağlantısı */
+.verdict-badge.is-hot {
+  background: var(--a-gradient);
+  color: #2a1208;
+}
+.verdict-why {
+  margin-top: 4px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--a-panel-2);
+  font-size: 13.5px;
+}
+.verdict-why strong {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.verdict-why ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  color: var(--a-ink-2);
+}
+.verdict-plan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  font-size: 13px;
+  color: var(--a-ink-2);
+}
+.verdict-week b {
+  color: var(--a-ink);
+}
+.verdict-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.verdict-tip svg {
+  color: var(--a-accent);
+  flex-shrink: 0;
+}
+.li-article {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px dashed var(--a-line-strong);
+  border-radius: 12px;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.li-article svg {
+  color: var(--a-accent);
+  flex-shrink: 0;
+}
+.li-article span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.li-article strong {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.li-article em {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--a-muted);
+}

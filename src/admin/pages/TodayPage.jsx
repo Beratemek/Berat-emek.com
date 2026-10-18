@@ -18,6 +18,13 @@ const TRUST = {
   'tek-kaynak': { label: 'Tek kaynak', cls: 'low' },
 }
 const STATUS = { bekliyor: 'Bekliyor', paylasildi: 'Paylaşıldı', atlandi: 'Atlandı' }
+// Editörün aciliyet derecesi (bot/agents.js → decide)
+const URGENCY_LABEL = {
+  kesin: 'Bugün kesin paylaş',
+  onerilir: 'Bugün paylaş',
+  'istege-bagli': 'İstersen paylaş',
+  'gerek-yok': 'Bugün paylaşma',
+}
 // LinkedIn bağlantı akışından dönüşte gösterilecek mesaj (?linkedin=…)
 const LINKEDIN_RESULT = {
   ok: ['ok', 'LinkedIn hesabın bağlandı. Artık gönderiyi buradan tek tıkla paylaşabilirsin.'],
@@ -117,6 +124,7 @@ export default function TodayPage() {
   const isToday = latest.brief_date === todayKey()
   const share = latest.decision === 'paylas'
   const usage = latest.stats?.usage
+  const editor = latest.stats?.editor
 
   return (
     <div className="today">
@@ -133,13 +141,39 @@ export default function TodayPage() {
       {/* Karar */}
       <section className={`admin-card today-verdict ${share ? 'is-share' : 'is-skip'}`}>
         <div className="verdict-top">
-          <span className="verdict-badge">{share ? 'Bugün paylaş' : 'Bugün paylaşma'}</span>
+          <span className={`verdict-badge${editor?.urgency === 'kesin' ? ' is-hot' : ''}`}>
+            {URGENCY_LABEL[editor?.urgency] || (share ? 'Bugün paylaş' : 'Bugün paylaşma')}
+          </span>
           {latest.score != null && <span className="verdict-score">{latest.score}/10</span>}
           {share && latest.best_time && <span className="verdict-time">Önerilen saat: {latest.best_time}</span>}
           <span className={`verdict-status st-${latest.status}`}>{STATUS[latest.status]}</span>
         </div>
         {latest.headline && <h2 className="verdict-headline">{latest.headline}</h2>}
         <p className="verdict-reason">{latest.reason}</p>
+        {editor?.why?.length > 0 && (
+          <div className="verdict-why">
+            <strong>Neden {latest.score}/10?</strong>
+            <ul>
+              {editor.why.map((w, i) => (
+                <li key={i}>{w}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {(editor?.tip || editor?.week) && (
+          <div className="verdict-plan">
+            {editor.week && (
+              <span className="verdict-week">
+                Bu hafta <b>{editor.week.sharedThisWeek}/{editor.week.target}</b> paylaşım
+              </span>
+            )}
+            {editor.tip && (
+              <span className="verdict-tip">
+                <Lightbulb size={14} /> {editor.tip}
+              </span>
+            )}
+          </div>
+        )}
         {share && latest.status === 'bekliyor' && (
           <div className="verdict-actions">
             <button className="btn btn-dark" disabled={saving} onClick={() => setStatus(latest, 'paylasildi')}>

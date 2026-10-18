@@ -164,7 +164,15 @@ async function main() {
 
   // 6) Karar
   log('6/6 Editör kararını veriyor…')
-  const verdict = await decide({ cluster: chosen, v, linkedin: checked.linkedin, issues: openIssues, recent, today: todayLabel })
+  // Haftalık plan: son 7 günde kaç paylaşım yapıldı, son paylaşımdan bu yana kaç gün geçti
+  const sharedDays = recent.filter((r) => r.status === 'paylasildi').map((r) => r.brief_date).sort()
+  const lastShared = sharedDays[sharedDays.length - 1]
+  const cadence = {
+    sharedThisWeek: sharedDays.length,
+    target: 4,
+    daysSinceLast: lastShared ? Math.round((new Date(`${briefDate}T12:00:00Z`) - new Date(`${lastShared}T12:00:00Z`)) / 864e5) : null,
+  }
+  const verdict = await decide({ cluster: chosen, v, linkedin: checked.linkedin, issues: openIssues, recent, today: todayLabel, cadence })
 
   const sources = sourceList(chosen)
   const ideas = verdict.decision === 'paylasma' ? await suggestIdeas({ topics, recent }) : []
@@ -181,7 +189,7 @@ async function main() {
     facts: v.facts,
     ideas,
     topics,
-    stats: { ...stats, usage: getUsage() },
+    stats: { ...stats, usage: getUsage(), editor: { urgency: verdict.urgency, why: verdict.why, tip: verdict.tip, week: cadence } },
   }
 
   const draftPost =
@@ -202,7 +210,11 @@ async function main() {
   await save(brief, draftPost)
 
   const u = getUsage()
-  log(`\n${verdict.decision === 'paylas' ? '✅ BUGÜN PAYLAŞ' : '⏸️  BUGÜN PAYLAŞMA'} (${verdict.score}/10) — ${verdict.reason}`)
+  const LABEL = { kesin: '🔥 BUGÜN KESİN PAYLAŞ', onerilir: '✅ BUGÜN PAYLAŞ', 'istege-bagli': '🟡 İSTERSEN PAYLAŞ', 'gerek-yok': '⏸️  BUGÜN PAYLAŞMA' }
+  log(`\n${LABEL[verdict.urgency]} (${verdict.score}/10) — ${verdict.reason}`)
+  for (const w of verdict.why) log(`   · ${w}`)
+  if (verdict.tip) log(`   💡 ${verdict.tip}`)
+  log(`   Bu hafta: ${cadence.sharedThisWeek}/${cadence.target} paylaşım`)
   log(`   ${u.calls} model çağrısı · ${u.promptTokens + u.completionTokens} token · $${u.costUsd} · ${((Date.now() - started) / 1000).toFixed(0)} sn`)
 }
 

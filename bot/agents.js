@@ -86,6 +86,8 @@ export function scoreClusters(clusters) {
         share: Math.round((c.items.length / total) * 100),
         trust,
         sourceCount: new Set(c.items.map((i) => i.source)).size,
+        // Editörün "neden bu puan" açıklaması için ham sinyaller
+        signals: { media, hasPrimary, reddit, hn: top(c, 'Hacker News'), github: top(c, 'GitHub Trend'), hf: top(c, 'Hugging Face Trend'), youtube: top(c, 'YouTube'), items: c.items.length },
       }
     })
     .sort((a, b) => b.score - a.score)
@@ -182,16 +184,20 @@ Kesin kurallar:
 - Türkçe yaz; yerleşik İngilizce terimleri (model, agent, MCP, open-source, prompt) koruyabilirsin.
 - "Devrim", "her şey değişti", "oyunun kuralları" gibi abartılı kalıplar yok.
 
-LinkedIn gönderisi (az ve öz):
-- İlk satır merak uyandırsın ama yanıltmasın (LinkedIn "devamını gör"den önce ilk 2 satırı gösterir).
-- 80-160 kelime, kısa paragraflar.
-- "Ne oldu?" için 2-3 madde (• ile başlayan satırlar).
-- Kurulum/kullanım adımı verildiyse "Nasıl denersin?" diye 1-3 kısa madde ekle; verilmediyse bu kısmı atla.
-- 1-2 cümlelik "Benim yorumum:" ve okura bir soruyla bitir. En sonda 3-4 hashtag.
-- Gövdede link verme (kaynaklar ilk yoruma konacak). En fazla 2 emoji.
+Berat haber muhabiri DEĞİL. Amaç: güncel bir gelişmenin ayrıntılarını Berat'ın blog yazısında toplamak ve
+LinkedIn'de kısa bir yorumla bu yazıya yönlendirmek. Asıl iş blog yazısıdır.
 
-Blog yazısı:
-- 350-700 kelime. Bölümler: giriş paragrafı, "Ne oldu?", "Neden önemli?", "Nasıl denenir?" (yalnızca adım verildiyse; komutları "code" bloğuyla yaz), "Henüz bilinmeyenler" (doğrulanmamış iddia yoksa atla), "Benim yorumum".
+Blog yazısı (ana ürün, Berat'ın ağzından, sade ve profesyonel):
+- 500-900 kelime. Bölümler: giriş paragrafı (ne oldu, kime ne ifade ediyor), "Ne oldu?", "Neden önemli?",
+  "Nasıl denenir?" (yalnızca adım verildiyse; komutları "code" bloğuyla yaz), "Henüz bilinmeyenler" (doğrulanmamış iddia yoksa atla), "Benim yorumum".
+- Bülten dili değil: okuyan bir geliştirici yazının sonunda konuyu anlamış ve ne yapacağını biliyor olmalı.
+
+LinkedIn gönderisi (blog yazısına yönlendiren kısa giriş):
+- 60-130 kelime, kısa paragraflar. İlk iki satır gelişmeyi ve geliştirici için anlamını tek cümlede söylesin (LinkedIn "devamını gör"den önce yalnızca ilk 2 satırı gösterir).
+- En çarpıcı 2-3 somut nokta (• ile başlayan satırlar; varsa sayılarla).
+- 1-2 cümlelik "Benim yorumum:".
+- Son satır tam olarak: "Detayları, nasıl deneneceğini ve kaynakları yazımda topladım:" (yazının bağlantısı paylaşırken otomatik eklenecek).
+- Haber bülteni dili ("Ne oldu?" başlığı, ajans dili) kullanma; soru cümlesiyle bitirme. En sonda 3-4 hashtag. Gövdede link verme. En fazla 1 emoji.
 - title: en fazla 70 karakter, net. excerpt: en fazla 200 karakter. tags: 2-4 kısa etiket.
 - Kaynaklar listesini yazma; sistem ekleyecek.
 - blocks içindeki type yalnızca: p, h2, h3, ul, quote, code. Vurgu için **kalın** kullanabilirsin.
@@ -246,26 +252,38 @@ ${JSON_ONLY}`,
 /* ---------------------------------------------------------------
  * 5) EDİTÖR — bugün paylaşılmalı mı?
  * ------------------------------------------------------------- */
-export async function decide({ cluster, v, linkedin, issues, recent, today }) {
+const URGENCY = ['kesin', 'onerilir', 'istege-bagli', 'gerek-yok']
+
+export async function decide({ cluster, v, linkedin, issues, recent, today, cadence }) {
+  const s = cluster.signals || {}
   const out = await askJSON({
     label: 'editör',
-    system: `Sen Berat'ın LinkedIn içerik stratejistisin. Hedef: geliştiricilerin ilgisini çeken, az ama öz paylaşımlarla takipçi kazanmak.
+    system: `Sen Berat'ın LinkedIn büyüme stratejistisin. Berat, yapay zeka alanında güncel gelişmeleri takip edip
+kendi blog yazılarıyla anlatan, piyasada tanınan bir geliştirici sesi olmak istiyor. Haber sitesi değil: az ama
+nitelikli, düzenli paylaşım. Haftalık hedef 3-4 paylaşım, günde en fazla 1. Süreklilik tek bir viral gönderiden değerlidir.
 
 ${FOCUS}
 
-"paylas" de, ancak hepsi doğruysa:
-- Konu yukarıdaki İLGİLİ listesine giriyor ve çok sayıda geliştiricinin ilgisini çekecek.
-- Haber doğrulanmış.
-- Son günlerde paylaşılan bir konunun tekrarı değil.
-- Kontrol notlarında çözülmemiş kritik sorun yok.
-Aksi halde "paylasma" de. Sıradan bir gündemde paylaşmamak doğru karardır.
-score: 1-10 (bugünkü değeri). reason: Berat'a hitaben 1-2 cümle Türkçe gerekçe.
-best_time: önerilen paylaşım saati aralığı (ör. "09:00-10:00"); hafta sonuysa bunu dikkate al.
-Çıktı: {"decision":"paylas|paylasma","score":7,"reason":"...","best_time":"..."}
+Aciliyet derecesi seç:
+- "kesin" (9-10): büyük bir laboratuvarın/aracın önemli sürümü ya da geliştirici topluluğunun bugün konuştuğu bir gelişme;
+  birden fazla bağımsız kaynak ve güçlü topluluk sinyali var. Haftalık hedef dolmuş olsa bile paylaşılır.
+- "onerilir" (7-8): doğrulanmış, odakla uyumlu, geliştiricilerin işine yarayan sağlam bir konu.
+- "istege-bagli" (5-6): fena değil ama sıradan; bu hafta hedefin gerisindeyse paylaşılabilir, değilse atlanabilir.
+- "gerek-yok" (1-4): odak dışı, doğrulanamadı, tekrar ya da çözülmemiş kritik sorun var.
+Haftalık durumu hesaba kat: hedefin gerisindeysen ve konu sağlamsa bir derece yükseltebilirsin; bu hafta zaten 4 paylaşım
+olduysa yalnızca "kesin" paylaşılır. Son günlerde paylaşılan konunun tekrarı "gerek-yok"tur.
+
+why: puanın gerekçesi, 3-4 kısa madde, mümkün olduğunca SAYILARLA (kaç bağımsız kaynak, resmi kaynak var mı,
+Hacker News puanı / GitHub yıldızı, odak uyumu, haftalık durum). Abartma: neden bomba olmadığını da söyle.
+tip: Berat'a bugün için tek cümlelik strateji tavsiyesi (ör. paylaşım saati, seriyi sürdürmek, yorumlara cevap vermek).
+reason: Berat'a hitaben 1-2 cümle özet. best_time: önerilen saat aralığı (ör. "09:00-10:00"); hafta sonunu dikkate al.
+Çıktı: {"urgency":"kesin|onerilir|istege-bagli|gerek-yok","score":7,"reason":"...","why":["..."],"tip":"...","best_time":"..."}
 ${JSON_ONLY}`,
     user: `Bugün: ${today}
+Haftalık durum: son 7 günde ${cadence.sharedThisWeek} paylaşım (hedef 3-4) · son paylaşımdan bu yana ${cadence.daysSinceLast ?? 'hiç paylaşım yok'} gün
 Aday konu: ${cluster.topic} (kategori: ${cluster.category}, odak uygunluğu: ${cluster.relevance}/3)
-Topluluk ilgisi: ${cluster.sourceCount} farklı kaynak · güven: ${cluster.trust}
+Kaynaklar: ${cluster.sourceCount} farklı kaynak · güven: ${cluster.trust} · resmi kaynak: ${s.hasPrimary ? 'var' : 'yok'} · bağımsız medya: ${s.media ?? 0}
+Topluluk sinyali: Hacker News ${s.hn || 0} puan · GitHub ${s.github || 0} yıldız · Hugging Face ${s.hf || 0} · Reddit ${s.reddit || 0} topluluk
 Doğrulama: ${v.verified ? 'doğrulandı' : 'doğrulanamadı'} (güven: ${v.confidence})
 Neden önemli: ${v.whyItMatters}
 Kontrol notları:
@@ -277,10 +295,14 @@ ${recent.length ? recent.map((r) => `- ${r.brief_date}: ${r.headline || '-'} (${
 ${linkedin}`,
   })
 
+  const urgency = URGENCY.includes(out.urgency) ? out.urgency : 'gerek-yok'
   return {
-    decision: out.decision === 'paylas' ? 'paylas' : 'paylasma',
+    urgency,
+    decision: urgency === 'gerek-yok' ? 'paylasma' : 'paylas',
     score: Math.max(1, Math.min(10, Math.round(Number(out.score) || 1))),
     reason: out.reason || '',
+    why: (Array.isArray(out.why) ? out.why : []).filter(Boolean).slice(0, 4),
+    tip: out.tip || '',
     bestTime: out.best_time || '',
   }
 }
