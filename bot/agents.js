@@ -381,7 +381,13 @@ export async function triage({ topics, recent, today, cadence, shared = [], read
   const lines = topics.map((t, i) => {
     const s = t.signals || {}
     const v = t.verification
-    const check = v ? (v.verified ? `doğrulandı — ${v.whatHappened}` : 'kaynak metinlerde doğrulanamadı') : 'henüz doğrulanmadı'
+    const check = v
+      ? v.verified
+        ? `doğrulandı — ${v.whatHappened}${v.whyItMatters ? `\n   neden önemli: ${v.whyItMatters}` : ''}${
+            v.facts?.length ? `\n   doğrulanmış bilgiler: ${v.facts.slice(0, 6).map((f) => f.fact).join(' · ')}` : ''
+          }${v.howTo?.length ? `\n   denemek için: ${v.howTo.slice(0, 3).join(' · ')}` : ''}`
+        : 'kaynak metinlerde doğrulanamadı'
+      : 'henüz doğrulanmadı'
     return `${i}. ${t.topic}
    kategori ${t.category} · odak ${t.relevance}/3 · güven ${t.trust} · ${t.sourceCount ?? '?'} kaynak · resmi kaynak ${s.hasPrimary ? 'var' : 'yok'} · bağımsız medya ${s.media ?? 0} · HN ${s.hn || 0} puan · GitHub ${s.github || 0} yıldız · HF ${s.hf || 0} · popüler repo sürümü ${s.release ? `${s.release} yıldız` : 'yok'} · Reddit ${s.reddit || 0}
    ${check}
@@ -390,7 +396,7 @@ export async function triage({ topics, recent, today, cadence, shared = [], read
 
   const out = await askJSON({
     label: 'gündem editörü',
-    maxTokens: 3000,
+    maxTokens: 7000,
     system: `Sen Berat'ın LinkedIn büyüme stratejistisin. Berat, yapay zeka alanındaki güncel gelişmeleri kendi blog
 yazılarıyla anlatan, tanınan bir geliştirici sesi olmak istiyor. Haber sitesi değil: az ama nitelikli, düzenli paylaşım.
 Haftalık hedef 3-4 paylaşım, günde en fazla 1.
@@ -422,12 +428,18 @@ Haftalık hedefin gerisindeysen sağlam bir konuyu bir derece yükseltebilirsin;
 
 Görevin: listedeki HER konu için:
 - urgency ve rating (1-10)
-- why: 2-3 kısa madde, sayılarla (kaç bağımsız kaynak, resmi kaynak, HN puanı / GitHub yıldızı, odak uyumu); abartma
-- angle: Berat'ın yazısı neye odaklanmalı — geliştirici gözüyle tek cümle; haber bülteni cümlesi değil
+- summary: haberin özeti, 2-3 cümle: ne oldu, kim yaptı, kimi etkiliyor. Okuyan konuyu buradan anlamalı.
+- highlights: 2-3 çarpıcı nokta: en dikkat çekici somut bilgiler (sayılar, ilkler, fiyat, ölçek, performans).
+- lessons: 1-2 öğretici nokta: okur bundan ne öğrenir, ne deneyebilir, işine nasıl yarar (geliştirici ve teknoloji okuru gözüyle).
+- why: puanın gerekçesi, 1-2 kısa madde (kaç kaynak, ne kadar yankı); abartma
+- angle: Berat'ın yazısı neye odaklanmalı — tek cümle; haber bülteni cümlesi değil
+summary, highlights ve lessons YALNIZCA verilen bilgilere (doğrulanmış bilgiler, başlıklar, özetler) dayanmalı; sayıları kaynaktaki gibi
+aynen yaz ("320 bin yıldız" gibi), dönüştürme ya da hesap yapma; bilinmeyeni uydurma,
+bilgi azsa kısa tut ve "kaynakta ayrıntı yok" de. Her madde tek cümle, sade Türkçe.
 Ayrıca: reason (Berat'a hitaben 1-2 cümle: bugün ne yapmalı), tip (tek cümle strateji tavsiyesi), best_time (ör. "09:00-10:00").
 
 ${CONTENT_RULES}
-Çıktı: {"topics":[{"i":0,"urgency":"onerilir","rating":7,"why":["..."],"angle":"...","ready":""}],"reason":"...","tip":"...","best_time":"..."}
+Çıktı: {"topics":[{"i":0,"urgency":"onerilir","rating":7,"summary":"...","highlights":["..."],"lessons":["..."],"why":["..."],"angle":"...","ready":""}],"reason":"...","tip":"...","best_time":"..."}
 ${JSON_ONLY}`,
     user: `Bugün: ${today}
 Haftalık durum: son 7 günde ${cadence.sharedThisWeek} paylaşım (hedef 3-4) · son paylaşımdan bu yana ${cadence.daysSinceLast ?? 'hiç paylaşım yok'} gün
@@ -450,6 +462,9 @@ ${ready.length ? ready.map((t) => `- ${t}`).join('\n') : '- yok'}`,
         urgency: URGENCY.includes(t.urgency) ? t.urgency : 'gerek-yok',
         rating: clampRating(t.rating),
         why: (Array.isArray(t.why) ? t.why : []).filter(Boolean).slice(0, 3),
+        summary: typeof t.summary === 'string' ? t.summary.trim() : '',
+        highlights: (Array.isArray(t.highlights) ? t.highlights : []).filter(Boolean).slice(0, 3),
+        lessons: (Array.isArray(t.lessons) ? t.lessons : []).filter(Boolean).slice(0, 2),
         angle: t.angle || '',
         ready: typeof t.ready === 'string' ? t.ready.trim() : '',
       }

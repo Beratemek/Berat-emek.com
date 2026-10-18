@@ -168,8 +168,10 @@ async function main() {
   }
 
   // 3) Doğrula — tek kaynaklı haberler aday bile olamaz
-  const candidates = ranked.filter((c) => c.trust !== 'tek-kaynak').slice(0, TOP_CANDIDATES)
-  log(`\n3/5 ${candidates.length} aday kaynak metinlerden doğrulanıyor…`)
+  // Listedeki her konu doğrulanır: kartlardaki özet ve çarpıcı noktalar kaynak metne dayansın (konu başı ~0,0005 $).
+  // Tek kaynaklı konular da doğrulanır ama puanları gündem editöründe sınırlı kalır.
+  const candidates = ranked.slice(0, Math.max(TOP_CANDIDATES, 6))
+  log(`\n3/5 ${candidates.length} konu kaynak metinlerden doğrulanıyor…`)
   await Promise.all(candidates.map(verifySafe))
   stats.candidates = candidates.length
   stats.verified = candidates.filter((c) => c.verification?.verified).length

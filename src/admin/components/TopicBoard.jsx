@@ -85,13 +85,48 @@ export default function TopicBoard({ brief, onChanged }) {
                 <strong className="tb-title">{t.topic}</strong>
               </div>
 
-              {t.angle && <p className="tb-angle">{t.angle}</p>}
+              {(t.summary || t.verification?.whatHappened) && <p className="tb-summary">{t.summary || t.verification.whatHappened}</p>}
+
+              {(t.highlights?.length > 0 || t.lessons?.length > 0) && (
+                <div className="tb-points">
+                  {t.highlights?.length > 0 && (
+                    <div>
+                      <span className="tb-points-label">Çarpıcı noktalar</span>
+                      <ul>
+                        {t.highlights.map((h, j) => (
+                          <li key={j}>{h}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {t.lessons?.length > 0 && (
+                    <div>
+                      <span className="tb-points-label is-learn">Öğretici noktalar</span>
+                      <ul>
+                        {t.lessons.map((h, j) => (
+                          <li key={j}>{h}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {t.angle && (
+                <p className="tb-angle">
+                  <b>Yazının açısı:</b> {t.angle}
+                </p>
+              )}
+
               {t.why?.length > 0 && (
-                <ul className="tb-why">
-                  {t.why.map((w, j) => (
-                    <li key={j}>{w}</li>
-                  ))}
-                </ul>
+                <details className="tb-why">
+                  <summary>Neden {t.rating != null ? `${t.rating}/10` : 'bu puan'}?</summary>
+                  <ul>
+                    {t.why.map((w, j) => (
+                      <li key={j}>{w}</li>
+                    ))}
+                  </ul>
+                </details>
               )}
 
               <div className="tb-meta">

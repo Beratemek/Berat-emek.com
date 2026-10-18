@@ -98,14 +98,63 @@
   font-size: 13.5px;
   line-height: 1.55;
 }
-.tb-why {
-  display: grid;
-  gap: 3px;
+.tb-summary {
   margin: 0;
+  color: var(--a-ink);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.tb-points {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--a-panel-2);
+}
+.tb-points ul {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
   padding-left: 18px;
+  color: var(--a-ink-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.tb-points-label {
+  color: var(--a-accent-ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.tb-points-label.is-learn {
+  color: var(--a-ok);
+}
+.tb-angle b {
+  color: var(--a-ink);
+  font-weight: 700;
+}
+.tb-why {
   color: var(--a-muted);
   font-size: 12.5px;
   line-height: 1.5;
+}
+.tb-why summary {
+  width: fit-content;
+  cursor: pointer;
+  font-weight: 600;
+}
+.tb-why ul {
+  display: grid;
+  gap: 3px;
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+@media (max-width: 760px) {
+  .tb-points {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .tb-meta {
   display: flex;

@@ -16,6 +16,9 @@ const BLOCK_RE = /\b(nsfw|porn\w*|sex\w*|hentai|nude|onlyfans)\b/i
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
+// Büyük sayılar "320 bin" biçiminde: "320.437" gibi Türkçe binlik noktası modelde ondalıkla karışıyordu
+const kfmt = (n) => (n >= 10000 ? `${Math.round(n / 1000)} bin` : n >= 1000 ? `${(n / 1000).toFixed(1).replace(".", ",")} bin` : String(n))
+
 export async function fetchText(url, { timeoutMs = 20000, headers = {} } = {}) {
   const res = await fetch(url, {
     headers: { 'User-Agent': UA, ...headers },
@@ -218,7 +221,7 @@ async function fromGitHubTrending() {
         title: `GitHub'da gündemde: ${name}${desc ? ` — ${desc.slice(0, 160)}` : ''}`,
         url: `https://github.com/${name}`,
         date: new Date(),
-        summary: `${total.toLocaleString('tr-TR')} toplam yıldız · ${label} +${gained.toLocaleString('tr-TR')}`,
+        summary: `${kfmt(total)} toplam yıldız · ${label} +${kfmt(gained)} yıldız`,
         source: 'GitHub Trend',
         type: isMajor(name) ? 'primary' : 'community',
         // Haftalık artış günlüğe çevrilir ki iki liste aynı ölçekte olsun
@@ -256,7 +259,7 @@ async function fromPopularReleases(since) {
       title: `${r.full_name} ${rel.tag_name} yayınlandı — ${(r.description || '').slice(0, 140)}`,
       url: rel.html_url,
       date: new Date(rel.published_at),
-      summary: `${r.stargazers_count.toLocaleString('tr-TR')} yıldızlı proje · ${rel.name || rel.tag_name}${notes ? ` · ${notes}` : ''}`,
+      summary: `${kfmt(r.stargazers_count)} yıldızlı proje · ${rel.name || rel.tag_name}${notes ? ` · ${notes}` : ''}`,
       source: 'GitHub Sürüm',
       type: 'primary',
       engagement: r.stargazers_count,
