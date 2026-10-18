@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto'
 import { askJSON, getUsage } from './llm.js'
 import { rest, hasDb } from './db.js'
 import { MODEL } from './config.js'
+import { recordRun } from './agentkit.js'
 
 const LANGS = {
   en: 'English',
@@ -161,6 +162,11 @@ async function main() {
   const failed = results.filter((r) => r.error)
   for (const f of failed) console.error(`  ✗ ${f.item.post.slug} → ${f.item.lang}: ${f.error}`)
   console.log(`Bitti: ${tasks.length - failed.length} çeviri yazıldı, ${failed.length} hata. Kullanım:`, getUsage())
+  await recordRun('ceviri', {
+    ok: failed.length === 0,
+    summary: `${tasks.length - failed.length} çeviri yazıldı${failed.length ? `, ${failed.length} hata` : ''}`,
+    cost: getUsage().costUsd,
+  })
   if (failed.length === tasks.length) process.exitCode = 1
 }
 

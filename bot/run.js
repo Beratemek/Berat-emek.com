@@ -13,6 +13,7 @@ import { blocksToDoc, slugify } from './tiptap.js'
 import { hasDb, recentBriefs, insertDraftPost, upsertBrief, uploadCover } from './db.js'
 import { renderCover, compressImage } from './cover.js'
 import { generateIllustration, imageCost } from './image.js'
+import { recordRun } from './agentkit.js'
 
 const envFile = fileURLToPath(new URL('./.env', import.meta.url))
 if (existsSync(envFile)) process.loadEnvFile(envFile)
@@ -38,7 +39,26 @@ function topicSummary(c) {
     trust: c.trust,
     verified: c.verification ? c.verification.verified : null,
     sources: c.items.slice(0, 6).map((i) => ({ name: i.source, type: i.type, title: i.title, url: i.url })),
+    // Panelden "İçerik oluştur" denince konuyu yeniden kurabilmek için ham bilgiler
+    sourceCount: c.sourceCount,
+    signals: c.signals,
+    items: c.items.slice(0, 8).map((i) => ({
+      id: i.id,
+      source: i.source,
+      type: i.type,
+      title: i.title,
+      url: i.url,
+      summary: (i.summary || '').slice(0, 280),
+      engagement: i.engagement || 0,
+    })),
+    verification: c.verification || null,
   }
+}
+
+/** Ajan paneline çalışma kaydı (deneme modunda ve anahtar yoksa yazılmaz) */
+async function logRun(ok, summary, details = {}) {
+  if (DRY || !hasDb()) return
+  await recordRun('gundem', { ok, summary, cost: getUsage().costUsd + imageCost(), details })
 }
 
 function sourceList(cluster) {
@@ -128,6 +148,7 @@ async function main() {
 
   if (!items.length) {
     await save({ ...baseBrief, decision: 'paylasma', score: 1, reason: 'Bugün kaynaklardan haber çekilemedi. Botun çalışma kaydına bak.', topics: [] })
+    await logRun(false, 'Kaynaklardan haber çekilemedi')
     return
   }
 
@@ -177,6 +198,7 @@ async function main() {
       ideas,
       stats: { ...stats, usage: getUsage() },
     })
+    await logRun(true, `${items.length} haber · güçlü haber yok, ${ideas.length} yazı fikri`)
     return
   }
 
@@ -249,9 +271,14 @@ async function main() {
   if (verdict.tip) log(`   💡 ${verdict.tip}`)
   log(`   Bu hafta: ${cadence.sharedThisWeek}/${cadence.target} paylaşım`)
   log(`   ${u.calls} model çağrısı · ${u.promptTokens + u.completionTokens} token · $${u.costUsd} · ${((Date.now() - started) / 1000).toFixed(0)} sn`)
+  await logRun(true, `${LABEL[verdict.urgency].replace(/^\S+\s+/, '')} (${verdict.score}/10): ${chosen.topic}`, {
+    urgency: verdict.urgency,
+    items: items.length,
+  })
 }
 
-main().catch((e) => {
+main().catch(async (e) => {
   console.error('\n❌ Bot hata verdi:', e.message)
+  await logRun(false, `Hata: ${e.message}`).catch(() => {})
   process.exit(1)
 })

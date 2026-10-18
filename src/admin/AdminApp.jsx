@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { Routes, Route, NavLink, Navigate, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BarChart3, Newspaper, FileText, FolderGit2, User, Phone, Settings, LogOut,
-  Loader2, Search, Menu, X, Sun, Moon, Plus, ExternalLink, ShieldAlert,
+  Loader2, Search, Menu, X, Sun, Moon, Plus, ExternalLink, ShieldAlert, Bot,
 } from 'lucide-react'
 
 import './admin.css'
+import { supabase } from '../lib/supabase.js'
 import { useAuth, signOut } from './AuthProvider.jsx'
 import { AdminDataProvider, useAdminData, istanbulDay } from './AdminData.jsx'
 import { useTheme } from '../site/theme.js'
@@ -14,6 +15,7 @@ import CommandPalette from './components/CommandPalette.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import TodayPage from './pages/TodayPage.jsx'
 import AnalyticsPage from './pages/AnalyticsPage.jsx'
+import AgentsPage from './pages/AgentsPage.jsx'
 import PostsList from './pages/PostsList.jsx'
 import PostEditor from './pages/PostEditor.jsx'
 import AboutEditor from './pages/AboutEditor.jsx'
@@ -142,6 +144,7 @@ function Shell() {
             <Route index element={<DashboardPage />} />
             <Route path="today" element={<TodayPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="agents" element={<AgentsPage />} />
             <Route path="posts" element={<PostsList />} />
             <Route path="posts/new" element={<PostEditor />} />
             <Route path="posts/:id" element={<PostEditor />} />
@@ -167,6 +170,7 @@ function Sidebar({ onNavigate }) {
   const brief = briefs.find((b) => b.brief_date === today)
   const shareToday = brief?.decision === 'paylas' && brief.status === 'bekliyor'
   const drafts = posts.filter((p) => !p.published && p.kind === 'blog').length
+  const inbox = useInboxCount()
 
   const handleSignOut = async () => {
     await signOut()
@@ -199,6 +203,7 @@ function Sidebar({ onNavigate }) {
         {item('/admin', LayoutDashboard, 'Genel Bakış', null, true)}
         {item('/admin/analytics', BarChart3, 'Analitik')}
         {item('/admin/today', Newspaper, 'Bugün', shareToday ? <span className="nav-dot" title="Bugün paylaşım önerisi var" /> : null)}
+        {item('/admin/agents', Bot, 'Ajanlar', inbox ? <span className="nav-count" title="Bekleyen öneri">{inbox}</span> : null)}
 
         <div className="nav-label">İçerik</div>
         {item('/admin/posts', FileText, 'Yazılar', drafts ? <span className="nav-count">{drafts}</span> : null)}
@@ -226,6 +231,28 @@ function Sidebar({ onNavigate }) {
       </div>
     </aside>
   )
+}
+
+/** Öneri kutusunda bekleyen öneri sayısı; sayfa değişince ve öneri kararlaştırılınca yenilenir. */
+function useInboxCount() {
+  const location = useLocation()
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    let cancel = false
+    const load = () =>
+      supabase
+        .from('agent_suggestions')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'yeni')
+        .then(({ count: c, error }) => !cancel && setCount(error ? 0 : c || 0))
+    load()
+    window.addEventListener('agents:inbox', load)
+    return () => {
+      cancel = true
+      window.removeEventListener('agents:inbox', load)
+    }
+  }, [location.pathname])
+  return count
 }
 
 function SettingsPage() {

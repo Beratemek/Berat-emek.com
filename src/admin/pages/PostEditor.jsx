@@ -5,6 +5,7 @@ import StarterKit from '@tiptap/starter-kit'
 import TiptapLink from '@tiptap/extension-link'
 import TiptapImage from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
+import { qualityCheck } from '../lib/quality.js'
 import {
   ArrowLeft,
   Save,
@@ -125,6 +126,25 @@ export default function PostEditor() {
 
   async function handleSave() {
     setErr(null)
+
+    // Kalite kapısı: yayında olacak metni kurallara göre tara; sorun varsa önce sor
+    if (form.published) {
+      const issues = qualityCheck({ kind: form.kind, title: form.title, excerpt: form.excerpt, body: editor?.getText() || '' })
+      supabase
+        .from('agent_runs')
+        .insert({
+          agent: 'kalite',
+          ok: !issues.some((i) => i.level === 'kritik'),
+          summary: issues.length ? `"${form.title}": ${issues.length} not` : `"${form.title}": temiz`,
+          details: { issues, title: form.title },
+        })
+        .then(() => {}) // ajan tabloları yoksa sessizce geç
+      if (issues.length) {
+        const lines = issues.map((i) => `${i.level === 'kritik' ? 'KRİTİK' : 'Uyarı'}: ${i.text}`).join('\n')
+        if (!window.confirm(`Kalite kapısı şunları buldu:\n\n${lines}\n\nYine de yayında olarak kaydedilsin mi?`)) return
+      }
+    }
+
     setSaving(true)
     const payload = {
       kind: form.kind,
