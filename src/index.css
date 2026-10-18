@@ -1352,7 +1352,7 @@ a.project-card:hover h3 svg {
   background: var(--gradient);
 }
 .article {
-  padding: clamp(48px, 7vw, 88px) 0 clamp(72px, 10vw, 120px);
+  padding-block: clamp(48px, 7vw, 88px) clamp(72px, 10vw, 120px);
 }
 .crumb {
   display: inline-flex;
@@ -1544,7 +1544,7 @@ a.project-card:hover h3 svg {
 }
 
 .not-found {
-  padding: clamp(96px, 16vw, 180px) 0;
+  padding-block: clamp(96px, 16vw, 180px);
 }
 .not-found h1 {
   margin-top: 14px;
