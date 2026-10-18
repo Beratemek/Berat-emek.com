@@ -180,7 +180,7 @@ export default function PostPage() {
           />
         )}
 
-        <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+        <Prose html={html} />
 
         <ShareRow url={canonicalUrl} />
 
@@ -193,6 +193,37 @@ export default function PostPage() {
         )}
       </article>
     </Layout>
+  )
+}
+
+/** Yazı gövdesi; içindeki görsele tıklayınca tam boy açılır (ekran görüntüleri sütunda küçük kalıyor). */
+function Prose({ html }) {
+  const [zoom, setZoom] = useState(null)
+  useEffect(() => {
+    if (!zoom) return
+    const onKey = (e) => e.key === 'Escape' && setZoom(null)
+    window.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [zoom])
+
+  return (
+    <>
+      <div
+        className="prose"
+        dangerouslySetInnerHTML={{ __html: html }}
+        onClick={(e) => e.target.tagName === 'IMG' && setZoom({ src: e.target.currentSrc || e.target.src, alt: e.target.alt })}
+      />
+      {zoom && (
+        <div className="lightbox" role="dialog" aria-modal="true" aria-label={zoom.alt} onClick={() => setZoom(null)}>
+          <img src={zoom.src} alt={zoom.alt} />
+          {zoom.alt && <p>{zoom.alt}</p>}
+        </div>
+      )}
+    </>
   )
 }
 

@@ -2364,3 +2364,40 @@ body {
     overflow: hidden;
   }
 }
+
+/* Yazı/proje içindeki görseller: ekran görüntüleri çerçeveli, tıklayınca tam boy */
+.prose img {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  cursor: zoom-in;
+}
+.prose img + img {
+  margin-top: 20px;
+}
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  padding: 24px 16px;
+  background: rgba(20, 14, 10, 0.9);
+  cursor: zoom-out;
+  animation: fadeUp 0.18s ease both;
+}
+.lightbox img {
+  max-width: min(1600px, 100%);
+  max-height: calc(100vh - 96px);
+  border-radius: 12px;
+}
+.lightbox p {
+  margin: 0;
+  max-width: 720px;
+  color: #f3ede4;
+  font-size: 14px;
+  text-align: center;
+}
