@@ -18,6 +18,8 @@ import { SITE } from '../data/site.js'
 
 const CAPABILITY_ICONS = [BrainCircuit, Layers, AudioWaveform]
 const PROJECTS_PREVIEW = 6 // ana sayfada ilk 6 proje; gerisi butonla açılır
+const PINNED_PROJECT = 'morf' // şu an çalıştığım şirketin projesi, tarihinden bağımsız hep başta
+const pinFirst = (list) => [...list].sort((a, b) => (b.slug === PINNED_PROJECT) - (a.slug === PINNED_PROJECT))
 
 /** Başlığı kelime kelime canlandırır; vurgulu kısmı gradyanla gösterir. */
 function AnimatedHeadline({ text, accent }) {
@@ -83,7 +85,7 @@ export default function HomePage() {
   const aboutTitle = t('hero.role')
 
   const projects = projectPosts.length
-    ? projectPosts.map((p) => ({
+    ? pinFirst(projectPosts).map((p) => ({
         title: p.title, desc: p.excerpt, tags: p.tags || [], href: postPath(p),
         cover: p.cover, coverPosition: p.cover_position, seed: p.slug, word: coverWord(p),
       }))

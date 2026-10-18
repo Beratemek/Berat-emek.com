@@ -45,15 +45,15 @@ export const content = {
         url: "https://ai-egitim-sistemi.vercel.app",
       },
       {
-        name: "MoonProject — Uzay Hackathonu",
-        desc: "Ay yüzeyinde otonom rover rotasını risk, enerji ve arazi zorluğuna göre A* ile optimize eden, 3B görselleştirmeli karar destek simülasyonu. Takım projesi.",
+        name: "MoonProject — TUA Astro Hackathonu",
+        desc: "TUA Astro Hackathon'unda 48 saatte sıfırdan geliştirdiğimiz, Ay yüzeyinde otonom rover rotasını risk, enerji ve arazi zorluğuna göre A* ile optimize eden 3B simülasyon. 19 ekip arasında 6. olduk.",
         tags: ["Hackathon", "Three.js", "A*"],
         url: "https://github.com/FatihEmre44/MoonProject",
       },
       {
         name: "EmekShop — 3D mobilya e-ticaret",
-        desc: "Mobilya için e-ticaret platformu: 3D ürün deneyimi, sepet, JWT ile güvenli giriş, ürün-sipariş-kullanıcı yönetimli admin paneli, Türkçe/İngilizce.",
-        tags: ["E-ticaret", "3D", "TypeScript"],
+        desc: "Mobilya için yapay zeka destekli 3D e-ticaret: tek bir 2D ürün fotoğrafından saniyeler içinde web'e uygun 3D model üretiyor, müşteriye artırılmış gerçeklikle \"Odamda Gör\" deneyimi sunuyor.",
+        tags: ["3D", "Artırılmış Gerçeklik", "Yapay Zeka"],
         url: "https://github.com/Beratemek/emek-shop",
       },
       {
