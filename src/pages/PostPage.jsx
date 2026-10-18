@@ -144,13 +144,8 @@ export default function PostPage() {
         </Link>
 
         <header className="article-head">
-          {post.tags?.length > 0 && (
-            <div className="s-tags">
-              {post.tags.map((t) => (
-                <span key={t} className="s-tag">{t}</span>
-              ))}
-            </div>
-          )}
+          {/* Konular baloncuk yerine sade bir satırda */}
+          {post.tags?.length > 0 && <p className="article-topics">{post.tags.slice(0, 3).join(' · ')}</p>}
           <h1>{post.title}</h1>
           {post.excerpt && <p className="article-lead">{post.excerpt}</p>}
           <div className="article-meta">
@@ -236,7 +231,7 @@ function ListenButton({ title, html }) {
 
   if (state === 'idle') {
     return (
-      <button type="button" className="s-btn ghost small" onClick={start}>
+      <button type="button" className="s-btn ghost small" onClick={start} data-track="listen">
         <Headphones size={15} /> {t('post.listen')}
       </button>
     )
@@ -282,10 +277,11 @@ function ShareRow({ url }) {
           href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`}
           target="_blank"
           rel="noreferrer"
+          data-track="share:linkedin"
         >
           <LinkedinIcon size={15} /> {t('post.shareLinkedin')}
         </a>
-        <button type="button" className="s-btn ghost small" onClick={copy}>
+        <button type="button" className="s-btn ghost small" onClick={copy} data-track="share:copy-link">
           {copied ? <Check size={15} /> : <Link2 size={15} />} {copied ? t('ui.copied') : t('post.copyLink')}
         </button>
       </div>

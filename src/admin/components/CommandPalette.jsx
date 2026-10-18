@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Search, LayoutDashboard, Newspaper, FileText, FolderGit2, User, Phone, Settings,
+  Search, LayoutDashboard, BarChart3, Newspaper, FileText, FolderGit2, User, Phone, Settings,
   Plus, ExternalLink, SunMoon, CornerDownLeft,
 } from 'lucide-react'
 import { useAdminData } from '../AdminData.jsx'
@@ -22,6 +22,7 @@ export default function CommandPalette({ open, onClose, onToggleTheme }) {
     const go = (to) => () => navigate(to)
     const all = [
       { group: 'Sayfalar', icon: LayoutDashboard, label: 'Genel Bakış', run: go('/admin') },
+      { group: 'Sayfalar', icon: BarChart3, label: 'Analitik — ziyaretçiler', run: go('/admin/analytics') },
       { group: 'Sayfalar', icon: Newspaper, label: 'Bugün — botun özeti', run: go('/admin/today') },
       { group: 'Sayfalar', icon: FileText, label: 'Yazılar', run: go('/admin/posts') },
       { group: 'Sayfalar', icon: FolderGit2, label: 'Projeler', run: go('/admin/projects') },

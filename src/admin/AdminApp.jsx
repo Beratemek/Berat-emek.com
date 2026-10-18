@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Routes, Route, NavLink, Navigate, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard, Newspaper, FileText, FolderGit2, User, Phone, Settings, LogOut,
+  LayoutDashboard, BarChart3, Newspaper, FileText, FolderGit2, User, Phone, Settings, LogOut,
   Loader2, Search, Menu, X, Sun, Moon, Plus, ExternalLink, ShieldAlert,
 } from 'lucide-react'
 
@@ -13,6 +13,7 @@ import Login from './Login.jsx'
 import CommandPalette from './components/CommandPalette.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import TodayPage from './pages/TodayPage.jsx'
+import AnalyticsPage from './pages/AnalyticsPage.jsx'
 import PostsList from './pages/PostsList.jsx'
 import PostEditor from './pages/PostEditor.jsx'
 import AboutEditor from './pages/AboutEditor.jsx'
@@ -140,6 +141,7 @@ function Shell() {
           <Routes>
             <Route index element={<DashboardPage />} />
             <Route path="today" element={<TodayPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="posts" element={<PostsList />} />
             <Route path="posts/new" element={<PostEditor />} />
             <Route path="posts/:id" element={<PostEditor />} />
@@ -195,6 +197,7 @@ function Sidebar({ onNavigate }) {
       <nav className="sidebar-nav" aria-label="Panel menüsü">
         <div className="nav-label">Genel</div>
         {item('/admin', LayoutDashboard, 'Genel Bakış', null, true)}
+        {item('/admin/analytics', BarChart3, 'Analitik')}
         {item('/admin/today', Newspaper, 'Bugün', shareToday ? <span className="nav-dot" title="Bugün paylaşım önerisi var" /> : null)}
 
         <div className="nav-label">İçerik</div>

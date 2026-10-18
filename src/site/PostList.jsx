@@ -23,13 +23,6 @@ export function PostList({ posts }) {
             <div>
               <h3 className="post-title">{p.title}</h3>
               {p.excerpt && <p className="post-excerpt">{p.excerpt}</p>}
-              {p.tags?.length > 0 && (
-                <div className="s-tags">
-                  {p.tags.slice(0, 3).map((tag) => (
-                    <span key={tag} className="s-tag">{tag}</span>
-                  ))}
-                </div>
-              )}
             </div>
             <span className="post-side">
               {t('posts.min', { n: readMinutes(p.content) })} <ArrowUpRight size={15} />
@@ -80,7 +73,7 @@ export function FeaturedPost({ post }) {
       )}
       <div className="featured-body">
         <div className="featured-meta">
-          <span className="s-tag accent">{t('posts.featured')}</span>
+          <span className="featured-flag">{t('posts.featured')}</span>
           <time dateTime={post.created_at}>{fmtDate(post.created_at, 'long', locale)}</time>
           <span>· {t('posts.minLong', { n: readMinutes(post.content) })}</span>
         </div>
