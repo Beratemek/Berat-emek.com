@@ -1,17 +1,18 @@
-// Kapak görseli olmayan yazı/projeler için üretilen sıcak tonlu kapak.
-// Başlıktan türetilen renk paleti ve konuya göre seçilen ikon sayesinde her kapak farklı ama tutarlı;
-// yeni bir yazı ya da proje eklendiğinde görsel hazırlamaya gerek kalmaz.
+// Kapak görseli olmayan yazı/projeler için üretilen kapak: koyu zemin, tek ışık,
+// konuya göre seçilen ikon ve etrafında yörünge halkaları. Başlıktan türetilen ton ve
+// düğüm yerleşimi sayesinde her kapak farklı ama tutarlı; görsel hazırlamaya gerek kalmaz.
 import {
   Plug, Bot, SquareTerminal, Sparkles, Workflow, Cpu, Factory, Trophy, ChartNoAxesColumn,
   ShoppingBag, Box, Smartphone, Newspaper, GraduationCap, Rocket, BrainCircuit, Coffee, Heart,
 } from 'lucide-react'
 
-const PALETTES = [
-  ['#2e1d14', '#a24a22', '#f0b46a'],
-  ['#231812', '#6e3f22', '#d99a55'],
-  ['#3a2417', '#b4572a', '#f5cf93'],
-  ['#1e1611', '#5a3a26', '#c98a4f'],
-  ['#33201a', '#8c3b24', '#e9a76b'],
+// [ışık, derin ton] — hepsi sitenin sıcak paletinden
+const ACCENTS = [
+  ['240, 173, 108', '162, 74, 34'],
+  ['245, 194, 122', '140, 74, 28'],
+  ['233, 146, 92', '122, 46, 23'],
+  ['243, 210, 155', '154, 106, 44'],
+  ['232, 160, 122', '138, 58, 42'],
 ]
 
 // Konu → ikon. Sıra önemli: ilk eşleşen kazanır (ör. "Claude Code'da skill" → terminal değil skill).
@@ -36,6 +37,8 @@ const TOPICS = [
   [/derin öğrenme|makine öğrenmesi|transformer|sinir ağ|deep learning|yapay zeka|\bai\b/i, BrainCircuit],
 ]
 
+const RINGS = [9, 15, 21, 27, 33, 39, 45]
+
 function hash(text) {
   let h = 0
   for (const ch of String(text)) h = (h * 31 + ch.codePointAt(0)) >>> 0
@@ -49,24 +52,36 @@ export function topicIcon(topic) {
 
 export default function GenCover({ seed, label, word, topic, className = '' }) {
   const h = hash(seed)
-  const [base, mid, light] = PALETTES[h % PALETTES.length]
-  const cx = 70 + (h % 25)
-  const cy = 30 + ((h >> 3) % 45)
-  const background = `radial-gradient(120% 90% at ${cx}% ${100 - cy}%, ${light} 0%, transparent 52%), radial-gradient(90% 90% at 8% 100%, ${mid} 0%, transparent 62%), ${base}`
+  const [glow, deep] = ACCENTS[h % ACCENTS.length]
+  const compact = /\bthumb\b|post-thumb/.test(className)
   const Icon = topicIcon(`${word || ''} ${topic || ''} ${seed || ''}`)
 
+  // Halkaların üzerinde, başlığa göre yerleşen birkaç düğüm (ağ hissi)
+  const nodes = Array.from({ length: 5 }, (_, i) => {
+    const r = RINGS[1 + ((h >> (i * 3)) % 5)]
+    const a = (((h >> (i * 4)) % 360) * Math.PI) / 180 + i * 1.3
+    return { x: 50 + r * Math.cos(a), y: 50 + r * Math.sin(a), bright: i === 0 }
+  })
+
   return (
-    <div className={`gen-cover ${className}`} style={{ background, '--gc-x': `${cx}%`, '--gc-y': `${100 - cy}%` }} aria-hidden="true">
-      <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice">
-        {[40, 80, 120, 160, 200, 240].map((r) => (
-          <circle key={r} cx={(cx / 100) * 400} cy={(1 - cy / 100) * 240} r={r} fill="none" stroke="rgba(255,240,225,0.5)" strokeWidth="0.6" />
+    <div
+      className={`gen-cover${compact ? ' is-compact' : ''} ${className}`}
+      style={{ '--gc-glow': glow, '--gc-deep': deep }}
+      aria-hidden="true"
+    >
+      <svg className="gc-orbit" viewBox="0 0 100 100">
+        {RINGS.map((r) => (
+          <circle key={r} cx="50" cy="50" r={r} />
+        ))}
+        {nodes.map((n, i) => (
+          <circle key={`n${i}`} className={n.bright ? 'gc-node is-bright' : 'gc-node'} cx={n.x} cy={n.y} r={n.bright ? 0.9 : 0.55} />
         ))}
       </svg>
       <span className="gc-icon">
-        <Icon strokeWidth={1.5} />
+        <Icon strokeWidth={1.4} />
       </span>
       {label && <span className="gc-tag">{label}</span>}
-      {word && <span className="gc-word">{word}</span>}
+      {word && !compact && <span className="gc-word">{word}</span>}
     </div>
   )
 }

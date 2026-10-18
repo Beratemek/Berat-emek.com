@@ -27,12 +27,6 @@ export const content = {
         url: "https://github.com/Beratemek/trendyol-datathon",
       },
       {
-        name: "MetalsMarket MCP Sunucusu",
-        desc: "Metal ve emtia fiyatlarını toplayıp Claude Desktop ve Cursor gibi MCP istemcilerine stdio ve Streamable HTTP üzerinden 3 araçla sunan, kendi sunucunda çalışan araç seti.",
-        tags: ["MCP", "Python", "LLM Araçları"],
-        url: "https://github.com/Beratemek/metalsmarket-bot",
-      },
-      {
         name: "Sektörel Haber & Agent Platformu",
         desc: "Firma bazlı, çok kiracılı haber takip platformu: kaynakları tarar, mükerrerleri eler, Claude ile kaynak önerir, arşivi MCP ile yapay zeka asistanlarına açar.",
         tags: ["Ajanlar", "MCP", "TypeScript"],

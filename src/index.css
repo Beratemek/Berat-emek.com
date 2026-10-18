@@ -993,25 +993,72 @@ body.admin-mode #root {
   }
 }
 
-/* Üretilmiş kapak */
+/* Üretilmiş kapak: koyu zemin, tek ışık, ikon etrafında yörünge halkaları */
 .gen-cover {
+  --gc-x: 72%;
+  --gc-y: 46%;
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  background:
+    radial-gradient(circle at var(--gc-x) var(--gc-y), rgba(var(--gc-glow), 0.34) 0%, rgba(var(--gc-glow), 0.08) 26%, transparent 48%),
+    radial-gradient(110% 90% at 0% 105%, rgba(var(--gc-deep), 0.55) 0%, transparent 58%),
+    linear-gradient(160deg, #22170f 0%, #130c08 100%);
 }
 .gen-cover::after {
   content: '';
   position: absolute;
   inset: 0;
-  opacity: 0.12;
+  opacity: 0.09;
+  pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.gen-cover svg {
+.gen-cover.is-compact {
+  --gc-x: 50%;
+  --gc-y: 50%;
+}
+.gc-orbit {
   position: absolute;
-  inset: 0;
+  left: var(--gc-x);
+  top: var(--gc-y);
+  height: 230%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  fill: none;
+  stroke: rgba(255, 236, 214, 0.17);
+  stroke-width: 0.14;
+  -webkit-mask-image: radial-gradient(circle, #000 0 22%, transparent 48%);
+  mask-image: radial-gradient(circle, #000 0 22%, transparent 48%);
+}
+.gc-node {
+  fill: rgba(255, 228, 196, 0.7);
+  stroke: none;
+}
+.gc-node.is-bright {
+  fill: #fff1dc;
+}
+.gc-icon {
+  position: absolute;
+  left: var(--gc-x);
+  top: var(--gc-y);
+  height: 30%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  color: #fff4e6;
+  filter: drop-shadow(0 0 18px rgba(var(--gc-glow), 0.85)) drop-shadow(0 0 2px rgba(var(--gc-glow), 0.6));
+}
+.gc-icon svg {
+  display: block;
   width: 100%;
   height: 100%;
-  opacity: 0.45;
+}
+.is-compact .gc-orbit {
+  height: 260%;
+  stroke-width: 0.35;
+}
+.is-compact .gc-icon {
+  height: 44%;
+  filter: drop-shadow(0 0 8px rgba(var(--gc-glow), 0.8));
 }
 .gc-tag {
   position: absolute;
@@ -1021,18 +1068,18 @@ body.admin-mode #root {
   font-size: 11.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 240, 225, 0.85);
+  color: rgba(255, 240, 225, 0.8);
 }
 .gc-word {
   position: absolute;
   left: 22px;
   right: 22px;
-  bottom: 12px;
+  bottom: 14px;
   font-weight: 700;
-  font-size: clamp(34px, 4.6vw, 64px);
+  font-size: clamp(30px, 4.2vw, 58px);
   line-height: 1.05;
   letter-spacing: -0.04em;
-  color: rgba(255, 242, 228, 0.94);
+  color: rgba(255, 242, 228, 0.95);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2106,42 +2153,4 @@ body {
     flex-shrink: 0;
     white-space: nowrap;
   }
-}
-
-/* Otomatik kapak: konuya göre ikon (görsel hazırlamaya gerek kalmaz) */
-.gc-icon {
-  position: absolute;
-  top: 14%;
-  right: 7%;
-  height: 46%;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 240, 225, 0.34);
-  background: radial-gradient(circle at 35% 30%, rgba(255, 244, 230, 0.2), rgba(24, 14, 9, 0.32) 75%);
-  box-shadow: 0 0 70px -10px rgba(245, 185, 115, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  color: rgba(255, 246, 235, 0.94);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-}
-.gc-icon svg {
-  width: 48%;
-  height: 48%;
-}
-.featured-media .gc-icon {
-  top: 50%;
-  right: 9%;
-  height: 40%;
-  transform: translateY(-50%);
-}
-/* Küçük kapaklarda (liste, panel) ikon ortada, kelime yok */
-.post-thumb .gc-icon,
-.thumb .gc-icon {
-  top: 50%;
-  left: 50%;
-  right: auto;
-  height: 62%;
-  transform: translate(-50%, -50%);
-  box-shadow: none;
 }
