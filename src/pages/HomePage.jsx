@@ -313,7 +313,7 @@ export default function HomePage() {
               <img className="about-photo" src="/berat.jpg" alt={SITE.name} width="240" height="240" loading="lazy" decoding="async" />
               <div>
                 <strong>{SITE.name}</strong>
-                <span>VizioWise · Morf</span>
+                <span>VizioWise AI</span>
               </div>
             </div>
           </Reveal>
