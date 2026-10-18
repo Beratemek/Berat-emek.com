@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Routes, Route, NavLink, Navigate, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BarChart3, Newspaper, FileText, FolderGit2, User, Phone, Settings, LogOut,
-  Loader2, Search, Menu, X, Sun, Moon, Plus, ExternalLink, ShieldAlert, Bot,
+  Loader2, Search, Menu, X, Sun, Moon, Plus, ExternalLink, ShieldAlert, Bot, Wallet,
 } from 'lucide-react'
 
 import './admin.css'
@@ -16,6 +16,7 @@ import DashboardPage from './pages/DashboardPage.jsx'
 import TodayPage from './pages/TodayPage.jsx'
 import AnalyticsPage from './pages/AnalyticsPage.jsx'
 import AgentsPage from './pages/AgentsPage.jsx'
+import SpendPage from './pages/SpendPage.jsx'
 import PostsList from './pages/PostsList.jsx'
 import PostEditor from './pages/PostEditor.jsx'
 import AboutEditor from './pages/AboutEditor.jsx'
@@ -145,6 +146,7 @@ function Shell() {
             <Route path="today" element={<TodayPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="agents" element={<AgentsPage />} />
+            <Route path="spend" element={<SpendPage />} />
             <Route path="posts" element={<PostsList />} />
             <Route path="posts/new" element={<PostEditor />} />
             <Route path="posts/:id" element={<PostEditor />} />
@@ -204,6 +206,7 @@ function Sidebar({ onNavigate }) {
         {item('/admin/analytics', BarChart3, 'Analitik')}
         {item('/admin/today', Newspaper, 'Bugün', shareToday ? <span className="nav-dot" title="Bugün paylaşım önerisi var" /> : null)}
         {item('/admin/agents', Bot, 'Ajanlar', inbox ? <span className="nav-count" title="Bekleyen öneri">{inbox}</span> : null)}
+        {item('/admin/spend', Wallet, 'Harcamalar')}
 
         <div className="nav-label">İçerik</div>
         {item('/admin/posts', FileText, 'Yazılar', drafts ? <span className="nav-count">{drafts}</span> : null)}

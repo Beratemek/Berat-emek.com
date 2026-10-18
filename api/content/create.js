@@ -93,7 +93,7 @@ export async function POST(request) {
   } finally {
     const cost = getUsage().costUsd - before
     if (cost > 0) {
-      await recordRun('gundem', { summary: `İçerik oluştur · ${STEP_LABEL[step]}: ${topic.topic}`, cost }).catch(() => {})
+      await recordRun('gundem', { summary: `İçerik oluştur · ${STEP_LABEL[step]}: ${topic.topic}`, cost, details: { kind: 'create', step } }).catch(() => {})
     }
   }
 }

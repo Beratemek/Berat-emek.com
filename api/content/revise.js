@@ -75,6 +75,6 @@ export async function POST(request) {
     return json({ error: `Revizyon başarısız: ${e.message}` }, 500)
   } finally {
     const cost = getUsage().costUsd - before
-    if (cost > 0) await recordRun('gundem', { summary: `Revize: ${instruction.slice(0, 80)}`, cost }).catch(() => {})
+    if (cost > 0) await recordRun('gundem', { summary: `Revize: ${instruction.slice(0, 80)}`, cost, details: { kind: 'revise', target } }).catch(() => {})
   }
 }

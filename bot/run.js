@@ -68,7 +68,7 @@ function topicSummary(c) {
 /** Ajan paneline çalışma kaydı (deneme modunda ve anahtar yoksa yazılmaz) */
 async function logRun(ok, summary, details = {}) {
   if (DRY || !hasDb()) return
-  await recordRun('gundem', { ok, summary, cost: getUsage().costUsd + imageCost(), details })
+  await recordRun('gundem', { ok, summary, cost: getUsage().costUsd + imageCost(), details: { kind: 'daily', ...details } })
 }
 
 async function save(brief, draftPost, imagePrompt) {

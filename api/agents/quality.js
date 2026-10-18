@@ -36,10 +36,10 @@ Kontrol et:
 1. İçerik sınırları ihlali (yukarıdaki kesin kurallar).
 2. Uydurma kişisel deneyim ("denedim", "kullandım" — metin bunu desteklemiyorsa).
 3. Abartı, klişe, hype ("devrim", "çığır açan", "inanılmaz", "oyunun kuralları"…).
-4. Kaynağı belirtilmeden verilen kesin sayı ya da iddia.
+4. Metnin kendi içinde çelişen ya da hiçbir dayanağı görünmeyen iddia. ÖNEMLİ: Model, ürün, sürüm, donanım adlarının ve sayıların doğruluğunu KENDİ BİLGİNE göre yargılama; bilgin eski olabilir ve metin kaynaklardan doğrulanmış olabilir. Tanımadığın bir ad ya da sayı tek başına sorun değildir; en fazla "oneri" olarak "kaynağını belirtmek iyi olur" diyebilirsin.
 5. Türkçe dil, yazım ve anlatım hataları; anlaşılmayan cümleler.
 6. Başlığın içerikle uyumu, girişin ilk iki cümlede konuyu söyleyip söylemediği.
-Sorun yoksa uydurma; az ve gerçek sorun bul. Her sorun: level ("kritik" yayın öncesi mutlaka düzeltilmeli · "uyari" · "oneri"),
+"kritik" yalnızca: içerik sınırı ihlali, uydurma kişisel deneyim, açık bir dil hatası ya da metnin kendi içindeki çelişki. Sorun yoksa uydurma; az ve gerçek sorun bul. Her sorun: level ("kritik" yayın öncesi mutlaka düzeltilmeli · "uyari" · "oneri"),
 text (Türkçe, kısa, ne yapılmalı), quote (metinden ilgili parça, en fazla 120 karakter).
 verdict: "yayinlanabilir" ya da "duzeltilmeli". summary: tek cümle genel değerlendirme.
 Çıktı: {"verdict":"yayinlanabilir","summary":"...","issues":[{"level":"uyari","text":"...","quote":"..."}]}
@@ -56,6 +56,6 @@ Yalnızca geçerli JSON döndür.`,
     return json({ error: `İnceleme başarısız: ${e.message}` }, 500)
   } finally {
     const cost = getUsage().costUsd - before
-    if (cost > 0) await recordRun('kalite', { summary: `Yapay zeka incelemesi: "${title.slice(0, 60)}"`, cost }).catch(() => {})
+    if (cost > 0) await recordRun('kalite', { summary: `Yapay zeka incelemesi: "${title.slice(0, 60)}"`, cost, details: { kind: 'quality' } }).catch(() => {})
   }
 }

@@ -32,6 +32,6 @@ export async function POST(request) {
     return json({ error: `Görsel üretilemedi: ${e.message}` }, 502)
   } finally {
     const cost = imageCost() - before
-    if (cost > 0) await recordRun('gundem', { summary: `Kapak görseli: ${brief.headline || ''}`, cost }).catch(() => {})
+    if (cost > 0) await recordRun('gundem', { summary: `Kapak görseli: ${brief.headline || ''}`, cost, details: { kind: 'cover' } }).catch(() => {})
   }
 }

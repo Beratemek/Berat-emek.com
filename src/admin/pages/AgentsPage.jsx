@@ -288,7 +288,9 @@ export default function AgentsPage() {
           )}
 
           <div className="spend-list">
-            <div className="spend-head">Bu ay ajanların harcaması · toplam {usd(totalSpent)}</div>
+            <div className="spend-head">
+              Bu ay ajanların harcaması · toplam {usd(totalSpent)} · <Link to="/admin/spend">Döküm →</Link>
+            </div>
             {aiAgents.map((a) => {
               const e = byAgent[a.key]
               const cap = Number(state.settings[a.key]?.monthly_budget_usd ?? 0)
