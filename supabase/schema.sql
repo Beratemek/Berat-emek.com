@@ -96,23 +96,31 @@ drop policy if exists "public_read_contact" on contact_links;
 create policy "public_read_contact"
   on contact_links for select using (true);
 
+-- Yazma yalnızca yönetici e-postasıyla: kayıt herkese açık olduğu için
+-- "giriş yapmış herkes" demek "herkes" demektir (bkz. admin-lock.sql).
 drop policy if exists "auth_all_posts" on posts;
-create policy "auth_all_posts"
+drop policy if exists "admin_all_posts" on posts;
+create policy "admin_all_posts"
   on posts for all
   to authenticated
-  using (true) with check (true);
+  using ((auth.jwt() ->> 'email') = 'emekberat19@gmail.com')
+  with check ((auth.jwt() ->> 'email') = 'emekberat19@gmail.com');
 
 drop policy if exists "auth_all_profile" on profile;
-create policy "auth_all_profile"
+drop policy if exists "admin_all_profile" on profile;
+create policy "admin_all_profile"
   on profile for all
   to authenticated
-  using (true) with check (true);
+  using ((auth.jwt() ->> 'email') = 'emekberat19@gmail.com')
+  with check ((auth.jwt() ->> 'email') = 'emekberat19@gmail.com');
 
 drop policy if exists "auth_all_contact" on contact_links;
-create policy "auth_all_contact"
+drop policy if exists "admin_all_contact" on contact_links;
+create policy "admin_all_contact"
   on contact_links for all
   to authenticated
-  using (true) with check (true);
+  using ((auth.jwt() ->> 'email') = 'emekberat19@gmail.com')
+  with check ((auth.jwt() ->> 'email') = 'emekberat19@gmail.com');
 
 -- ============================================================
 -- updated_at otomatik güncelleme trigger'ı

@@ -23,25 +23,29 @@ drop policy if exists "covers_public_read"   on storage.objects;
 drop policy if exists "covers_auth_insert"   on storage.objects;
 drop policy if exists "covers_auth_update"   on storage.objects;
 drop policy if exists "covers_auth_delete"   on storage.objects;
+drop policy if exists "covers_admin_insert"  on storage.objects;
+drop policy if exists "covers_admin_update"  on storage.objects;
+drop policy if exists "covers_admin_delete"  on storage.objects;
 
 -- 3) Public (herkes) görselleri okuyabilir
 create policy "covers_public_read"
   on storage.objects for select
   using (bucket_id = 'covers');
 
--- 4) Sadece giriş yapmış admin yükleyebilir/günceller/silebilir
-create policy "covers_auth_insert"
+-- 4) Yalnızca yönetici e-postası yükler/günceller/siler
+--    (kayıt herkese açık; "giriş yapmış herkes" yetmez)
+create policy "covers_admin_insert"
   on storage.objects for insert
   to authenticated
-  with check (bucket_id = 'covers');
+  with check (bucket_id = 'covers' and (auth.jwt() ->> 'email') = 'emekberat19@gmail.com');
 
-create policy "covers_auth_update"
+create policy "covers_admin_update"
   on storage.objects for update
   to authenticated
-  using (bucket_id = 'covers')
-  with check (bucket_id = 'covers');
+  using (bucket_id = 'covers' and (auth.jwt() ->> 'email') = 'emekberat19@gmail.com')
+  with check (bucket_id = 'covers' and (auth.jwt() ->> 'email') = 'emekberat19@gmail.com');
 
-create policy "covers_auth_delete"
+create policy "covers_admin_delete"
   on storage.objects for delete
   to authenticated
-  using (bucket_id = 'covers');
+  using (bucket_id = 'covers' and (auth.jwt() ->> 'email') = 'emekberat19@gmail.com');
