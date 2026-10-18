@@ -27,7 +27,7 @@ Görevin:
 1. AYNI OLAYI veya AYNI PROJEYİ anlatan başlıkları tek kümede topla (aynı genel tema yetmez; aynı somut olay olmalı).
    Bir GitHub projesi, onu konuşan Reddit/Hacker News gönderisiyle aynı kümeye girer.
 2. Her kümeye kısa, tarafsız, Türkçe bir başlık yaz (en fazla 12 kelime).
-3. relevance: Berat'ın odağına uygunluk. 0 = İLGİSİZ listesine giriyor, 1 = zayıf, 2 = iyi, 3 = geliştiricilerin kesinlikle konuşacağı konu.
+3. relevance: YANKI potansiyeli. 0 = İLGİSİZ listesinde ya da yapay zeka/yazılım dışı, 1 = niş, dar bir kitle, 2 = geniş teknoloji ve geliştirici kitlesi konuşur, 3 = dünya ya da Türkiye gündemine girer, herkes konuşur.
 4. newsworthy=false: görüş yazısı, kişisel deneme, reklam, sadece hata düzeltmesi içeren sürüm notu, relevance=0 olan her şey.
 5. category: arac | ozellik | model | acik-kaynak | yontem | diger
 Yapay zekayla ilgisi olmayan başlıkları hiçbir kümeye koyma. Tek başlıklık küme olabilir; bir başlık tek kümede yer alır.
@@ -75,6 +75,7 @@ export function scoreClusters(clusters) {
         Math.min(3, top(c, 'GitHub Trend') / 400) +
         Math.min(2, top(c, 'YouTube') / 100000) +
         Math.min(2, top(c, 'Hugging Face Trend') / 300) +
+        Math.min(3, top(c, 'GitHub Sürüm') / 50000) +
         Math.min(2, reddit)
       const base = media * 1.5 + (hasPrimary ? 2 : 0) + community + Math.min(3, (c.items.length - 1) * 0.5)
       const score = base * RELEVANCE_WEIGHT[c.relevance]
@@ -89,7 +90,7 @@ export function scoreClusters(clusters) {
         trust,
         sourceCount: new Set(c.items.map((i) => i.source)).size,
         // Editörün "neden bu puan" açıklaması için ham sinyaller
-        signals: { media, hasPrimary, reddit, hn: top(c, 'Hacker News'), github: top(c, 'GitHub Trend'), hf: top(c, 'Hugging Face Trend'), youtube: top(c, 'YouTube'), items: c.items.length },
+        signals: { media, hasPrimary, reddit, hn: top(c, 'Hacker News'), github: top(c, 'GitHub Trend'), hf: top(c, 'Hugging Face Trend'), release: top(c, 'GitHub Sürüm'), youtube: top(c, 'YouTube'), items: c.items.length },
       }
     })
     .sort((a, b) => b.score - a.score)
@@ -277,15 +278,17 @@ Aciliyet derecesi seç:
 - "onerilir" (7-8): doğrulanmış, odakla uyumlu, geliştiricilerin işine yarayan sağlam bir konu.
 - "istege-bagli" (5-6): fena değil ama sıradan; bu hafta hedefin gerisindeyse paylaşılabilir, değilse atlanabilir.
 - "gerek-yok" (1-4): odak dışı, doğrulanamadı, tekrar ya da çözülmemiş kritik sorun var.
-Puan çıpaları (sıkı uygula):
-- 9-10: Büyük bir laboratuvarın ya da geliştirici aracının (OpenAI, Anthropic, Google, Meta, Microsoft, NVIDIA, DeepSeek, Qwen,
-  Mistral, xAI; Claude Code, Codex, Cursor, Copilot, MCP, Ollama…) önemli sürümü/duyurusu VE birden fazla bağımsız kaynakta yayılım.
-- 7-8: Bu kuruluşların daha küçük ama geliştiriciyi doğrudan etkileyen duyuruları; ya da birden fazla bağımsız medyanın yazdığı,
-  geniş geliştirici kitlesini ilgilendiren gelişme.
-- 5-6: İlginç ama niş: tek bir GitHub projesi, hobi/deneysel araç, dar bir kitle. Yıldız sayısı ne olursa olsun 6'yı geçemez.
-- 1-4: Odak dışı, tekrar ya da zayıf.
-Takipçi testi: Berat'ı takip eden kıdemli bir geliştirici bunu akışında görünce "iyi ki takip ediyorum" der mi, yoksa
+Puan çıpaları (sıkı uygula). Belirleyici olan YANKI ve ETKİ: konu dünyada ya da Türkiye'de ne kadar konuşuluyor, kaç kişiyi
+etkiliyor? Berat'ın kişisel ilgi alanıyla örtüşmesi puanı belirlemez.
+- 9-10: Dünya gündemi: büyük bir laboratuvarın amiral ürünü/modeli, milyonları etkileyen bir değişiklik, herkesin konuştuğu viral
+  araç ya da proje (ör. yüz binlerce GitHub yıldızı, Hacker News ön sayfası, çok sayıda medya) ya da Türkiye'de geniş yankı
+  uyandıran bir yapay zeka gelişmesi.
+- 7-8: Geniş teknoloji ve geliştirici kitlesinde yankı uyandıran, birden çok bağımsız kaynakta konuşulan gelişme.
+- 5-6: Niş ama ilginç: dar bir kitle, tek bir proje, deneysel araç. Büyük gelişme olmayan günlerde paylaşılabilir.
+- 1-4: Yankısı yok, tekrar ya da zayıf.
+Takipçi testi: Berat'ı takip eden biri bunu akışında görünce "bunu kaçırmamam gerekiyordu, iyi ki gördüm" der mi, yoksa
 "yine rastgele bir repo" mu der? İkincisiyse en fazla 5. "Kesin" haftada bir bile çıkmayabilir; çıkmaması normaldir.
+Son günlerde büyük bir gelişme yoksa niş ama sağlam bir konu "onerilir" olabilir; sessiz dönemde de düzenli paylaşım sürmeli.
 Haftalık durumu hesaba kat: hedefin gerisindeysen ve konu sağlamsa bir derece yükseltebilirsin; bu hafta zaten 4 paylaşım
 olduysa yalnızca "kesin" paylaşılır. Son günlerde paylaşılan konunun tekrarı "gerek-yok"tur.
 
@@ -380,8 +383,9 @@ export async function triage({ topics, recent, today, cadence, shared = [], read
     const v = t.verification
     const check = v ? (v.verified ? `doğrulandı — ${v.whatHappened}` : 'kaynak metinlerde doğrulanamadı') : 'henüz doğrulanmadı'
     return `${i}. ${t.topic}
-   kategori ${t.category} · odak ${t.relevance}/3 · güven ${t.trust} · ${t.sourceCount ?? '?'} kaynak · resmi kaynak ${s.hasPrimary ? 'var' : 'yok'} · bağımsız medya ${s.media ?? 0} · HN ${s.hn || 0} puan · GitHub ${s.github || 0} yıldız · HF ${s.hf || 0} · Reddit ${s.reddit || 0}
-   ${check}`
+   kategori ${t.category} · odak ${t.relevance}/3 · güven ${t.trust} · ${t.sourceCount ?? '?'} kaynak · resmi kaynak ${s.hasPrimary ? 'var' : 'yok'} · bağımsız medya ${s.media ?? 0} · HN ${s.hn || 0} puan · GitHub ${s.github || 0} yıldız · HF ${s.hf || 0} · popüler repo sürümü ${s.release ? `${s.release} yıldız` : 'yok'} · Reddit ${s.reddit || 0}
+   ${check}
+   örnek: ${(t.items || []).slice(0, 3).map((x) => `${x.source}: ${x.title.slice(0, 90)}${x.summary ? ` (${x.summary.slice(0, 90)})` : ''}`).join(' | ')}`
   })
 
   const out = await askJSON({
@@ -399,15 +403,17 @@ Aciliyet dereceleri:
 - "onerilir" (7-8): doğrulanmış, odakla uyumlu, geliştiricinin işine yarayan sağlam konu.
 - "istege-bagli" (5-6): fena değil ama sıradan.
 - "gerek-yok" (1-4): odak dışı, tekrar ya da zayıf.
-Puan çıpaları (sıkı uygula):
-- 9-10: Büyük bir laboratuvarın ya da geliştirici aracının (OpenAI, Anthropic, Google, Meta, Microsoft, NVIDIA, DeepSeek, Qwen,
-  Mistral, xAI; Claude Code, Codex, Cursor, Copilot, MCP, Ollama…) önemli sürümü/duyurusu VE birden fazla bağımsız kaynakta yayılım.
-- 7-8: Bu kuruluşların daha küçük ama geliştiriciyi doğrudan etkileyen duyuruları; ya da birden fazla bağımsız medyanın yazdığı,
-  geniş geliştirici kitlesini ilgilendiren gelişme.
-- 5-6: İlginç ama niş: tek bir GitHub projesi, hobi/deneysel araç, dar bir kitle. Yıldız sayısı ne olursa olsun 6'yı geçemez.
-- 1-4: Odak dışı, tekrar ya da zayıf.
-Takipçi testi: Berat'ı takip eden kıdemli bir geliştirici bunu akışında görünce "iyi ki takip ediyorum" der mi, yoksa
+Puan çıpaları (sıkı uygula). Belirleyici olan YANKI ve ETKİ: konu dünyada ya da Türkiye'de ne kadar konuşuluyor, kaç kişiyi
+etkiliyor? Berat'ın kişisel ilgi alanıyla örtüşmesi puanı belirlemez.
+- 9-10: Dünya gündemi: büyük bir laboratuvarın amiral ürünü/modeli, milyonları etkileyen bir değişiklik, herkesin konuştuğu viral
+  araç ya da proje (ör. yüz binlerce GitHub yıldızı, Hacker News ön sayfası, çok sayıda medya) ya da Türkiye'de geniş yankı
+  uyandıran bir yapay zeka gelişmesi.
+- 7-8: Geniş teknoloji ve geliştirici kitlesinde yankı uyandıran, birden çok bağımsız kaynakta konuşulan gelişme.
+- 5-6: Niş ama ilginç: dar bir kitle, tek bir proje, deneysel araç. Büyük gelişme olmayan günlerde paylaşılabilir.
+- 1-4: Yankısı yok, tekrar ya da zayıf.
+Takipçi testi: Berat'ı takip eden biri bunu akışında görünce "bunu kaçırmamam gerekiyordu, iyi ki gördüm" der mi, yoksa
 "yine rastgele bir repo" mu der? İkincisiyse en fazla 5. "Kesin" haftada bir bile çıkmayabilir; çıkmaması normaldir.
+Son günlerde büyük bir gelişme yoksa niş ama sağlam bir konu "onerilir" olabilir; sessiz dönemde de düzenli paylaşım sürmeli.
 Tek kaynaklı ya da doğrulanamamış konu en fazla "istege-bagli" olabilir.
 "Paylaşıldı" sayılan tek şey Berat'ın paylaştığını onayladığı konulardır: onların tekrarı "gerek-yok".
 Sitede yazısı hazır olup Berat'ın henüz PAYLAŞMADIĞI bir konu elenmez: önemine göre puanla ve "ready" alanına o yazının

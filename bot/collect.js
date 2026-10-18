@@ -2,14 +2,14 @@
 import {
   FEEDS, HN_MIN_POINTS, HF_MAX_AGE_DAYS,
   GITHUB_MAX_AGE_DAYS, GITHUB_MIN_STARS, GITHUB_QUERIES,
-  YOUTUBE_QUERIES, YOUTUBE_MIN_VIEWS, MAJOR_ORGS,
+  YOUTUBE_QUERIES, YOUTUBE_MIN_VIEWS, MAJOR_ORGS, POPULAR_REPO_QUERIES,
 } from './config.js'
 
 const UA = 'Mozilla/5.0 (compatible; beratemek-haber-botu/1.0; +https://berat-emek.com)'
 
 // Genel kaynaklardaki (HN, Simon Willison vb.) başlıkları yapay zekaya göre süzmek için
 const AI_RE =
-  /\b(ai|a\.i\.|yapay zeka|llms?|gpt[-\w.]*|chatgpt|openai|anthropic|claude|claude code|codex|gemini|gemma|deepmind|llama|llama\.cpp|ollama|vllm|mistral|qwen|deepseek|grok|xai|copilot|cursor|mcp|model context protocol|vibe[- ]coding|hugging ?face|transformers?|diffusion|neural|machine learning|deep learning|agents?|agentic|inference|fine-?tun\w*|rag|embeddings?|multimodal|reasoning)\b/i
+  /\b(ai|a\.i\.|yapay zeka|llms?|gpt[-\w.]*|chatgpt|openai|anthropic|claude|claude code|codex|gemini|gemma|deepmind|llama|llama\.cpp|ollama|vllm|mistral|qwen|deepseek|grok|xai|copilot|cursor|mcp|model context protocol|vibe[- ]coding|hugging ?face|transformers?|diffusion|neural|machine learning|deep learning|agents?|agentic|inference|fine-?tun\w*|rag|embeddings?|multimodal|reasoning)\b|yapay zek[aâ]/i
 
 // Uygunsuz içerik asla aday olmasın
 const BLOCK_RE = /\b(nsfw|porn\w*|sex\w*|hentai|nude|onlyfans)\b/i
@@ -197,6 +197,74 @@ async function fromGitHub() {
 }
 
 /** İsteğe bağlı: YOUTUBE_API_KEY varsa son 3 günün en çok izlenen yapay zeka videoları. */
+/**
+ * GitHub'ın trend sayfası (günlük + haftalık): oluşturulma tarihinden bağımsız, şu an en hızlı yıldız alan repolar.
+ * Yalnızca yapay zekayla ilgili olanlar alınır.
+ */
+async function fromGitHubTrending() {
+  const items = []
+  const seen = new Set()
+  for (const [since, label] of [['daily', 'bugün'], ['weekly', 'bu hafta']]) {
+    const html = await fetchText(`https://github.com/trending?since=${since}`, { headers: { Accept: 'text/html' } })
+    for (const block of html.split('<article class="Box-row"').slice(1)) {
+      const name = /<h2 class="h3 lh-condensed">\s*<a[^>]*href="\/([^"]+)"/.exec(block)?.[1]
+      if (!name || seen.has(name)) continue
+      const desc = decodeEntities(stripHtml(/<p class="col-9[^"]*">([\s\S]*?)<\/p>/.exec(block)?.[1] || '')).trim()
+      if (!AI_RE.test(`${name} ${desc}`)) continue
+      seen.add(name)
+      const total = Number((/href="\/[^"]+\/stargazers"[^>]*>[\s\S]*?([\d,]+)\s*<\/a>/.exec(block)?.[1] || '0').replace(/,/g, ''))
+      const gained = Number((/([\d,]+) stars (?:today|this week)/.exec(block)?.[1] || '0').replace(/,/g, ''))
+      items.push({
+        title: `GitHub'da gündemde: ${name}${desc ? ` — ${desc.slice(0, 160)}` : ''}`,
+        url: `https://github.com/${name}`,
+        date: new Date(),
+        summary: `${total.toLocaleString('tr-TR')} toplam yıldız · ${label} +${gained.toLocaleString('tr-TR')}`,
+        source: 'GitHub Trend',
+        type: isMajor(name) ? 'primary' : 'community',
+        // Haftalık artış günlüğe çevrilir ki iki liste aynı ölçekte olsun
+        engagement: since === 'daily' ? gained : Math.round(gained / 7),
+      })
+    }
+  }
+  return items
+}
+
+/** Çok popüler yapay zeka repolarının son saatlerdeki sürümleri (ör. 300 bin yıldızlı bir aracın yeni sürümü). */
+async function fromPopularReleases(since) {
+  const headers = { Accept: 'application/vnd.github+json' }
+  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
+  const pushed = new Date(since).toISOString().slice(0, 10)
+  const repos = new Map()
+  for (const q of POPULAR_REPO_QUERIES) {
+    const params = new URLSearchParams({ q: `${q} pushed:>=${pushed}`, sort: 'stars', order: 'desc', per_page: '10' })
+    const data = JSON.parse(await fetchText(`https://api.github.com/search/repositories?${params}`, { headers }))
+    for (const r of data.items || []) repos.set(r.full_name, r)
+    await sleep(1500)
+  }
+  const top = [...repos.values()].sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 15)
+  const items = []
+  for (const r of top) {
+    let rel
+    try {
+      rel = JSON.parse(await fetchText(`https://api.github.com/repos/${r.full_name}/releases?per_page=1`, { headers }))[0]
+    } catch {
+      continue
+    }
+    if (!rel?.published_at || new Date(rel.published_at).getTime() < since) continue
+    const notes = stripHtml(rel.body || '').replace(/\s+/g, ' ').slice(0, 220)
+    items.push({
+      title: `${r.full_name} ${rel.tag_name} yayınlandı — ${(r.description || '').slice(0, 140)}`,
+      url: rel.html_url,
+      date: new Date(rel.published_at),
+      summary: `${r.stargazers_count.toLocaleString('tr-TR')} yıldızlı proje · ${rel.name || rel.tag_name}${notes ? ` · ${notes}` : ''}`,
+      source: 'GitHub Sürüm',
+      type: 'primary',
+      engagement: r.stargazers_count,
+    })
+  }
+  return items
+}
+
 async function fromYouTube() {
   const key = process.env.YOUTUBE_API_KEY
   if (!key) return []
@@ -252,6 +320,8 @@ export async function collectAll({ hours, maxItems = 160 }) {
     { source: 'Hacker News', run: () => fromHackerNews(since) },
     { source: 'Hugging Face Trend', run: fromHuggingFace },
     { source: 'GitHub Trend', run: fromGitHub },
+    { source: 'GitHub Trend (günlük/haftalık)', run: fromGitHubTrending },
+    { source: 'GitHub Sürüm', run: () => fromPopularReleases(since) },
     ...(process.env.YOUTUBE_API_KEY ? [{ source: 'YouTube', run: fromYouTube }] : []),
   ]
 

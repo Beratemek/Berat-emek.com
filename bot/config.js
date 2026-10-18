@@ -39,23 +39,22 @@ export const MAJOR_ORGS = [
 ]
 
 // Editoryal odak: bot neyi haber sayar, neyi eler? (Kümeleyici, yazar ve editör bunu kullanır)
-export const FOCUS = `Berat bir haber sitesi DEĞİL. Sadece geliştiricilerin ve teknoloji meraklılarının
-"bunu hemen denemeliyim / bunu bilmeliyim" diyeceği, çok kişinin ilgisini çeken konuları paylaşır.
+export const FOCUS = `Berat bir haber sitesi DEĞİL; yapay zeka dünyasında YANKI uyandıran gelişmeleri kendi yorumuyla anlatan bir geliştirici.
+Konuyu seçen ölçüt Berat'ın kişisel ilgi alanı değil: gelişmenin dünyada ya da Türkiye'de ne kadar konuşulduğu ve kaç kişiyi etkilediği.
 
-İLGİLİ (öncelik sırasıyla):
-- Büyük yapay zeka laboratuvarlarının ve geliştirici araçlarının önemli sürümleri (yeni model, yeni özellik, yeni SDK)
-- Geliştiriciler arasında GERÇEKTEN yayılan açık kaynak projeler: birden çok bağımsız kaynakta konuşulan (tek başına GitHub yıldızı yetmez)
-- Yerel dil modelleri: yeni açık ağırlıklı modeller, Ollama, llama.cpp, LM Studio, kuantizasyon, kendi bilgisayarında çalıştırma
-- Ajanlar ve ajan çatıları: LangChain, LangGraph, CrewAI, ajan SDK'ları, çoklu ajan sistemleri
-- MCP: yeni MCP sunucuları, protokoldeki değişiklikler, MCP'yi destekleyen araçlar
-- Claude Code, Cursor, Codex, Copilot gibi yapay zeka kodlama araçlarındaki önemli yeni özellikler (skill, hook, ajan, MCP)
-- Yapay zekayla daha verimli çalışmayı sağlayan yöntemler, iş akışları, ipuçları
+İLGİLİ (yankı sırasıyla):
+- Büyük yapay zeka laboratuvarlarının ve ürünlerinin önemli duyuruları: yeni modeller, büyük özellikler, fiyat ve erişim değişiklikleri
+  (OpenAI, Anthropic, Google, Meta, Microsoft, Apple, NVIDIA, DeepSeek, Qwen, Mistral, xAI…)
+- Herkesin konuştuğu viral yapay zeka araçları ve açık kaynak projeler (GitHub'da patlayan, Hacker News ön sayfasına çıkan, çok sayıda medyada yer alan)
+- Milyonlarca kullanıcıyı ya da geliştiriciyi etkileyen değişiklikler; dünyayı etkileyen büyük regülasyon ve kararlar (geliştirici gözüyle anlatılabiliyorsa)
+- Türkiye'de geniş yankı uyandıran yapay zeka gelişmeleri (Türk şirketleri, kamu, Türkçe modeller)
+- Geliştirici dünyasının büyük gelişmeleri: yapay zeka kodlama araçları, ajanlar, MCP, yerel modeller
 
 İLGİSİZ (haber değeri YOK say):
-- Mahkeme, dava, regülasyon, politika, hükümet haberleri
-- Şirket yatırımları, değerlemeler, satın almalar, yönetici değişiklikleri, iş dünyası dedikodusu
-- Magazin, tüketici tartışmaları, "yapay zeka toplumu nasıl etkiler" türü yorum yazıları
-- Reklam, etkinlik duyurusu, sadece hata düzeltmesi içeren küçük sürüm notları`
+- Küçük yatırım turları, değerlemeler, yönetici değişiklikleri, iş dünyası dedikodusu (dünyayı etkileyen dev hamleler hariç)
+- Magazin, ünlü tartışmaları, "yapay zeka toplumu nasıl etkiler" türü genel yorum yazıları
+- Reklam, etkinlik duyurusu, yalnızca hata düzeltmesi içeren küçük sürüm notları
+- Yapay zeka ve yazılımla ilgisi olmayan haberler`
 
 // type:
 //   primary   → haberin ilk çıktığı resmi kaynak (şirket blogu, sürüm notu, model/proje sayfası)
@@ -85,6 +84,11 @@ export const FEEDS = [
   { name: 'Simon Willison', url: 'https://simonwillison.net/atom/everything/', type: 'media', aiFilter: true },
   { name: 'The Decoder', url: 'https://the-decoder.com/feed/', type: 'media' },
   { name: 'TechCrunch', url: 'https://techcrunch.com/category/artificial-intelligence/feed/', type: 'media' },
+  { name: 'MIT Technology Review', url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed', type: 'media' },
+  // Türkiye: yerelde yankı uyandıran yapay zeka gelişmeleri
+  { name: 'Webrazzi', url: 'https://webrazzi.com/kategori/yapay-zeka/feed/', type: 'media' },
+  { name: 'Webtekno', url: 'https://www.webtekno.com/rss.xml', type: 'media', aiFilter: true, limit: 25 },
+  { name: 'ShiftDelete', url: 'https://shiftdelete.net/feed', type: 'media', aiFilter: true, limit: 20 },
   { name: 'The Verge', url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', type: 'media' },
   { name: 'Ars Technica', url: 'https://arstechnica.com/ai/feed/', type: 'media' },
 
@@ -104,6 +108,15 @@ export const HF_MAX_AGE_DAYS = 14
 // GitHub'da son kaç günde açılmış ve en az kaç yıldız almış projeler "hızla yükselen" sayılır
 export const GITHUB_MAX_AGE_DAYS = 10
 export const GITHUB_MIN_STARS = 150
+// Çok popüler yapay zeka repoları: yeni sürümleri izlenir (eski ama bir anda gündeme oturan projeler kaçmasın)
+export const POPULAR_REPO_QUERIES = [
+  'topic:ai-agents stars:>20000',
+  'topic:mcp stars:>10000',
+  'topic:claude-code stars:>5000',
+  'topic:agent-skills stars:>5000',
+  'topic:llm stars:>40000',
+]
+
 export const GITHUB_QUERIES = [
   'mcp',
   'claude OR "claude code" OR codex OR cursor',
