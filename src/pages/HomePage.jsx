@@ -17,6 +17,7 @@ import { content as fallback } from '../data/portfolio.js'
 import { SITE } from '../data/site.js'
 
 const CAPABILITY_ICONS = [BrainCircuit, Layers, AudioWaveform]
+const PROJECTS_PREVIEW = 6 // ana sayfada ilk 6 proje; gerisi butonla açılır
 
 /** Başlığı kelime kelime canlandırır; vurgulu kısmı gradyanla gösterir. */
 function AnimatedHeadline({ text, accent }) {
@@ -88,7 +89,8 @@ export default function HomePage() {
       }))
     : loading
       ? []
-      : fallback.projects.items.map((p) => ({ title: p.name, desc: p.desc, tags: p.tags, seed: p.name, word: p.tags[0] }))
+      : fallback.projects.items.map((p) => ({ title: p.name, desc: p.desc, tags: p.tags, url: p.url, seed: p.name, word: p.tags[0] }))
+  const [showAllProjects, setShowAllProjects] = useState(false)
 
   const links = contact.length ? contact : loading ? [] : fallback.contact.links
   const linkedin = links.find((l) => l.icon === 'linkedin' || /linkedin\.com/.test(l.href || ''))
@@ -208,7 +210,7 @@ export default function HomePage() {
             </div>
           </Reveal>
           <div className="project-grid">
-            {projects.map((p, i) => {
+            {(showAllProjects ? projects : projects.slice(0, PROJECTS_PREVIEW)).map((p, i) => {
               const body = (
                 <>
                   {p.cover ? (
@@ -219,7 +221,7 @@ export default function HomePage() {
                   <div className="project-body">
                     <h3>
                       {p.title}
-                      {p.href && <ArrowUpRight size={18} />}
+                      {(p.href || p.url) && <ArrowUpRight size={18} />}
                     </h3>
                     {p.desc && <p>{p.desc}</p>}
                     {p.tags?.length > 0 && (
@@ -234,6 +236,8 @@ export default function HomePage() {
                 <Reveal key={p.title} delay={(i % 2) * 120}>
                   {p.href ? (
                     <Link to={p.href} className="project-card" onMouseMove={tilt} onMouseLeave={untilt}>{body}</Link>
+                  ) : p.url ? (
+                    <a href={p.url} target="_blank" rel="noreferrer" className="project-card" onMouseMove={tilt} onMouseLeave={untilt}>{body}</a>
                   ) : (
                     <article className="project-card" onMouseMove={tilt} onMouseLeave={untilt}>{body}</article>
                   )}
@@ -241,6 +245,13 @@ export default function HomePage() {
               )
             })}
           </div>
+          {projects.length > PROJECTS_PREVIEW && (
+            <div className="more-projects">
+              <button type="button" className="s-btn ghost" onClick={() => setShowAllProjects((v) => !v)}>
+                {showAllProjects ? t('projects.showLess') : t('projects.showAll', { n: projects.length })}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

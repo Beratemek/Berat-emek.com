@@ -25,6 +25,7 @@ import {
 
 import { supabase } from '../../lib/supabase.js'
 import InfoBox from '../InfoBox.jsx'
+import { useAdminData } from '../AdminData.jsx'
 import ImageUpload from '../components/ImageUpload.jsx'
 
 function slugify(s) {
@@ -41,6 +42,7 @@ export default function PostEditor() {
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { refresh } = useAdminData()
   const isNew = !id
 
   const [loading, setLoading] = useState(!isNew)
@@ -156,6 +158,7 @@ export default function PostEditor() {
       }
       if (res.error) throw res.error
       setSaved(true)
+      refresh() // Genel Bakış ve listeler güncel kalsın
       if (isNew) navigate(`/admin/posts/${res.data.id}`, { replace: true })
     } catch (e) {
       setErr(e.message)
@@ -200,35 +203,15 @@ export default function PostEditor() {
   }
 
   if (loading) {
-    return <Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} />
+    return <Loader2 size={24} className="spin" />
   }
 
   return (
     <div>
       {/* Kaydedildi bildirimi */}
       {saved && (
-        <div
-          role="status"
-          style={{
-            position: 'fixed',
-            top: 24,
-            right: 24,
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '12px 18px',
-            borderRadius: 12,
-            background: '#16a34a',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 14,
-            boxShadow: '0 10px 30px rgba(22,163,74,0.35)',
-            animation: 'toastIn 0.25s ease',
-          }}
-        >
+        <div role="status" className="toast">
           <CheckCircle2 size={18} /> Kaydedildi
-          <style>{`@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}`}</style>
         </div>
       )}
 
@@ -241,15 +224,13 @@ export default function PostEditor() {
 
       <InfoBox>
         <b>Kayıt nereye gider?</b> Tip alanına göre Blog veya Proje tablosuna eklenir.
-        Sadece <b>Yayında</b> seçtiğin kayıtlar 3D sitede görünür; taslakları istediğin zaman düzenleyip yayına alabilirsin.
+        Sadece <b>Yayında</b> seçtiğin kayıtlar sitede görünür; taslakları istediğin zaman düzenleyip yayına alabilirsin.
         <br />
         <b>Zengin editör</b> başlıklar, listeler, alıntı, kod, link ve <b>satır arası resim</b> destekler — paragrafların arasına resim koymak için cursor'u istediğin yere getir, toolbar'ın sağındaki resim ikonuna bas.
       </InfoBox>
 
       {err && (
-        <div className="admin-card" style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.3)', color: '#b91c1c' }}>
-          {err}
-        </div>
+        <div className="alert err">{err}</div>
       )}
 
       <div className="admin-card">
@@ -374,14 +355,14 @@ export default function PostEditor() {
             <ToolbarBtn active={editor?.isActive('link')} onClick={addLink}>
               <LinkIcon size={16} />
             </ToolbarBtn>
-            <span style={{ width: 1, height: 20, background: 'rgba(28,22,51,0.1)', margin: '0 2px' }} />
+            <span className="tb-sep" />
             <ToolbarBtn
               onClick={() => imgInputRef.current?.click()}
               active={false}
               title="Resim ekle"
             >
               {imgUploading
-                ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                ? <Loader2 size={16} className="spin" />
                 : <ImagePlus size={16} />
               }
             </ToolbarBtn>
@@ -397,26 +378,18 @@ export default function PostEditor() {
         </div>
       </div>
 
-      <div
-        style={{
-          position: 'sticky',
-          bottom: 16,
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: 10,
-          marginTop: 20,
-          padding: 14,
-          borderRadius: 12,
-          background: 'rgba(255,255,255,0.92)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(28,22,51,0.08)',
-          boxShadow: '0 6px 24px rgba(28,22,51,0.08)',
-          zIndex: 10,
-        }}
-      >
+      <div className="save-bar">
+        <span className={`save-state ${form.published ? 'is-live' : ''}`}>
+          {form.published ? 'Yayında' : 'Taslak'}
+        </span>
+        {form.published && form.slug && !isNew && (
+          <a className="btn btn-secondary" href={`/${form.kind === 'project' ? 'project' : 'blog'}/${form.slug}`} target="_blank" rel="noreferrer">
+            Sitede gör
+          </a>
+        )}
         <Link to={`/admin/${form.kind === 'project' ? 'projects' : 'posts'}`} className="btn btn-secondary">İptal</Link>
         <button onClick={handleSave} disabled={saving} className="btn btn-primary">
-          {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />}
+          {saving ? <Loader2 size={14} className="spin" /> : <Save size={14} />}
           Kaydet
         </button>
       </div>

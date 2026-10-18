@@ -89,7 +89,7 @@ export default function ContactEditor() {
     }
   }
 
-  if (loading) return <Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} />
+  if (loading) return <Loader2 size={24} className="spin" />
 
   return (
     <div>
@@ -109,11 +109,11 @@ export default function ContactEditor() {
         <b>Not:</b> Değişiklik kaybolmasın diye en alttaki <b>Kaydet</b> butonuna basmayı unutma.
       </InfoBox>
 
-      {err && <div className="admin-card" style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.3)', color: '#b91c1c' }}>{err}</div>}
-      {ok && <div className="admin-card" style={{ background: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.3)', color: '#15803d' }}>Kaydedildi.</div>}
+      {err && <div className="alert err">{err}</div>}
+      {ok && <div className="alert ok">Kaydedildi.</div>}
 
       <div className="admin-card">
-        <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr 1fr 100px auto', gap: 10, fontSize: 12, fontWeight: 600, color: 'rgba(28,22,51,0.55)', padding: '0 14px 8px' }}>
+        <div className="contact-head">
           <div>İKON</div>
           <div>ETİKET</div>
           <div>GÖSTERİLEN DEĞER</div>
@@ -157,7 +157,7 @@ export default function ContactEditor() {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-          {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />}
+          {saving ? <Loader2 size={14} className="spin" /> : <Save size={14} />}
           Kaydet
         </button>
       </div>

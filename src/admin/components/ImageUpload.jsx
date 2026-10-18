@@ -114,8 +114,8 @@ export default function ImageUpload({
             width: '100%',
             borderRadius: 10,
             overflow: 'hidden',
-            border: '1px solid rgba(28,22,51,0.12)',
-            background: '#fafafe',
+            border: '1px solid var(--a-line)',
+            background: 'var(--a-panel-2)',
           }}
         >
           <img
@@ -222,10 +222,10 @@ export default function ImageUpload({
             gap: 8,
             padding: '32px 20px',
             borderRadius: 10,
-            border: '2px dashed rgba(167,139,250,0.4)',
-            background: 'rgba(167,139,250,0.04)',
+            border: '2px dashed var(--a-line-strong)',
+            background: 'var(--a-panel-2)',
             cursor: uploading ? 'wait' : 'pointer',
-            color: '#7c3aed',
+            color: 'var(--a-accent-ink)',
             transition: 'all 0.15s',
           }}
         >
@@ -238,7 +238,7 @@ export default function ImageUpload({
             <>
               <ImageIcon size={22} />
               <span style={{ fontSize: 14, fontWeight: 600 }}>Görsel seç veya buraya bırak</span>
-              <span style={{ fontSize: 11, color: 'rgba(28,22,51,0.5)' }}>
+              <span style={{ fontSize: 11, color: 'var(--a-muted)' }}>
                 PNG · JPG · WebP · GIF · AVIF — maks {MAX_SIZE_MB} MB
               </span>
             </>

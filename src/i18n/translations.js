@@ -42,11 +42,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — Yazılar", title: "Son yazılar", all: "Tümü", empty: "İlk yazılar çok yakında burada.", min: "{n} dk", minLong: "{n} dk okuma", featured: "Öne çıkan" },
-    projects: { kicker: "03 — Projeler", title: "Seçilmiş çalışmalar" },
+    projects: { kicker: "03 — Projeler", title: "Seçilmiş çalışmalar", showAll: "Tüm projeleri göster ({n})", showLess: "Daha az göster" },
     about: {
       kicker: "04 — Hakkımda",
-      body: "Yapay zekayı uçtan uca ürünlere dönüştüren bir geliştiriciyim. Büyük dil modeli entegrasyonlarından çok ajanlı otomasyonlara, ölçeklenebilir backend mimarilerinden kullanıcı arayüzlerine kadar ürünün tamamında çalışıyorum. VizioWise AI'da yapay zeka ürün akışları geliştirdim; TÜBİTAK 2209-A kapsamında derin öğrenme araştırması yürüttüm.",
-      highlights: ["LLM entegrasyonları ve çok ajanlı sistemler", "Uçtan uca ürün geliştirme", "Derin öğrenme araştırması — TÜBİTAK 2209-A", "Bilgisayar Mühendisliği — Erciyes Üniversitesi"],
+      body: "Yapay zekayı uçtan uca ürünlere dönüştüren bir geliştiriciyim. Büyük dil modeli entegrasyonlarından çok ajanlı otomasyonlara, ölçeklenebilir backend mimarilerinden kullanıcı arayüzlerine kadar ürünün tamamında çalışıyorum. VizioWise'da sanayi için kurumsal yapay zeka platformu Morf üzerinde çalışıyorum: viziowise.com'u ben geliştirdim; ürün geliştirmenin yanında reklamdan satışa ve müşteri görüşmelerine kadar bir girişimin ihtiyaç duyduğu her alanda yer alıyorum, reklam süreçlerinin tamamı benim sorumluluğumda. TÜBİTAK 2209-A kapsamında derin öğrenme araştırması yürüttüm; Trendyol Datathon ve bir uzay hackathonunda yarıştım.",
+      highlights: ["LLM entegrasyonları ve çok ajanlı sistemler", "VizioWise — ürün, reklam ve satış", "Derin öğrenme araştırması — TÜBİTAK 2209-A", "Bilgisayar Mühendisliği — Erciyes Üniversitesi"],
     },
     contact: {
       kicker: "05 — İletişim",
@@ -88,11 +88,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — Writing", title: "Latest writing", all: "All", empty: "The first articles are coming soon.", min: "{n} min", minLong: "{n} min read", featured: "Featured" },
-    projects: { kicker: "03 — Projects", title: "Selected work" },
+    projects: { kicker: "03 — Projects", title: "Selected work", showAll: "Show all projects ({n})", showLess: "Show less" },
     about: {
       kicker: "04 — About",
-      body: "I'm a developer who turns AI into end-to-end products. I work across the whole product, from large language model integrations to multi-agent automation and from scalable backend architectures to user interfaces. At VizioWise AI I built AI product flows; under TÜBİTAK 2209-A I conducted deep learning research.",
-      highlights: ["LLM integrations and multi-agent systems", "End-to-end product development", "Deep learning research — TÜBİTAK 2209-A", "Computer Engineering — Erciyes University"],
+      body: "I'm a developer who turns AI into end-to-end products. I work across the whole product, from large language model integrations to multi-agent automation and from scalable backend architectures to user interfaces. At VizioWise I work on Morf, an enterprise AI platform for industry: I built viziowise.com, and beyond product development I take part in everything a startup needs, from advertising to sales and customer meetings; all advertising is under my responsibility. I conducted deep learning research under TÜBİTAK 2209-A and competed in the Trendyol Datathon and a space hackathon.",
+      highlights: ["LLM integrations and multi-agent systems", "VizioWise — product, advertising and sales", "Deep learning research — TÜBİTAK 2209-A", "Computer Engineering — Erciyes University"],
     },
     contact: {
       kicker: "05 — Contact",
@@ -134,11 +134,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — Beiträge", title: "Neueste Beiträge", all: "Alle", empty: "Die ersten Beiträge erscheinen bald.", min: "{n} Min.", minLong: "{n} Min. Lesezeit", featured: "Empfohlen" },
-    projects: { kicker: "03 — Projekte", title: "Ausgewählte Arbeiten" },
+    projects: { kicker: "03 — Projekte", title: "Ausgewählte Arbeiten", showAll: "Alle Projekte anzeigen ({n})", showLess: "Weniger anzeigen" },
     about: {
       kicker: "04 — Über mich",
-      body: "Ich bin ein Entwickler, der KI in durchgängige Produkte verwandelt. Ich arbeite am gesamten Produkt – von der Integration großer Sprachmodelle über Multi-Agenten-Automatisierung bis zu skalierbaren Backend-Architekturen und Benutzeroberflächen. Bei VizioWise AI habe ich KI-Produktabläufe entwickelt; im Rahmen von TÜBİTAK 2209-A habe ich im Bereich Deep Learning geforscht.",
-      highlights: ["LLM-Integrationen und Multi-Agenten-Systeme", "Produktentwicklung von Ende zu Ende", "Deep-Learning-Forschung — TÜBİTAK 2209-A", "Informatik — Erciyes-Universität"],
+      body: "Ich bin ein Entwickler, der KI in durchgängige Produkte verwandelt. Ich arbeite am gesamten Produkt – von der Integration großer Sprachmodelle über Multi-Agenten-Automatisierung bis zu skalierbaren Backend-Architekturen und Benutzeroberflächen. Bei VizioWise arbeite ich an Morf, einer KI-Plattform für die Industrie: Ich habe viziowise.com entwickelt und bin neben der Produktentwicklung überall im Einsatz, wo ein Start-up mich braucht – von Werbung über Vertrieb bis zu Kundengesprächen; die gesamte Werbung liegt in meiner Verantwortung. Im Rahmen von TÜBİTAK 2209-A habe ich zu Deep Learning geforscht und am Trendyol Datathon sowie an einem Weltraum-Hackathon teilgenommen.",
+      highlights: ["LLM-Integrationen und Multi-Agenten-Systeme", "VizioWise — Produkt, Werbung und Vertrieb", "Deep-Learning-Forschung — TÜBİTAK 2209-A", "Informatik — Erciyes-Universität"],
     },
     contact: {
       kicker: "05 — Kontakt",
@@ -180,11 +180,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — Articles", title: "Derniers articles", all: "Tous", empty: "Les premiers articles arrivent bientôt.", min: "{n} min", minLong: "{n} min de lecture", featured: "À la une" },
-    projects: { kicker: "03 — Projets", title: "Travaux choisis" },
+    projects: { kicker: "03 — Projets", title: "Travaux choisis", showAll: "Voir tous les projets ({n})", showLess: "Voir moins" },
     about: {
       kicker: "04 — À propos",
-      body: "Je suis un développeur qui transforme l'IA en produits complets. Je travaille sur l'ensemble du produit, de l'intégration de grands modèles de langage à l'automatisation multi-agents, des architectures backend évolutives aux interfaces utilisateur. Chez VizioWise AI, j'ai développé des parcours produit basés sur l'IA ; dans le cadre de TÜBİTAK 2209-A, j'ai mené une recherche en deep learning.",
-      highlights: ["Intégrations LLM et systèmes multi-agents", "Développement produit de bout en bout", "Recherche en deep learning — TÜBİTAK 2209-A", "Génie informatique — Université d'Erciyes"],
+      body: "Je suis un développeur qui transforme l'IA en produits complets. Je travaille sur l'ensemble du produit, de l'intégration de grands modèles de langage à l'automatisation multi-agents, des architectures backend évolutives aux interfaces utilisateur. Chez VizioWise, je travaille sur Morf, une plateforme d'IA d'entreprise pour l'industrie : j'ai développé viziowise.com et, au-delà du produit, j'interviens partout où une start-up en a besoin, de la publicité aux ventes et aux rendez-vous clients ; toute la publicité est sous ma responsabilité. J'ai mené une recherche en deep learning dans le cadre de TÜBİTAK 2209-A et participé au Trendyol Datathon et à un hackathon spatial.",
+      highlights: ["Intégrations LLM et systèmes multi-agents", "VizioWise — produit, publicité et ventes", "Recherche en deep learning — TÜBİTAK 2209-A", "Génie informatique — Université d'Erciyes"],
     },
     contact: {
       kicker: "05 — Contact",
@@ -226,11 +226,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — Artículos", title: "Últimos artículos", all: "Todos", empty: "Los primeros artículos llegarán pronto.", min: "{n} min", minLong: "{n} min de lectura", featured: "Destacado" },
-    projects: { kicker: "03 — Proyectos", title: "Trabajos seleccionados" },
+    projects: { kicker: "03 — Proyectos", title: "Trabajos seleccionados", showAll: "Ver todos los proyectos ({n})", showLess: "Ver menos" },
     about: {
       kicker: "04 — Sobre mí",
-      body: "Soy un desarrollador que convierte la IA en productos completos. Trabajo en todo el producto, desde la integración de grandes modelos de lenguaje hasta la automatización multiagente, y desde arquitecturas backend escalables hasta interfaces de usuario. En VizioWise AI desarrollé flujos de producto con IA; en el marco de TÜBİTAK 2209-A realicé una investigación en deep learning.",
-      highlights: ["Integraciones de LLM y sistemas multiagente", "Desarrollo de producto de principio a fin", "Investigación en deep learning — TÜBİTAK 2209-A", "Ingeniería Informática — Universidad de Erciyes"],
+      body: "Soy un desarrollador que convierte la IA en productos completos. Trabajo en todo el producto, desde la integración de grandes modelos de lenguaje hasta la automatización multiagente, y desde arquitecturas backend escalables hasta interfaces de usuario. En VizioWise trabajo en Morf, una plataforma de IA empresarial para la industria: desarrollé viziowise.com y, además del producto, participo en todo lo que necesita una startup, desde la publicidad hasta las ventas y las reuniones con clientes; toda la publicidad está bajo mi responsabilidad. Realicé una investigación en deep learning en el marco de TÜBİTAK 2209-A y competí en el Trendyol Datathon y en un hackathon espacial.",
+      highlights: ["Integraciones de LLM y sistemas multiagente", "VizioWise — producto, publicidad y ventas", "Investigación en deep learning — TÜBİTAK 2209-A", "Ingeniería Informática — Universidad de Erciyes"],
     },
     contact: {
       kicker: "05 — Contacto",
@@ -272,11 +272,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — Articoli", title: "Ultimi articoli", all: "Tutti", empty: "I primi articoli arriveranno presto.", min: "{n} min", minLong: "{n} min di lettura", featured: "In evidenza" },
-    projects: { kicker: "03 — Progetti", title: "Lavori selezionati" },
+    projects: { kicker: "03 — Progetti", title: "Lavori selezionati", showAll: "Mostra tutti i progetti ({n})", showLess: "Mostra meno" },
     about: {
       kicker: "04 — Chi sono",
-      body: "Sono uno sviluppatore che trasforma l'IA in prodotti completi. Lavoro sull'intero prodotto, dall'integrazione di modelli linguistici di grandi dimensioni all'automazione multi-agente, dalle architetture backend scalabili alle interfacce utente. In VizioWise AI ho sviluppato flussi di prodotto basati sull'IA; nell'ambito di TÜBİTAK 2209-A ho condotto una ricerca sul deep learning.",
-      highlights: ["Integrazioni LLM e sistemi multi-agente", "Sviluppo prodotto end-to-end", "Ricerca sul deep learning — TÜBİTAK 2209-A", "Ingegneria informatica — Università di Erciyes"],
+      body: "Sono uno sviluppatore che trasforma l'IA in prodotti completi. Lavoro sull'intero prodotto, dall'integrazione di modelli linguistici di grandi dimensioni all'automazione multi-agente, dalle architetture backend scalabili alle interfacce utente. In VizioWise lavoro a Morf, una piattaforma di IA aziendale per l'industria: ho sviluppato viziowise.com e, oltre al prodotto, mi occupo di tutto ciò di cui una startup ha bisogno, dalla pubblicità alle vendite e agli incontri con i clienti; tutta la pubblicità è sotto la mia responsabilità. Ho condotto una ricerca sul deep learning nell'ambito di TÜBİTAK 2209-A e ho partecipato al Trendyol Datathon e a un hackathon spaziale.",
+      highlights: ["Integrazioni LLM e sistemi multi-agente", "VizioWise — prodotto, pubblicità e vendite", "Ricerca sul deep learning — TÜBİTAK 2209-A", "Ingegneria informatica — Università di Erciyes"],
     },
     contact: {
       kicker: "05 — Contatti",
@@ -318,11 +318,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — Artigos", title: "Artigos recentes", all: "Todos", empty: "Os primeiros artigos chegam em breve.", min: "{n} min", minLong: "{n} min de leitura", featured: "Destaque" },
-    projects: { kicker: "03 — Projetos", title: "Trabalhos selecionados" },
+    projects: { kicker: "03 — Projetos", title: "Trabalhos selecionados", showAll: "Ver todos os projetos ({n})", showLess: "Ver menos" },
     about: {
       kicker: "04 — Sobre",
-      body: "Sou um desenvolvedor que transforma IA em produtos completos. Trabalho no produto inteiro, da integração de grandes modelos de linguagem à automação multiagente, de arquiteturas de backend escaláveis a interfaces de usuário. Na VizioWise AI desenvolvi fluxos de produto com IA; no âmbito do TÜBİTAK 2209-A conduzi uma pesquisa em deep learning.",
-      highlights: ["Integrações com LLMs e sistemas multiagentes", "Desenvolvimento de produto de ponta a ponta", "Pesquisa em deep learning — TÜBİTAK 2209-A", "Engenharia de Computação — Universidade Erciyes"],
+      body: "Sou um desenvolvedor que transforma IA em produtos completos. Trabalho no produto inteiro, da integração de grandes modelos de linguagem à automação multiagente, de arquiteturas de backend escaláveis a interfaces de usuário. Na VizioWise, trabalho no Morf, uma plataforma de IA corporativa para a indústria: desenvolvi o viziowise.com e, além do produto, atuo em tudo o que uma startup precisa, da publicidade às vendas e reuniões com clientes; toda a publicidade está sob minha responsabilidade. Conduzi uma pesquisa em deep learning no âmbito do TÜBİTAK 2209-A e participei do Trendyol Datathon e de um hackathon espacial.",
+      highlights: ["Integrações com LLMs e sistemas multiagentes", "VizioWise — produto, publicidade e vendas", "Pesquisa em deep learning — TÜBİTAK 2209-A", "Engenharia de Computação — Universidade Erciyes"],
     },
     contact: {
       kicker: "05 — Contato",
@@ -364,11 +364,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — Статьи", title: "Свежие статьи", all: "Все", empty: "Первые статьи скоро появятся.", min: "{n} мин", minLong: "{n} мин чтения", featured: "Главное" },
-    projects: { kicker: "03 — Проекты", title: "Избранные работы" },
+    projects: { kicker: "03 — Проекты", title: "Избранные работы", showAll: "Показать все проекты ({n})", showLess: "Свернуть" },
     about: {
       kicker: "04 — Обо мне",
-      body: "Я разработчик, который превращает ИИ в законченные продукты. Работаю над продуктом целиком: от интеграции больших языковых моделей до мультиагентной автоматизации, от масштабируемой серверной архитектуры до пользовательских интерфейсов. В VizioWise AI создавал продуктовые сценарии на основе ИИ, а в рамках TÜBİTAK 2209-A вёл исследование в области глубокого обучения.",
-      highlights: ["Интеграция LLM и мультиагентные системы", "Разработка продуктов под ключ", "Исследование глубокого обучения — TÜBİTAK 2209-A", "Компьютерная инженерия — Университет Эрджиес"],
+      body: "Я разработчик, который превращает ИИ в законченные продукты. Работаю над продуктом целиком: от интеграции больших языковых моделей до мультиагентной автоматизации, от масштабируемой серверной архитектуры до пользовательских интерфейсов. В VizioWise я работаю над Morf — корпоративной ИИ-платформой для промышленности: я создал сайт viziowise.com и, помимо продукта, участвую во всём, что нужно стартапу, — от рекламы до продаж и встреч с клиентами; вся реклама находится под моей ответственностью. В рамках TÜBİTAK 2209-A вёл исследование в области глубокого обучения, участвовал в Trendyol Datathon и космическом хакатоне.",
+      highlights: ["Интеграция LLM и мультиагентные системы", "VizioWise — продукт, реклама и продажи", "Исследование глубокого обучения — TÜBİTAK 2209-A", "Компьютерная инженерия — Университет Эрджиес"],
     },
     contact: {
       kicker: "05 — Контакты",
@@ -410,11 +410,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — 文章", title: "最新文章", all: "全部", empty: "第一批文章即将上线。", min: "{n} 分钟", minLong: "阅读约 {n} 分钟", featured: "精选" },
-    projects: { kicker: "03 — 项目", title: "精选作品" },
+    projects: { kicker: "03 — 项目", title: "精选作品", showAll: "显示全部项目（{n}）", showLess: "收起" },
     about: {
       kicker: "04 — 关于我",
-      body: "我是一名把 AI 变成完整产品的开发者。我参与产品的每个环节：从大语言模型集成到多智能体自动化，从可扩展的后端架构到用户界面。在 VizioWise AI，我开发了 AI 产品流程；在 TÜBİTAK 2209-A 项目中，我开展了深度学习研究。",
-      highlights: ["LLM 集成与多智能体系统", "端到端产品开发", "深度学习研究 — TÜBİTAK 2209-A", "计算机工程 — 埃尔吉耶斯大学"],
+      body: "我是一名把 AI 变成完整产品的开发者。我参与产品的每个环节：从大语言模型集成到多智能体自动化，从可扩展的后端架构到用户界面。在 VizioWise，我参与面向工业的企业级 AI 平台 Morf：viziowise.com 由我开发；除了产品开发，我还承担初创公司所需的各项工作，从广告到销售和客户沟通，所有广告工作都由我负责。我在 TÜBİTAK 2209-A 项目中开展了深度学习研究，并参加了 Trendyol Datathon 和一场太空主题黑客松。",
+      highlights: ["LLM 集成与多智能体系统", "VizioWise — 产品、广告与销售", "深度学习研究 — TÜBİTAK 2209-A", "计算机工程 — 埃尔吉耶斯大学"],
     },
     contact: {
       kicker: "05 — 联系",
@@ -456,11 +456,11 @@ export const DICT = {
       ],
     },
     posts: { kicker: "02 — 記事", title: "最新の記事", all: "すべて", empty: "最初の記事はまもなく公開されます。", min: "{n} 分", minLong: "{n} 分で読めます", featured: "注目" },
-    projects: { kicker: "03 — プロジェクト", title: "主な実績" },
+    projects: { kicker: "03 — プロジェクト", title: "主な実績", showAll: "すべてのプロジェクトを表示（{n}）", showLess: "閉じる" },
     about: {
       kicker: "04 — 自己紹介",
-      body: "AI をエンドツーエンドのプロダクトに変える開発者です。大規模言語モデルの統合からマルチエージェントの自動化、スケーラブルなバックエンド設計からユーザーインターフェースまで、プロダクト全体に携わっています。VizioWise AI では AI プロダクトのフローを開発し、TÜBİTAK 2209-A ではディープラーニングの研究を行いました。",
-      highlights: ["LLM 統合とマルチエージェントシステム", "エンドツーエンドのプロダクト開発", "ディープラーニング研究 — TÜBİTAK 2209-A", "コンピュータ工学 — エルジエス大学"],
+      body: "AI をエンドツーエンドのプロダクトに変える開発者です。大規模言語モデルの統合からマルチエージェントの自動化、スケーラブルなバックエンド設計からユーザーインターフェースまで、プロダクト全体に携わっています。VizioWise では産業向けのエンタープライズ AI プラットフォーム Morf に取り組んでおり、viziowise.com を開発しました。プロダクト開発に加え、広告から営業、顧客との打ち合わせまでスタートアップに必要なあらゆる領域を担い、広告はすべて私の担当です。TÜBİTAK 2209-A ではディープラーニングの研究を行い、Trendyol Datathon や宇宙ハッカソンにも参加しました。",
+      highlights: ["LLM 統合とマルチエージェントシステム", "VizioWise — プロダクト・広告・営業", "ディープラーニング研究 — TÜBİTAK 2209-A", "コンピュータ工学 — エルジエス大学"],
     },
     contact: {
       kicker: "05 — お問い合わせ",

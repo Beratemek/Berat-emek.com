@@ -1119,6 +1119,12 @@ a.project-card:hover h3 svg {
   }
 }
 
+.more-projects {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+}
+
 /* ============================================================
    Hakkımda
    ============================================================ */

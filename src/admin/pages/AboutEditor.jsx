@@ -60,7 +60,7 @@ export default function AboutEditor() {
     setTimeout(() => setOk(false), 2500)
   }
 
-  if (loading) return <Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} />
+  if (loading) return <Loader2 size={24} className="spin" />
 
   return (
     <div>
@@ -77,10 +77,10 @@ export default function AboutEditor() {
       </InfoBox>
 
       {err && (
-        <div className="admin-card" style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.3)', color: '#b91c1c' }}>{err}</div>
+        <div className="alert err">{err}</div>
       )}
       {ok && (
-        <div className="admin-card" style={{ background: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.3)', color: '#15803d' }}>Kaydedildi.</div>
+        <div className="alert ok">Kaydedildi.</div>
       )}
 
       <div className="admin-card">
@@ -132,7 +132,7 @@ export default function AboutEditor() {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
         <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-          {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />}
+          {saving ? <Loader2 size={14} className="spin" /> : <Save size={14} />}
           Kaydet
         </button>
       </div>

@@ -33,10 +33,11 @@ export default function Login() {
   }
 
   return (
-    <div className="login-wrap">
+    <div className="admin-root login-wrap">
       <form onSubmit={handleSubmit} className="login-card">
-        <h1>Admin Girişi</h1>
-        <div className="subtitle">beratemek.com içerik yönetimi</div>
+        <span className="login-mark">BE</span>
+        <h1>Tekrar hoş geldin</h1>
+        <div className="subtitle">berat-emek.com yönetim paneli</div>
 
         <div className="tabs">
           <button
@@ -84,11 +85,10 @@ export default function Login() {
         )}
 
         <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}>
-          {loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : null}
+          {loading ? <Loader2 size={16} className="spin" /> : null}
           {mode === 'password' ? 'Giriş Yap' : 'Sihirli Link Gönder'}
         </button>
 
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </form>
     </div>
   )
