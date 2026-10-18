@@ -17,6 +17,13 @@ LinkedIn'de Türkçe, az ve öz paylaşım yapıyor: geliştiricilerin ilgisini 
 Üslup: net, samimi ama profesyonel, abartısız. Hype yok, clickbait yok.
 Berat'ın yaşamadığı bir deneyimi ("denedim, çok hızlıydı" gibi) ASLA yazma; yorumlar görüş olarak kalsın.`
 
+// İçerik sınırları: Berat'ın kararları. Yazı, fikir ya da öneri üreten her ajan bunlara uyar.
+export const CONTENT_RULES = `İçerik sınırları (kesin):
+- VizioWise ve Morf'un iç teknik detayları, mimarisi, müşterileri, verisi ya da kodu hakkında yazı/fikir ÖNERME; Morf'tan yalnızca genel hatlarıyla, ürün adı olarak bahsedilebilir.
+- TÜBİTAK başvurusu ve akciğer sesi projesi hiç geçmesin.
+- Gizlilik Geçidi (bitirme projesi) hakkında takım onayı olmadan yazı önerme.
+- Kişisel veri (telefon, adres, başkasının e-postası) yok.`
+
 // Editoryal odak: bot neyi haber sayar, neyi eler? (Kümeleyici, yazar ve editör bunu kullanır)
 export const FOCUS = `Berat bir haber sitesi DEĞİL. Sadece geliştiricilerin ve teknoloji meraklılarının
 "bunu hemen denemeliyim / bunu bilmeliyim" diyeceği, çok kişinin ilgisini çeken konuları paylaşır.

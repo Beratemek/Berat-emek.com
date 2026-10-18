@@ -1,0 +1,57 @@
+# Her sabah 09:00'da (Türkiye) ajanları çalıştırır; sonuçlar admin panelindeki öneri kutusuna düşer.
+#   Bekçi (watch.js): canlı demolar açılıyor mu, projelerde GitHub hareketi var mı, OpenRouter bakiyesi. Yapay zeka kullanmaz.
+#   Haftalık analiz (weekly.js): yalnızca pazartesi çalışır (elle "analiz" seçilirse her gün).
+# Elle çalıştırmak için: GitHub → Actions → "Ajanlar" → Run workflow
+name: Ajanlar
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # 06:00 UTC = 09:00 Türkiye
+  workflow_dispatch:
+    inputs:
+      only:
+        description: 'Hangi ajan çalışsın?'
+        type: choice
+        options:
+          - hepsi
+          - bekci
+          - analiz
+        default: hepsi
+      dry:
+        description: "Deneme modu (Supabase'e yazmaz, sonucu kayda basar)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ajanlar
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      # GitHub'ın otomatik verdiği token: bekçinin depo sorgularında istek sınırını yükseltir
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BOT_MODEL: ${{ vars.BOT_MODEL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Botlar paket kullanmıyor; kurulum adımı yok
+      - name: Bekçi
+        if: ${{ inputs.only != 'analiz' }}
+        working-directory: bot
+        run: node watch.js ${{ inputs.dry && '--dry' || '' }}
+      # Bekçi hata verse bile haftalık analiz çalışsın
+      - name: Haftalık analiz
+        if: ${{ !cancelled() && inputs.only != 'bekci' }}
+        working-directory: bot
+        run: node weekly.js ${{ inputs.dry && '--dry' || '' }} ${{ (github.event_name == 'workflow_dispatch' && inputs.only == 'analiz') && '--force' || '' }}

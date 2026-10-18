@@ -2,7 +2,7 @@
 // Her ajan tek bir model çağrısıdır; günde toplam ~7-8 çağrı.
 import { askJSON } from './llm.js'
 import { fetchText, mainText } from './collect.js'
-import { PERSONA, FOCUS, WRITER_MODEL } from './config.js'
+import { PERSONA, FOCUS, WRITER_MODEL, CONTENT_RULES } from './config.js'
 
 const JSON_ONLY = 'Yalnızca geçerli JSON döndür; JSON dışında hiçbir şey yazma.'
 
@@ -177,6 +177,8 @@ export async function writeDraft(cluster, v) {
     maxTokens: 10000,
     system: `${PERSONA}
 
+${CONTENT_RULES}
+
 Görevin: doğrulanmış bilgilerden kısa bir LinkedIn gönderisi ve bir blog yazısı taslağı hazırlamak.
 Kesin kurallar:
 - YALNIZCA verilen bilgileri kullan. Listede olmayan sayı, tarih, isim, özellik, komut UYDURMA.
@@ -327,6 +329,7 @@ ${FOCUS}
 Kurallar:
 - Öneriler geliştiricilerin bu hafta konuştuğu konulara bağlansın (aşağıdaki gündem başlıklarını kullan) ama haber değil, rehber/ipucu olsun.
 - Son günlerde paylaşılan konuları tekrarlama.
+${CONTENT_RULES}
 - Her öneri: title (en fazla 70 karakter), angle (yazının ana fikri, 1 cümle), why (neden şimdi, 1 cümle).
 Çıktı: {"ideas":[{"title":"...","angle":"...","why":"..."}]}
 ${JSON_ONLY}`,
