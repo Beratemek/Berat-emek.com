@@ -19,7 +19,17 @@ const ROLE = "Full-Stack & AI Developer"
 
 export const DICT = {
   tr: {
-    nav: { posts: "Yazılar", projects: "Projeler", about: "Hakkımda", contact: "İletişim", skip: "İçeriğe geç", main: "Ana menü", footer: "Alt menü" },
+    nav: {
+      posts: "Yazılar",
+      projects: "Projeler",
+      about: "Hakkımda",
+      contact: "İletişim",
+      skip: "İçeriğe geç",
+      main: "Ana menü",
+      footer: "Alt menü",
+      menu: "Menü",
+      close: "Menüyü kapat",
+    },
     ui: {
       language: "Dil",
       toLight: "Aydınlık moda geç",
@@ -71,8 +81,8 @@ export const DICT = {
     },
     about: {
       kicker: "04 — Hakkımda",
-      body: "VizioWise'da Morf'u geliştiriyorum: sanayi şirketlerinin ERP'den SCADA'ya dağınık verisini doğal dille sorgulanabilir ve otomasyona bağlanabilir hale getiren kurumsal bir yapay zeka platformu. Beni en çok ilgilendiren kısım, bir dil modelinin cevabını kurumsal ortamda güvenilir kılan her şey: doğru veriye erişim, araç tasarımı, değerlendirme ve maliyet.\n\nDaha önce TÜBİTAK 2209-A kapsamında derin öğrenmeyle akciğer sesi sınıflandırma üzerine araştırma yaptım, Trendyol Datathon'da 0,903 F1 skoruna ulaştım, TUA Astro Hackathon'da 19 ekip arasında 6. olduk. Buradaki yazılar da bu işlerden çıkan notlar.",
-      highlights: ["Morf — VizioWise'ın kurumsal yapay zeka platformu", "Ajanlar, MCP ve araç çağrısı tasarımı", "Derin öğrenme araştırması — TÜBİTAK 2209-A", "Bilgisayar Mühendisliği — Erciyes Üniversitesi"],
+      body: "Erciyes Üniversitesi Bilgisayar Mühendisliği'nde 4. sınıftayım ve bir yandan VizioWise AI'da çalışıyorum. Okul, iş ve kendi projelerim arasında birçok şeye aynı anda yetişmeye çalışıyorum; burada da bu yolda denediklerimi ve öğrendiklerimi yazıyorum.",
+      highlights: ["Bilgisayar Mühendisliği — Erciyes Üniversitesi, 4. sınıf", "VizioWise AI — Morf", "Gizlilik Geçidi — bitirme projesi", "Sniper Battle — mobil oyun"],
     },
     contact: {
       kicker: "05 — İletişim",
@@ -111,7 +121,17 @@ export const DICT = {
   },
 
   en: {
-    nav: { posts: "Writing", projects: "Projects", about: "About", contact: "Contact", skip: "Skip to content", main: "Main menu", footer: "Footer menu" },
+    nav: {
+      posts: "Writing",
+      projects: "Projects",
+      about: "About",
+      contact: "Contact",
+      skip: "Skip to content",
+      main: "Main menu",
+      footer: "Footer menu",
+      menu: "Menu",
+      close: "Close menu",
+    },
     ui: {
       language: "Language",
       toLight: "Switch to light mode",
@@ -163,8 +183,8 @@ export const DICT = {
     },
     about: {
       kicker: "04 — About",
-      body: "At VizioWise I build Morf, an enterprise AI platform that makes industrial companies' data, scattered from ERP to SCADA, queryable in plain language and ready for automation. What interests me most is everything that makes a language model's answer trustworthy in an enterprise setting: access to the right data, tool design, evaluation and cost.\n\nBefore that, I researched lung sound classification with deep learning under TÜBİTAK 2209-A, reached a 0.903 F1 score at the Trendyol Datathon, and our team placed 6th out of 19 at the TUA Astro Hackathon. The posts here are notes from that work.",
-      highlights: ["Morf — VizioWise's enterprise AI platform", "Agents, MCP and tool-call design", "Deep learning research — TÜBİTAK 2209-A", "Computer Engineering — Erciyes University"],
+      body: "I'm a fourth-year Computer Engineering student at Erciyes University and I also work at VizioWise AI. Between school, work and my own projects I'm trying to keep up with a lot at once; here I write about what I try and learn along the way.",
+      highlights: ["Computer Engineering — Erciyes University, 4th year", "VizioWise AI — Morf", "Privacy Gateway — graduation project", "Sniper Battle — mobile game"],
     },
     contact: {
       kicker: "05 — Contact",
@@ -203,7 +223,17 @@ export const DICT = {
   },
 
   de: {
-    nav: { posts: "Beiträge", projects: "Projekte", about: "Über mich", contact: "Kontakt", skip: "Zum Inhalt springen", main: "Hauptmenü", footer: "Fußzeilenmenü" },
+    nav: {
+      posts: "Beiträge",
+      projects: "Projekte",
+      about: "Über mich",
+      contact: "Kontakt",
+      skip: "Zum Inhalt springen",
+      main: "Hauptmenü",
+      footer: "Fußzeilenmenü",
+      menu: "Menü",
+      close: "Menü schließen",
+    },
     ui: {
       language: "Sprache",
       toLight: "Zum hellen Modus wechseln",
@@ -255,8 +285,8 @@ export const DICT = {
     },
     about: {
       kicker: "04 — Über mich",
-      body: "Bei VizioWise entwickle ich Morf, eine KI-Plattform für Industrieunternehmen, die verstreute Daten von ERP bis SCADA in natürlicher Sprache abfragbar und automatisierbar macht. Am meisten interessiert mich alles, was die Antwort eines Sprachmodells im Unternehmenskontext vertrauenswürdig macht: Zugriff auf die richtigen Daten, Werkzeugdesign, Evaluation und Kosten.\n\nDavor habe ich im Rahmen von TÜBİTAK 2209-A zur Klassifikation von Lungengeräuschen mit Deep Learning geforscht, beim Trendyol Datathon einen F1-Score von 0,903 erreicht, und unser Team wurde beim TUA Astro Hackathon Sechster von 19. Die Beiträge hier sind Notizen aus dieser Arbeit.",
-      highlights: ["Morf — die KI-Plattform von VizioWise", "Agenten, MCP und Tool-Call-Design", "Deep-Learning-Forschung — TÜBİTAK 2209-A", "Informatik — Erciyes-Universität"],
+      body: "Ich studiere im vierten Jahr Informatik an der Erciyes-Universität und arbeite nebenbei bei VizioWise AI. Zwischen Studium, Job und eigenen Projekten versuche ich, vieles gleichzeitig zu schaffen; hier schreibe ich über das, was ich dabei ausprobiere und lerne.",
+      highlights: ["Informatik — Erciyes-Universität, 4. Jahr", "VizioWise AI — Morf", "Datenschutz-Gateway — Abschlussprojekt", "Sniper Battle — Mobile-Spiel"],
     },
     contact: {
       kicker: "05 — Kontakt",
@@ -303,6 +333,8 @@ export const DICT = {
       skip: "Aller au contenu",
       main: "Menu principal",
       footer: "Menu de pied de page",
+      menu: "Menu",
+      close: "Fermer le menu",
     },
     ui: {
       language: "Langue",
@@ -355,8 +387,8 @@ export const DICT = {
     },
     about: {
       kicker: "04 — À propos",
-      body: "Chez VizioWise, je développe Morf, une plateforme d'IA d'entreprise qui rend les données industrielles, dispersées de l'ERP au SCADA, interrogeables en langage naturel et prêtes pour l'automatisation. Ce qui m'intéresse le plus, c'est tout ce qui rend fiable la réponse d'un modèle de langage en entreprise : l'accès aux bonnes données, la conception des outils, l'évaluation et le coût.\n\nAuparavant, j'ai mené des recherches sur la classification des sons pulmonaires par deep learning dans le cadre de TÜBİTAK 2209-A, atteint un score F1 de 0,903 au Trendyol Datathon, et notre équipe a terminé 6e sur 19 au TUA Astro Hackathon. Les articles ici sont des notes tirées de ce travail.",
-      highlights: ["Morf — la plateforme d'IA d'entreprise de VizioWise", "Agents, MCP et conception d'appels d'outils", "Recherche en deep learning — TÜBİTAK 2209-A", "Génie informatique — Université Erciyes"],
+      body: "Je suis en quatrième année de génie informatique à l'Université Erciyes et je travaille en parallèle chez VizioWise AI. Entre les études, le travail et mes propres projets, j'essaie de mener beaucoup de choses de front ; ici, j'écris sur ce que j'essaie et apprends en chemin.",
+      highlights: ["Génie informatique — Université Erciyes, 4e année", "VizioWise AI — Morf", "Passerelle de confidentialité — projet de fin d'études", "Sniper Battle — jeu mobile"],
     },
     contact: {
       kicker: "05 — Contact",
@@ -403,6 +435,8 @@ export const DICT = {
       skip: "Saltar al contenido",
       main: "Menú principal",
       footer: "Menú del pie",
+      menu: "Menú",
+      close: "Cerrar menú",
     },
     ui: {
       language: "Idioma",
@@ -455,8 +489,8 @@ export const DICT = {
     },
     about: {
       kicker: "04 — Sobre mí",
-      body: "En VizioWise desarrollo Morf, una plataforma de IA empresarial que hace que los datos industriales, dispersos del ERP al SCADA, se puedan consultar en lenguaje natural y conectar a automatizaciones. Lo que más me interesa es todo lo que hace fiable la respuesta de un modelo de lenguaje en un entorno empresarial: acceso a los datos correctos, diseño de herramientas, evaluación y coste.\n\nAntes investigué la clasificación de sonidos pulmonares con deep learning dentro de TÜBİTAK 2209-A, alcancé un F1 de 0,903 en el Trendyol Datathon y nuestro equipo quedó 6.º de 19 en el TUA Astro Hackathon. Los artículos de aquí son notas de ese trabajo.",
-      highlights: ["Morf — la plataforma de IA empresarial de VizioWise", "Agentes, MCP y diseño de llamadas a herramientas", "Investigación en deep learning — TÜBİTAK 2209-A", "Ingeniería Informática — Universidad de Erciyes"],
+      body: "Estoy en cuarto año de Ingeniería Informática en la Universidad de Erciyes y, al mismo tiempo, trabajo en VizioWise AI. Entre la universidad, el trabajo y mis propios proyectos intento llegar a muchas cosas a la vez; aquí escribo sobre lo que pruebo y aprendo por el camino.",
+      highlights: ["Ingeniería Informática — Universidad de Erciyes, 4.º año", "VizioWise AI — Morf", "Pasarela de privacidad — proyecto de fin de carrera", "Sniper Battle — juego móvil"],
     },
     contact: {
       kicker: "05 — Contacto",
@@ -503,6 +537,8 @@ export const DICT = {
       skip: "Vai al contenuto",
       main: "Menu principale",
       footer: "Menu a piè di pagina",
+      menu: "Menu",
+      close: "Chiudi menu",
     },
     ui: {
       language: "Lingua",
@@ -555,8 +591,8 @@ export const DICT = {
     },
     about: {
       kicker: "04 — Chi sono",
-      body: "In VizioWise sviluppo Morf, una piattaforma di IA aziendale che rende i dati industriali, sparsi dall'ERP allo SCADA, interrogabili in linguaggio naturale e collegabili all'automazione. Ciò che mi interessa di più è tutto quello che rende affidabile la risposta di un modello linguistico in azienda: accesso ai dati giusti, design degli strumenti, valutazione e costi.\n\nIn precedenza ho svolto ricerca sulla classificazione dei suoni polmonari con il deep learning nell'ambito di TÜBİTAK 2209-A, ho raggiunto un F1 di 0,903 al Trendyol Datathon e il nostro team si è classificato 6º su 19 al TUA Astro Hackathon. Gli articoli qui sono appunti nati da questo lavoro.",
-      highlights: ["Morf — la piattaforma di IA aziendale di VizioWise", "Agenti, MCP e design delle chiamate agli strumenti", "Ricerca in deep learning — TÜBİTAK 2209-A", "Ingegneria Informatica — Università di Erciyes"],
+      body: "Sono al quarto anno di Ingegneria Informatica all'Università di Erciyes e nel frattempo lavoro in VizioWise AI. Tra università, lavoro e progetti personali cerco di stare dietro a molte cose insieme; qui scrivo di ciò che provo e imparo lungo la strada.",
+      highlights: ["Ingegneria Informatica — Università di Erciyes, 4º anno", "VizioWise AI — Morf", "Gateway per la privacy — progetto di laurea", "Sniper Battle — gioco mobile"],
     },
     contact: {
       kicker: "05 — Contatti",
@@ -595,7 +631,17 @@ export const DICT = {
   },
 
   pt: {
-    nav: { posts: "Artigos", projects: "Projetos", about: "Sobre", contact: "Contato", skip: "Pular para o conteúdo", main: "Menu principal", footer: "Menu do rodapé" },
+    nav: {
+      posts: "Artigos",
+      projects: "Projetos",
+      about: "Sobre",
+      contact: "Contato",
+      skip: "Pular para o conteúdo",
+      main: "Menu principal",
+      footer: "Menu do rodapé",
+      menu: "Menu",
+      close: "Fechar menu",
+    },
     ui: {
       language: "Idioma",
       toLight: "Mudar para o modo claro",
@@ -647,8 +693,8 @@ export const DICT = {
     },
     about: {
       kicker: "04 — Sobre",
-      body: "Na VizioWise eu desenvolvo o Morf, uma plataforma de IA corporativa que torna os dados industriais, espalhados do ERP ao SCADA, consultáveis em linguagem natural e prontos para automação. O que mais me interessa é tudo o que torna confiável a resposta de um modelo de linguagem num ambiente corporativo: acesso aos dados certos, design de ferramentas, avaliação e custo.\n\nAntes, pesquisei a classificação de sons pulmonares com deep learning no âmbito do TÜBİTAK 2209-A, alcancei F1 de 0,903 no Trendyol Datathon, e nossa equipe ficou em 6º lugar entre 19 no TUA Astro Hackathon. Os textos aqui são anotações desse trabalho.",
-      highlights: ["Morf — a plataforma de IA corporativa da VizioWise", "Agentes, MCP e design de chamadas de ferramentas", "Pesquisa em deep learning — TÜBİTAK 2209-A", "Engenharia de Computação — Universidade Erciyes"],
+      body: "Estou no quarto ano de Engenharia de Computação na Universidade Erciyes e, ao mesmo tempo, trabalho na VizioWise AI. Entre a faculdade, o trabalho e meus próprios projetos, tento dar conta de muita coisa ao mesmo tempo; aqui escrevo sobre o que testo e aprendo pelo caminho.",
+      highlights: ["Engenharia de Computação — Universidade Erciyes, 4º ano", "VizioWise AI — Morf", "Gateway de privacidade — projeto de conclusão de curso", "Sniper Battle — jogo mobile"],
     },
     contact: {
       kicker: "05 — Contato",
@@ -687,7 +733,17 @@ export const DICT = {
   },
 
   ru: {
-    nav: { posts: "Статьи", projects: "Проекты", about: "Обо мне", contact: "Контакты", skip: "Перейти к содержанию", main: "Главное меню", footer: "Меню в подвале" },
+    nav: {
+      posts: "Статьи",
+      projects: "Проекты",
+      about: "Обо мне",
+      contact: "Контакты",
+      skip: "Перейти к содержанию",
+      main: "Главное меню",
+      footer: "Меню в подвале",
+      menu: "Меню",
+      close: "Закрыть меню",
+    },
     ui: {
       language: "Язык",
       toLight: "Включить светлую тему",
@@ -739,8 +795,8 @@ export const DICT = {
     },
     about: {
       kicker: "04 — Обо мне",
-      body: "В VizioWise я разрабатываю Morf — корпоративную ИИ-платформу, которая делает данные промышленных компаний, разбросанные от ERP до SCADA, доступными для запросов на естественном языке и готовыми к автоматизации. Больше всего меня интересует всё, что делает ответ языковой модели надёжным в корпоративной среде: доступ к нужным данным, проектирование инструментов, оценка качества и стоимость.\n\nДо этого я занимался исследованием классификации звуков лёгких с помощью глубокого обучения в рамках TÜBİTAK 2209-A, получил F1 0,903 на Trendyol Datathon, а наша команда заняла 6-е место из 19 на TUA Astro Hackathon. Статьи здесь — заметки из этой работы.",
-      highlights: ["Morf — корпоративная ИИ-платформа VizioWise", "Агенты, MCP и проектирование вызовов инструментов", "Исследования в глубоком обучении — TÜBİTAK 2209-A", "Компьютерная инженерия — Университет Эрджиес"],
+      body: "Я учусь на четвёртом курсе компьютерной инженерии в Университете Эрджиес и параллельно работаю в VizioWise AI. Между учёбой, работой и собственными проектами стараюсь успевать многое одновременно; здесь пишу о том, что пробую и чему учусь по пути.",
+      highlights: ["Компьютерная инженерия — Университет Эрджиес, 4-й курс", "VizioWise AI — Morf", "Шлюз конфиденциальности — дипломный проект", "Sniper Battle — мобильная игра"],
     },
     contact: {
       kicker: "05 — Контакты",
@@ -779,7 +835,7 @@ export const DICT = {
   },
 
   zh: {
-    nav: { posts: "文章", projects: "项目", about: "关于我", contact: "联系", skip: "跳到正文", main: "主菜单", footer: "页脚菜单" },
+    nav: { posts: "文章", projects: "项目", about: "关于我", contact: "联系", skip: "跳到正文", main: "主菜单", footer: "页脚菜单", menu: "菜单", close: "关闭菜单" },
     ui: { language: "语言", toLight: "切换到浅色模式", toDark: "切换到深色模式", copy: "复制", copied: "已复制", copyEmail: "复制邮箱地址", readMore: "阅读更多" },
     hero: {
       role: ROLE,
@@ -808,8 +864,8 @@ export const DICT = {
     stats: { label: "数据一览", projects: "个项目", posts: "篇文章", datathon: "Trendyol Datathon F1 分数", hackathon: "TUA Astro 黑客松 19 支队伍中的排名", rank: "第{n}" },
     about: {
       kicker: "04 — 关于我",
-      body: "我在 VizioWise 开发 Morf：一个企业级 AI 平台，让工业企业从 ERP 到 SCADA 分散的数据可以用自然语言查询，并接入自动化。我最感兴趣的，是让语言模型的回答在企业环境中变得可信的一切：正确的数据访问、工具设计、评测与成本。\n\n此前，我在 TÜBİTAK 2209-A 项目中研究了基于深度学习的肺音分类，在 Trendyol Datathon 中取得 0.903 的 F1 分数，我们团队在 TUA Astro 黑客松的 19 支队伍中排名第 6。这里的文章就是这些工作的笔记。",
-      highlights: ["Morf — VizioWise 的企业级 AI 平台", "智能体、MCP 与工具调用设计", "深度学习研究 — TÜBİTAK 2209-A", "计算机工程 — 埃尔吉耶斯大学"],
+      body: "我是埃尔吉耶斯大学计算机工程专业的大四学生，同时在 VizioWise AI 工作。在学业、工作和个人项目之间，我努力同时兼顾很多事情；在这里，我记录一路上尝试和学到的东西。",
+      highlights: ["计算机工程 — 埃尔吉耶斯大学，大四", "VizioWise AI — Morf", "隐私网关 — 毕业设计", "Sniper Battle — 手机游戏"],
     },
     contact: { kicker: "05 — 联系", title: "如需联系，我在这里。", accent: "我在这里", text: "如果你对我的文章或项目有问题或建议，可以通过下方渠道联系我。", emailLabel: "邮箱" },
     blog: {
@@ -842,7 +898,7 @@ export const DICT = {
   },
 
   ja: {
-    nav: { posts: "記事", projects: "プロジェクト", about: "自己紹介", contact: "お問い合わせ", skip: "本文へスキップ", main: "メインメニュー", footer: "フッターメニュー" },
+    nav: { posts: "記事", projects: "プロジェクト", about: "自己紹介", contact: "お問い合わせ", skip: "本文へスキップ", main: "メインメニュー", footer: "フッターメニュー", menu: "メニュー", close: "メニューを閉じる" },
     ui: { language: "言語", toLight: "ライトモードに切り替え", toDark: "ダークモードに切り替え", copy: "コピー", copied: "コピーしました", copyEmail: "メールアドレスをコピー", readMore: "続きを読む" },
     hero: {
       role: ROLE,
@@ -871,8 +927,8 @@ export const DICT = {
     stats: { label: "数字で見る", projects: "プロジェクト", posts: "記事", datathon: "Trendyol Datathon F1スコア", hackathon: "TUA Astro ハッカソン 19チーム中の順位", rank: "{n}位" },
     about: {
       kicker: "04 — 自己紹介",
-      body: "VizioWiseで、産業企業のERPからSCADAまで散在するデータを自然言語で問い合わせ、自動化につなげられるようにする企業向けAIプラットフォーム「Morf」を開発しています。最も関心があるのは、企業環境で言語モデルの回答を信頼できるものにするすべての要素、つまり適切なデータへのアクセス、ツール設計、評価、コストです。\n\nこれまでにTÜBİTAK 2209-Aの枠組みで深層学習による肺音分類の研究を行い、Trendyol DatathonではF1スコア0.903を達成し、TUA Astro Hackathonではチームで19チーム中6位になりました。ここに載せている記事は、こうした仕事から生まれたノートです。",
-      highlights: ["Morf — VizioWiseの企業向けAIプラットフォーム", "エージェント、MCP、ツール呼び出し設計", "深層学習研究 — TÜBİTAK 2209-A", "コンピュータ工学 — エルジエス大学"],
+      body: "エルジエス大学コンピュータ工学科の4年生で、同時にVizioWise AIで働いています。学業、仕事、そして自分のプロジェクトの間で多くのことを同時にこなそうとしています。ここでは、その中で試したことや学んだことを書いています。",
+      highlights: ["コンピュータ工学 — エルジエス大学 4年", "VizioWise AI — Morf", "プライバシーゲートウェイ — 卒業研究", "Sniper Battle — モバイルゲーム"],
     },
     contact: { kicker: "05 — お問い合わせ", title: "ご連絡はこちらから。", accent: "こちらから", text: "記事やプロジェクトについての質問やご意見があれば、下記の方法でご連絡ください。", emailLabel: "メール" },
     blog: {

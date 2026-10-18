@@ -11,7 +11,7 @@ import { LANGS } from '../i18n/translations.js'
 import Layout from '../site/Layout.jsx'
 import { PostList } from '../site/PostList.jsx'
 import { LinkedinIcon } from '../site/icons.jsx'
-import { fmtDate, parseContent, readMinutes } from '../site/format.js'
+import { fmtDate, parseContent } from '../site/format.js'
 import { SITE } from '../data/site.js'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import NotFound from './NotFound.jsx'
@@ -160,7 +160,6 @@ export default function PostPage() {
           {post.excerpt && <p className="article-lead">{post.excerpt}</p>}
           <div className="article-meta">
             <time dateTime={post.created_at}>{fmtDate(post.created_at, 'long', locale)}</time>
-            <span>{t('posts.minLong', { n: readMinutes(post.content) })}</span>
             <span className="meta-actions">
               <ListenButton title={post.title} html={html} lang={post._lang} />
               {post.project_url && (

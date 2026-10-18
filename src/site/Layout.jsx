@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { Languages, Moon, Sun, Check } from 'lucide-react'
+import { Languages, Moon, Sun, Check, Menu, X, ArrowUpRight } from 'lucide-react'
 import { SITE } from '../data/site.js'
 import { LANGS } from '../i18n/translations.js'
 import { useI18n } from '../i18n/I18nProvider.jsx'
@@ -103,12 +103,58 @@ function ThemeToggle() {
   )
 }
 
+/** Telefonda tüm bağlantıları içeren tam ekran menü (başlığın altında açılır). */
+function MobileMenu({ open, onClose }) {
+  const { t } = useI18n()
+  const { pathname, hash } = useLocation()
+  useEffect(() => {
+    onClose()
+  }, [pathname, hash]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => e.key === 'Escape' && onClose()
+    document.addEventListener('keydown', onKey)
+    document.documentElement.classList.add('menu-open')
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.documentElement.classList.remove('menu-open')
+    }
+  }, [open, onClose])
+
+  const links = [
+    ['/blog', t('nav.posts')],
+    ['/#projeler', t('nav.projects')],
+    ['/#hakkimda', t('nav.about')],
+    ['/#iletisim', t('nav.contact')],
+  ]
+  return (
+    <div id="mobil-menu" className={`mobile-menu${open ? ' is-open' : ''}`} aria-hidden={!open} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <nav aria-label={t('nav.main')}>
+        {links.map(([to, label], i) => (
+          <Link key={to} to={to} style={{ '--i': i }} tabIndex={open ? 0 : -1} onClick={onClose}>
+            <span className="mm-num">0{i + 1}</span>
+            {label}
+            <ArrowUpRight size={20} />
+          </Link>
+        ))}
+      </nav>
+      <div className="mm-foot">
+        <a href={SITE.linkedin} target="_blank" rel="noreferrer" tabIndex={open ? 0 : -1}>LinkedIn</a>
+        <a href={SITE.github} target="_blank" rel="noreferrer" tabIndex={open ? 0 : -1}>GitHub</a>
+        <a href={`mailto:${SITE.email}`} tabIndex={open ? 0 : -1}>{SITE.email}</a>
+      </div>
+    </div>
+  )
+}
+
 /** overlay: ana sayfada başlık, koyu giriş alanının üstünde şeffaf durur. */
 export default function Layout({ children, overlay = false }) {
   useScrollOnNavigate()
   const { t } = useI18n()
   const scrolled = useScrolled()
-  const headerClass = ['site-header', overlay && 'is-fixed', overlay && !scrolled && 'is-overlay'].filter(Boolean).join(' ')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
+  const headerClass = ['site-header', overlay && 'is-fixed', overlay && !scrolled && !menuOpen && 'is-overlay', menuOpen && 'is-menu'].filter(Boolean).join(' ')
 
   return (
     <div className="site">
@@ -123,15 +169,26 @@ export default function Layout({ children, overlay = false }) {
           <div className="header-right">
             <nav className="nav" aria-label={t('nav.main')}>
               <NavLink to="/blog">{t('nav.posts')}</NavLink>
-              <Link to="/#projeler" className="hide-sm">{t('nav.projects')}</Link>
-              <Link to="/#hakkimda" className="hide-md">{t('nav.about')}</Link>
+              <Link to="/#projeler">{t('nav.projects')}</Link>
+              <Link to="/#hakkimda">{t('nav.about')}</Link>
               <Link to="/#iletisim" className="nav-cta">{t('nav.contact')}</Link>
             </nav>
             <LangMenu />
             <ThemeToggle />
+            <button
+              type="button"
+              className="icon-btn menu-btn"
+              aria-expanded={menuOpen}
+              aria-controls="mobil-menu"
+              aria-label={menuOpen ? t('nav.close') : t('nav.menu')}
+              onClick={() => setMenuOpen((o) => !o)}
+            >
+              {menuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
           </div>
         </div>
       </header>
+      <MobileMenu open={menuOpen} onClose={closeMenu} />
 
       <main id="icerik">{children}</main>
 

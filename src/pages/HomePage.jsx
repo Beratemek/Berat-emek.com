@@ -83,7 +83,6 @@ function untilt(e) {
 export default function HomePage() {
   const { t, lang, locale } = useI18n()
   const { profile, blogPosts, projectPosts, contact, loading } = usePortfolioContent()
-  const [aboutOpen, setAboutOpen] = useState(false)
   const [leadFirst, leadRest] = splitLead(t('hero.intro'))
 
   // Hakkımda metni admin panelinden Türkçe girilir; diğer dillerde çevirisi gösterilir
@@ -313,12 +312,7 @@ export default function HomePage() {
             </div>
           </Reveal>
           <Reveal delay={120}>
-            <p className={`about-text${aboutOpen ? '' : ' clamp-sm'}`}>{about.body}</p>
-            {!aboutOpen && (
-              <button type="button" className="read-toggle" onClick={() => setAboutOpen(true)}>
-                {t('ui.readMore')} <ArrowDown size={14} />
-              </button>
-            )}
+            <p className="about-text">{about.body}</p>
             <ul className="highlights">
               {about.highlights.map((h, i) => (
                 <li key={h}>

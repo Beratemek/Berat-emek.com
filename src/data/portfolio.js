@@ -4,12 +4,12 @@ import { SITE } from './site.js'
 export const content = {
   about: {
     kicker: 'Full-Stack & AI Developer',
-    body: "VizioWise'da Morf'u geliştiriyorum: sanayi şirketlerinin ERP'den SCADA'ya dağınık verisini doğal dille sorgulanabilir ve otomasyona bağlanabilir hale getiren kurumsal bir yapay zeka platformu. Beni en çok ilgilendiren kısım, bir dil modelinin cevabını kurumsal ortamda güvenilir kılan her şey: doğru veriye erişim, araç tasarımı, değerlendirme ve maliyet.\n\nDaha önce TÜBİTAK 2209-A kapsamında derin öğrenmeyle akciğer sesi sınıflandırma üzerine araştırma yaptım, Trendyol Datathon'da 0,903 F1 skoruna ulaştım, TUA Astro Hackathon'da 19 ekip arasında 6. olduk. Buradaki yazılar da bu işlerden çıkan notlar.",
+    body: "Erciyes Üniversitesi Bilgisayar Mühendisliği'nde 4. sınıftayım ve bir yandan VizioWise AI'da çalışıyorum. Okul, iş ve kendi projelerim arasında birçok şeye aynı anda yetişmeye çalışıyorum; burada da bu yolda denediklerimi ve öğrendiklerimi yazıyorum.",
     highlights: [
-      "Morf — VizioWise'ın kurumsal yapay zeka platformu",
-      "Ajanlar, MCP ve araç çağrısı tasarımı",
-      "Derin öğrenme araştırması — TÜBİTAK 2209-A",
-      "Bilgisayar Mühendisliği — Erciyes Üniversitesi",
+      "Bilgisayar Mühendisliği — Erciyes Üniversitesi, 4. sınıf",
+      "VizioWise AI — Morf",
+      "Gizlilik Geçidi — bitirme projesi",
+      "Sniper Battle — mobil oyun",
     ],
   },
   projects: {
@@ -61,11 +61,6 @@ export const content = {
         desc: "İlk projelerimden: Tinder tarzı bir tanışma uygulaması. Web arayüzü, mobil sürüm ve sunucu tek depoda.",
         tags: ["Mobil + Web", "React", "Node.js"],
         url: "https://beratemek.github.io/the-vault/",
-      },
-      {
-        name: "TÜBİTAK 2209-A",
-        desc: "Derin öğrenme tabanlı akciğer sesi sınıflandırma projesi. CNN mimarileriyle solunum anomalilerinin tespiti.",
-        tags: ["Python", "Deep Learning", "Signal Processing"],
       },
     ],
   },

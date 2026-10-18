@@ -22,8 +22,10 @@ function parseJSON(text) {
 /**
  * Modele sistem + kullanıcı mesajı gönderir, JSON nesnesi döndürür.
  * Geçici hatalarda (429, 5xx, bozuk JSON) 3 kez dener.
+ * Düşünme (reasoning) varsayılan olarak kapalı: açıkken model token hakkını düşünmeye harcayıp
+ * boş cevap dönebiliyor ve maliyet katlanıyor. Gerçekten gereken çağrıda reasoning: true verilir.
  */
-export async function askJSON({ label, system, user, model = MODEL, temperature = 0.2, maxTokens = 4000 }) {
+export async function askJSON({ label, system, user, model = MODEL, temperature = 0.2, maxTokens = 4000, reasoning = false }) {
   const key = process.env.OPENROUTER_API_KEY
   if (!key) throw new Error('OPENROUTER_API_KEY tanımlı değil')
 
@@ -44,6 +46,7 @@ export async function askJSON({ label, system, user, model = MODEL, temperature 
           max_tokens: maxTokens,
           response_format: { type: 'json_object' },
           usage: { include: true },
+          reasoning: reasoning ? { effort: 'medium' } : { enabled: false },
           messages: [
             { role: 'system', content: system },
             { role: 'user', content: user },
@@ -66,7 +69,11 @@ export async function askJSON({ label, system, user, model = MODEL, temperature 
       usage.completionTokens += data.usage?.completion_tokens || 0
       usage.costUsd += data.usage?.cost || 0
 
-      return parseJSON(data.choices?.[0]?.message?.content)
+      const choice = data.choices?.[0]
+      if (!choice?.message?.content && choice?.finish_reason === 'length') {
+        throw new Error(`Cevap token sınırına takıldı (max_tokens=${maxTokens})`)
+      }
+      return parseJSON(choice?.message?.content)
     } catch (e) {
       lastErr = e
       if (e.fatal) break

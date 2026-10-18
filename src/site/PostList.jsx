@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import { useI18n } from '../i18n/I18nProvider.jsx'
 import GenCover from './GenCover.jsx'
-import { coverWord, fmtDate, postPath, readMinutes } from './format.js'
+import { coverWord, fmtDate, postPath } from './format.js'
 
 export function PostList({ posts }) {
   const { t, locale } = useI18n()
@@ -25,7 +25,7 @@ export function PostList({ posts }) {
               {p.excerpt && <p className="post-excerpt">{p.excerpt}</p>}
             </div>
             <span className="post-side">
-              {t('posts.min', { n: readMinutes(p.content) })} <ArrowUpRight size={15} />
+              <ArrowUpRight size={15} />
             </span>
           </Link>
         </li>
@@ -50,7 +50,6 @@ export function PostCard({ post }) {
       <div className="post-card-body">
         <div className="post-card-meta">
           <time dateTime={post.created_at}>{fmtDate(post.created_at, 'short', locale)}</time>
-          <span>· {t('posts.min', { n: readMinutes(post.content) })}</span>
         </div>
         <h3 className="post-card-title">{post.title}</h3>
       </div>
@@ -75,7 +74,6 @@ export function FeaturedPost({ post }) {
         <div className="featured-meta">
           <span className="featured-flag">{t('posts.featured')}</span>
           <time dateTime={post.created_at}>{fmtDate(post.created_at, 'long', locale)}</time>
-          <span>· {t('posts.minLong', { n: readMinutes(post.content) })}</span>
         </div>
         <h3>{post.title}</h3>
         {post.excerpt && <p>{post.excerpt}</p>}
