@@ -4,10 +4,10 @@ import { SITE } from './site.js'
 export const content = {
   about: {
     kicker: 'Full-Stack & AI Developer',
-    body: "Yapay zekayı uçtan uca ürünlere dönüştüren bir geliştiriciyim. Büyük dil modeli entegrasyonlarından çok ajanlı otomasyonlara, ölçeklenebilir backend mimarilerinden kullanıcı arayüzlerine kadar ürünün tamamında çalışıyorum. VizioWise'da sanayi için kurumsal yapay zeka platformu Morf üzerinde çalışıyorum: viziowise.com'u ben geliştirdim; ürün geliştirmenin yanında reklamdan satışa ve müşteri görüşmelerine kadar bir girişimin ihtiyaç duyduğu her alanda yer alıyorum, reklam süreçlerinin tamamı benim sorumluluğumda. TÜBİTAK 2209-A kapsamında derin öğrenme araştırması yürüttüm; Trendyol Datathon ve bir uzay hackathonunda yarıştım.",
+    body: "VizioWise'da Morf'u geliştiriyorum: sanayi şirketlerinin ERP'den SCADA'ya dağınık verisini doğal dille sorgulanabilir ve otomasyona bağlanabilir hale getiren kurumsal bir yapay zeka platformu. Beni en çok ilgilendiren kısım, bir dil modelinin cevabını kurumsal ortamda güvenilir kılan her şey: doğru veriye erişim, araç tasarımı, değerlendirme ve maliyet.\n\nDaha önce TÜBİTAK 2209-A kapsamında derin öğrenmeyle akciğer sesi sınıflandırma üzerine araştırma yaptım, Trendyol Datathon'da 0,903 F1 skoruna ulaştım, TUA Astro Hackathon'da 19 ekip arasında 6. olduk. Buradaki yazılar da bu işlerden çıkan notlar.",
     highlights: [
-      "LLM entegrasyonları ve çok ajanlı sistemler",
-      "VizioWise — ürün, reklam ve satış",
+      "Morf — VizioWise'ın kurumsal yapay zeka platformu",
+      "Ajanlar, MCP ve araç çağrısı tasarımı",
       "Derin öğrenme araştırması — TÜBİTAK 2209-A",
       "Bilgisayar Mühendisliği — Erciyes Üniversitesi",
     ],
@@ -16,14 +16,14 @@ export const content = {
     items: [
       {
         name: "Morf — sanayi için kurumsal yapay zeka",
-        desc: "VizioWise'da üzerinde çalıştığım platform: ERP'den SCADA'ya tüm veriyi tek yapay zeka katmanında birleştiren soru-cevap, canlı panel ve otomasyon. viziowise.com'u ben geliştirdim.",
+        desc: "Fabrikanın ERP'den SCADA'ya dağınık verisini tek bir yapay zeka katmanında birleştiren kurumsal platform: doğal dille soru-cevap, canlı paneller ve otomasyon.",
         tags: ["Kurumsal AI", "LLM", "Full-Stack"],
         url: "https://viziowise.com",
       },
       {
         name: "Trendyol E-Ticaret Datathon 2026",
         desc: "3,36 milyon arama-ürün çiftinde alaka tahmini: 0,903 macro-F1. En büyük kazanç (+0,06) model eğitmeden, karar eşiğini matematikle bulmaktan geldi.",
-        tags: ["Python", "NLP", "Datathon"],
+        tags: ["Datathon", "NLP", "Python"],
         url: "https://github.com/Beratemek/trendyol-datathon",
       },
       {
@@ -41,8 +41,8 @@ export const content = {
       {
         name: "Yapay Zeka Destekli Eğitim Sistemi",
         desc: "Hackathon MVP: kazanımdan soruya, cevaptan puana ölçme-değerlendirmeyi yapay zekayla hızlandırır; nihai kararı her zaman eğitmene bırakır.",
-        tags: ["Hackathon", "Next.js", "AI SDK"],
-        url: "https://ai-egitim-sistemi.vercel.app",
+        tags: ["Eğitim", "Hackathon", "AI SDK"],
+        url: "https://github.com/Beratemek/ai-egitim-sistemi",
       },
       {
         name: "MoonProject — TUA Astro Hackathonu",
@@ -58,7 +58,7 @@ export const content = {
       },
       {
         name: "Cucu's Coffee & Cake",
-        desc: "Bir kafe için uçtan uca web uygulaması: ürün ve kampanya yönetimli admin paneli, Fırsat Çarkı. İşletmenin talebiyle yayından kaldırıldı; kodlar GitHub'da.",
+        desc: "Bir kafe için web uygulaması: ürün ve kampanya yönetimli admin paneli, müşterilere indirim kazandıran Fırsat Çarkı. İşletmenin talebiyle yayından kaldırıldı; kodlar GitHub'da.",
         tags: ["E-ticaret", "Admin Paneli", "MongoDB"],
         url: "https://github.com/Beratemek/cucus-cafe-web-side",
       },

@@ -119,7 +119,7 @@ export default function PostsList({ filterKind }) {
                 {p.cover ? (
                   <span className="thumb" style={{ backgroundImage: `url(${p.cover})`, backgroundPosition: p.cover_position || 'center' }} />
                 ) : (
-                  <GenCover className="thumb" seed={p.slug || p.title} />
+                  <GenCover className="thumb" seed={p.slug || p.title} topic={`${p.title} ${(p.tags || []).join(" ")}`} />
                 )}
                 <span className="post-row-text">
                   <span className="title">{p.title || '(başlıksız)'}</span>

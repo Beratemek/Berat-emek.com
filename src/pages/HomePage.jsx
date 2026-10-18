@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
-  ArrowRight, ArrowUpRight, ArrowDown, Copy, Check, Globe, BrainCircuit, Layers, AudioWaveform,
+  ArrowRight, ArrowUpRight, ArrowDown, Copy, Check, Globe, Workflow, Database, Gauge,
 } from 'lucide-react'
 import Layout from '../site/Layout.jsx'
 import NeuralHero from '../site/NeuralHero.jsx'
@@ -18,7 +18,7 @@ import { useI18n } from '../i18n/I18nProvider.jsx'
 import { content as fallback } from '../data/portfolio.js'
 import { SITE } from '../data/site.js'
 
-const CAPABILITY_ICONS = [BrainCircuit, Layers, AudioWaveform]
+const CAPABILITY_ICONS = [Workflow, Database, Gauge] // ajanlar, kurumsal veri, ölçülebilir kalite
 const PROJECTS_PREVIEW = 6 // ana sayfada ilk 6 proje; gerisi butonla açılır
 const PINNED_PROJECT = 'morf' // şu an çalıştığım şirketin projesi, tarihinden bağımsız hep başta
 const pinFirst = (list) => [...list].sort((a, b) => (b.slug === PINNED_PROJECT) - (a.slug === PINNED_PROJECT))
@@ -196,7 +196,7 @@ export default function HomePage() {
           </Reveal>
           <Rail className="capabilities" label={t('caps.title')}>
             {t('caps.items').map((c, i) => {
-              const Icon = CAPABILITY_ICONS[i] ?? BrainCircuit
+              const Icon = CAPABILITY_ICONS[i] ?? Workflow
               return (
                 <Reveal as="article" key={c.title} delay={i * 120} className="capability" onMouseMove={spotlight}>
                   <div className="capability-top">
@@ -264,7 +264,7 @@ export default function HomePage() {
                   {p.cover ? (
                     <div className="project-cover" style={{ backgroundImage: `url(${p.cover})`, backgroundPosition: p.coverPosition || 'center' }} />
                   ) : (
-                    <GenCover className="project-cover" seed={p.seed || p.title} word={p.word} />
+                    <GenCover className="project-cover" seed={p.seed || p.title} word={p.word} topic={`${p.title} ${(p.tags || []).join(" ")}`} />
                   )}
                   <div className="project-body">
                     <h3>

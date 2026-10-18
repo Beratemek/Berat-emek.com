@@ -15,7 +15,7 @@ export function PostList({ posts }) {
             {p.cover ? (
               <div className="post-thumb cover-img" style={{ backgroundImage: `url(${p.cover})`, backgroundPosition: p.cover_position || 'center' }} />
             ) : (
-              <GenCover className="post-thumb" seed={p.slug || p.title} />
+              <GenCover className="post-thumb" seed={p.slug || p.title} topic={`${p.title} ${(p.tags || []).join(" ")}`} />
             )}
             <time className="post-date" dateTime={p.created_at}>
               {fmtDate(p.created_at, 'short', locale)}
@@ -52,7 +52,7 @@ export function PostCard({ post }) {
           style={{ backgroundImage: `url(${post.cover})`, backgroundPosition: post.cover_position || 'center' }}
         />
       ) : (
-        <GenCover className="post-card-media" seed={post.slug || post.title} word={coverWord(post)} />
+        <GenCover className="post-card-media" seed={post.slug || post.title} word={coverWord(post)} topic={`${post.title} ${(post.tags || []).join(" ")}`} />
       )}
       <div className="post-card-body">
         <div className="post-card-meta">
@@ -76,7 +76,7 @@ export function FeaturedPost({ post }) {
           style={{ backgroundImage: `url(${post.cover})`, backgroundPosition: post.cover_position || 'center' }}
         />
       ) : (
-        <GenCover className="featured-media" seed={post.slug || post.title} label={t('posts.featured')} word={coverWord(post)} />
+        <GenCover className="featured-media" seed={post.slug || post.title} label={t('posts.featured')} word={coverWord(post)} topic={`${post.title} ${(post.tags || []).join(" ")}`} />
       )}
       <div className="featured-body">
         <div className="featured-meta">

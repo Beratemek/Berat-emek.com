@@ -2107,3 +2107,41 @@ body {
     white-space: nowrap;
   }
 }
+
+/* Otomatik kapak: konuya göre ikon (görsel hazırlamaya gerek kalmaz) */
+.gc-icon {
+  position: absolute;
+  top: 14%;
+  right: 7%;
+  height: 46%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 240, 225, 0.34);
+  background: radial-gradient(circle at 35% 30%, rgba(255, 244, 230, 0.2), rgba(24, 14, 9, 0.32) 75%);
+  box-shadow: 0 0 70px -10px rgba(245, 185, 115, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: rgba(255, 246, 235, 0.94);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+.gc-icon svg {
+  width: 48%;
+  height: 48%;
+}
+.featured-media .gc-icon {
+  top: 50%;
+  right: 9%;
+  height: 40%;
+  transform: translateY(-50%);
+}
+/* Küçük kapaklarda (liste, panel) ikon ortada, kelime yok */
+.post-thumb .gc-icon,
+.thumb .gc-icon {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  height: 62%;
+  transform: translate(-50%, -50%);
+  box-shadow: none;
+}
