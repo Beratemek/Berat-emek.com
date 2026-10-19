@@ -32,6 +32,8 @@ export async function askJSON({ label, system, user, model = MODEL, temperature 
 
   let lastErr
   let reasoningMode = reasoning ? { effort: 'medium' } : { enabled: false }
+  // Bazı sağlayıcılar düşünmeyi kapatsak da düşünüp hakkı bitiriyor; boş cevapta sınır iki katına çıkar
+  let limit = maxTokens
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -45,7 +47,7 @@ export async function askJSON({ label, system, user, model = MODEL, temperature 
         body: JSON.stringify({
           model,
           temperature,
-          max_tokens: maxTokens,
+          max_tokens: limit,
           response_format: { type: 'json_object' },
           usage: { include: true },
           reasoning: reasoningMode,
@@ -79,7 +81,9 @@ export async function askJSON({ label, system, user, model = MODEL, temperature 
 
       const choice = data.choices?.[0]
       if (!choice?.message?.content && choice?.finish_reason === 'length') {
-        throw new Error(`Cevap token sınırına takıldı (max_tokens=${maxTokens})`)
+        const used = limit
+        limit = Math.min(limit * 2, 32000)
+        throw new Error(`Cevap token sınırına takıldı (max_tokens=${used})`)
       }
       return parseJSON(choice?.message?.content)
     } catch (e) {
