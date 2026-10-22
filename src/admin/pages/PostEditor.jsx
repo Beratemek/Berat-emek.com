@@ -25,6 +25,8 @@ import {
   Loader2,
   ImagePlus,
   CheckCircle2,
+  Wand2,
+  Undo2,
 } from 'lucide-react'
 
 import { supabase } from '../../lib/supabase.js'
@@ -55,6 +57,8 @@ export default function PostEditor() {
   const [err, setErr] = useState(null)
   const [review, setReview] = useState(null) // yapay zekalı kalite incelemesi
   const [reviewing, setReviewing] = useState(false)
+  const [fixing, setFixing] = useState(false) // incelemenin notlarını yapay zeka uyguluyor
+  const [beforeFix, setBeforeFix] = useState(null) // düzeltmeyi geri almak için önceki hâl
 
   // "Kaydedildi" bildirimini birkaç saniye sonra otomatik gizle
   useEffect(() => {
@@ -207,6 +211,35 @@ export default function PostEditor() {
     } finally {
       setReviewing(false)
     }
+  }
+
+  // Onaylanan notları yapay zeka yazının üzerinde uygular; sonuç editöre gelir, Kaydet'e basılana kadar kalıcı değildir
+  async function applyFixes() {
+    if (!editor || !review?.issues?.length) return
+    setFixing(true)
+    const prev = { title: form.title, excerpt: form.excerpt, doc: editor.getJSON() }
+    try {
+      const out = await serverApi('/api/agents/fix', {
+        method: 'POST',
+        body: { title: form.title, excerpt: form.excerpt, kind: form.kind, doc: prev.doc, issues: review.issues },
+      })
+      editor.commands.setContent(out.doc)
+      setForm((f) => ({ ...f, title: out.title, excerpt: out.excerpt }))
+      setBeforeFix(prev)
+      setReview({ fixed: true, changes: out.changes || [] })
+    } catch (e) {
+      setReview((r) => ({ ...r, fixError: e.message }))
+    } finally {
+      setFixing(false)
+    }
+  }
+
+  function undoFixes() {
+    if (!editor || !beforeFix) return
+    editor.commands.setContent(beforeFix.doc)
+    setForm((f) => ({ ...f, title: beforeFix.title, excerpt: beforeFix.excerpt }))
+    setBeforeFix(null)
+    setReview(null)
   }
 
   function addLink() {
@@ -426,7 +459,13 @@ export default function PostEditor() {
           <div className="card-head">
             <h3>
               <ShieldCheck size={16} />{' '}
-              {review.error ? 'İnceleme yapılamadı' : review.verdict === 'yayinlanabilir' ? 'Yayınlanabilir' : 'Düzeltilmeli'}
+              {review.error
+                ? 'İnceleme yapılamadı'
+                : review.fixed
+                  ? 'Düzeltmeler uygulandı'
+                  : review.verdict === 'yayinlanabilir'
+                    ? 'Yayınlanabilir'
+                    : 'Düzeltilmeli'}
             </h3>
             <button type="button" className="icon-button" onClick={() => setReview(null)} aria-label="Kapat">
               <XIcon size={16} />
@@ -434,6 +473,30 @@ export default function PostEditor() {
           </div>
           {review.error ? (
             <p className="muted-line">{review.error}</p>
+          ) : review.fixed ? (
+            <>
+              <p className="review-summary">
+                Yazı editörde düzeltildi. Göz at; beğendiysen <strong>Kaydet</strong>'e bas, beğenmediysen geri al.
+              </p>
+              {review.changes.length > 0 && (
+                <ul className="review-list">
+                  {review.changes.map((c, k) => (
+                    <li key={k} className={/^Dikkat/.test(c) ? 'lvl-kritik' : 'lvl-oneri'}>
+                      <span className="review-level">{/^Dikkat/.test(c) ? 'Dikkat' : 'Düzeltildi'}</span>
+                      <div>{c}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="review-actions">
+                <button type="button" className="btn btn-secondary btn-sm" onClick={undoFixes}>
+                  <Undo2 size={14} /> Geri al
+                </button>
+                <button type="button" className="btn btn-secondary btn-sm" onClick={aiReview} disabled={reviewing}>
+                  {reviewing ? <Loader2 size={14} className="spin" /> : <ShieldCheck size={14} />} Yeniden kontrol et
+                </button>
+              </div>
+            </>
           ) : (
             <>
               {review.summary && <p className="review-summary">{review.summary}</p>}
@@ -451,6 +514,20 @@ export default function PostEditor() {
                 </ul>
               ) : (
                 <p className="muted-line">Not edilecek bir şey bulunmadı.</p>
+              )}
+              {review.issues?.length > 0 && (
+                <div className="review-actions">
+                  <button type="button" className="btn btn-primary btn-sm" onClick={applyFixes} disabled={fixing || saving}>
+                    {fixing ? <Loader2 size={14} className="spin" /> : <Wand2 size={14} />}
+                    {fixing ? 'Düzeltiliyor… (20-40 sn)' : 'Düzeltmeleri uygula'}
+                  </button>
+                  <span className="muted-line">Yapay zeka notları yazının üzerinde düzeltir · yazı başı birkaç sent</span>
+                </div>
+              )}
+              {review.fixError && (
+                <p className="muted-line" style={{ color: 'var(--a-danger, #b42318)' }}>
+                  {review.fixError}
+                </p>
               )}
             </>
           )}

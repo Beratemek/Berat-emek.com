@@ -534,3 +534,15 @@
     order: 3;
   }
 }
+
+/* Yapay zeka düzeltmesi: notları uygula / geri al */
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.review-actions .muted-line {
+  font-size: 12px;
+}
