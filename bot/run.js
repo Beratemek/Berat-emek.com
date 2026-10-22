@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url'
 import { HOURS, MODEL, WRITER_MODEL, TOP_CANDIDATES, BLOG_NOTE } from './config.js'
 import { collectAll } from './collect.js'
 import {
-  clusterNews, scoreClusters, verifyCandidate, writeDraft, checkDraft, polishLinkedIn, decide, suggestIdeas, triage, sourceList,
+  clusterNews, scoreClusters, verifyCandidate, writeDraft, checkDraft, polishLinkedIn, decide, suggestIdeas, triage, sourceList, PACE,
 } from './agents.js'
 import { getUsage } from './llm.js'
 import { blocksToDoc, slugify } from './tiptap.js'
@@ -201,7 +201,7 @@ async function main() {
   const lastShared = sharedDays[sharedDays.length - 1]
   const cadence = {
     sharedThisWeek: sharedDays.length,
-    target: 4,
+    target: PACE.target,
     daysSinceLast: lastShared ? Math.round((new Date(`${briefDate}T12:00:00Z`) - new Date(`${lastShared}T12:00:00Z`)) / 864e5) : null,
   }
 

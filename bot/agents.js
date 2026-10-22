@@ -199,6 +199,11 @@ Blog yazısı (ana ürün, Berat'ın ağzından, sade ve anlaşılır):
   "Nasıl denenir?" (yalnızca adım verildiyse; okurun gerçekten yazacağı komutları "code" bloğuyla ver, önüne ne işe yaradığını söyleyen bir cümle koy),
   "Dikkat" (doğrulanmamış iddialar ve riskler; yoksa atla), "Benim yorumum".
 - Teknik bilgisi olmayan bir okur yazının sonunda konuyu anlamış, yazılımcı da nasıl deneyeceğini biliyor olmalı.
+- Kalite çıtası (hedef: okurlar "bu adam kaliteli haber paylaşıyor" desin): haber özetini tekrar etmek yetmez. Yazı, haberin
+  kendisinde yazmayan bir bağlam ya da çıkarım vermeli: neden şimdi oldu, kim kazanır kim kaybeder, okurun işinde ne değişir.
+  Bu çıkarım görüştür, yeni olgu değildir; yalnızca doğrulanmış bilgilerden yola çık.
+- Konunun anahtar terimleri (ürün ya da şirket adı ve alanı: "siber güvenlik", "açık kaynak" gibi) başlıkta ve ilk paragrafta geçsin;
+  insanlar bu kelimelerle arıyor.
 
 LinkedIn gönderisi (blog yazısına yönlendiren kısa giriş):
 - 60-130 kelime, kısa paragraflar. İlk iki satır gelişmeyi ve okur için anlamını söylesin (LinkedIn "devamını gör"den önce yalnızca ilk 2 satırı gösterir).
@@ -207,10 +212,11 @@ LinkedIn gönderisi (blog yazısına yönlendiren kısa giriş):
 - Maddeler herkesin anlayacağı etkiler olsun: ne yapıyor, kimin işine yarıyor, nasıl denenir. Sürüm numarası, ortam değişkeni,
   platform ve sürüm gereksinimi gibi ayrıntıları blog yazısına bırak.
 - "Benim yorumum" net bir görüş olsun (neyi değiştiriyor, kimin için ne anlama geliyor); "doğrulanmadı" gibi çekingen uyarıları
-  yorumun yerine koyma. Hashtag'lerden biri #YapayZeka olsun.
+  yorumun yerine koyma. Yorum haberde yazmayan bir çıkarım taşısın (ne değişiyor, kim kazanıyor); "ilginç bir gelişme" gibi boş yorum yok.
+- Konunun anahtar terimleri ilk iki satırda doğal biçimde geçsin (LinkedIn araması gönderi metnini tarar).
 - 1-2 cümlelik "Benim yorumum:".
 - Hashtag'lerden önceki satır yazıya yönlendiren tek cümle ve ":" ile biter (ör. "Detayları yazımda sade bir dille anlattım:"); yazının bağlantısı paylaşırken otomatik eklenecek.
-- Haber bülteni dili ("Ne oldu?" başlığı, ajans dili) kullanma; soru cümlesiyle bitirme. En sonda 3-4 hashtag. Gövdede link verme. En fazla 1 emoji.
+- Haber bülteni dili ("Ne oldu?" başlığı, ajans dili) kullanma; soru cümlesiyle bitirme. En sonda 3-5 hashtag: #YapayZeka, konunun ana terimi (ör. #DeepSeek) ve 1-2 geniş kitle etiketi (#Teknoloji, #Yazılım, #SiberGüvenlik gibi); daha fazlası spam gibi görünür. Gövdede link verme. En fazla 1 emoji.
 - Örnek (ton ve yapı için; kalıbı ve cümleleri kopyalama, kendi konuna göre yaz):
 ---
 ${GOLD_LINKEDIN}
@@ -274,21 +280,40 @@ ${JSON_ONLY}`,
  * ------------------------------------------------------------- */
 const URGENCY = ['kesin', 'onerilir', 'istege-bagli', 'gerek-yok']
 
+// Paylaşım temposu ve kalite çıtası (Berat: "2-3 günde bir, yalnızca üst düzey haber").
+// Modelin önerisini puana ve paylaşım aralığına göre sınırlar; talimata uymasa bile çıta korunur.
+export const PACE = { target: 3, minGapDays: 2, quietDays: 4 }
+export function gateUrgency(urgency, rating, cadence = {}) {
+  const r = Number(rating) || 0
+  const since = cadence.daysSinceLast
+  const rested = since == null || since >= PACE.minGapDays // son paylaşımdan bu yana yeterli ara var mı
+  const quiet = since == null || since >= PACE.quietDays // uzun süredir paylaşım yok mu
+  const weekFull = (cadence.sharedThisWeek || 0) >= PACE.target
+  let u = URGENCY.includes(urgency) ? urgency : 'gerek-yok'
+  if (u === 'kesin' && r < 9) u = 'onerilir'
+  if (u === 'onerilir') {
+    const goodEnough = r >= 8 || (r === 7 && quiet)
+    if (!goodEnough || ((!rested || weekFull) && r < 9)) u = 'istege-bagli'
+  }
+  return u
+}
+
 export async function decide({ cluster, v, linkedin, issues, recent, today, cadence }) {
   const s = cluster.signals || {}
   const out = await askJSON({
     label: 'editör',
     system: `Sen Berat'ın LinkedIn büyüme stratejistisin. Berat, yapay zeka alanında güncel gelişmeleri takip edip
 kendi blog yazılarıyla anlatan, piyasada tanınan bir geliştirici sesi olmak istiyor. Haber sitesi değil: az ama
-nitelikli, düzenli paylaşım. Haftalık hedef 3-4 paylaşım, günde en fazla 1. Süreklilik tek bir viral gönderiden değerlidir.
+ama üst düzey paylaşım: 2-3 günde bir, haftada 2-3 gönderi. Hedef, takipçilerin "bu adam kaliteli haber paylaşıyor" demesi;
+sıradan bir haberle boşluk doldurmak bu itibarı zedeler.
 
 ${FOCUS}
 
 Aciliyet derecesi seç:
 - "kesin" (9-10): büyük bir laboratuvarın/aracın önemli sürümü ya da geliştirici topluluğunun bugün konuştuğu bir gelişme;
   birden fazla bağımsız kaynak ve güçlü topluluk sinyali var. Haftalık hedef dolmuş olsa bile paylaşılır.
-- "onerilir" (7-8): doğrulanmış, odakla uyumlu, geliştiricilerin işine yarayan sağlam bir konu.
-- "istege-bagli" (5-6): fena değil ama sıradan; bu hafta hedefin gerisindeyse paylaşılabilir, değilse atlanabilir.
+- "onerilir" (8; 7 yalnızca son paylaşımdan bu yana 4+ gün geçtiyse): doğrulanmış, geniş yankı uyandıran sağlam bir konu.
+- "istege-bagli" (5-7): fena değil ama üst düzey değil; Berat isterse paylaşır, bot önermez.
 - "gerek-yok" (1-4): odak dışı, doğrulanamadı, tekrar ya da çözülmemiş kritik sorun var.
 Puan çıpaları (sıkı uygula). Belirleyici olan YANKI ve ETKİ: konu dünyada ya da Türkiye'de ne kadar konuşuluyor, kaç kişiyi
 etkiliyor? Berat'ın kişisel ilgi alanıyla örtüşmesi puanı belirlemez.
@@ -300,9 +325,9 @@ etkiliyor? Berat'ın kişisel ilgi alanıyla örtüşmesi puanı belirlemez.
 - 1-4: Yankısı yok, tekrar ya da zayıf.
 Takipçi testi: Berat'ı takip eden biri bunu akışında görünce "bunu kaçırmamam gerekiyordu, iyi ki gördüm" der mi, yoksa
 "yine rastgele bir repo" mu der? İkincisiyse en fazla 5. "Kesin" haftada bir bile çıkmayabilir; çıkmaması normaldir.
-Son günlerde büyük bir gelişme yoksa niş ama sağlam bir konu "onerilir" olabilir; sessiz dönemde de düzenli paylaşım sürmeli.
-Haftalık durumu hesaba kat: hedefin gerisindeysen ve konu sağlamsa bir derece yükseltebilirsin; bu hafta zaten 4 paylaşım
-olduysa yalnızca "kesin" paylaşılır. Son günlerde paylaşılan konunun tekrarı "gerek-yok"tur.
+Paylaşım temposu: son paylaşımdan bu yana 2 günden az geçtiyse ya da bu hafta 3 paylaşım olduysa yalnızca 9-10 puanlı konu
+paylaşılır. Uzun süredir (4+ gün) paylaşım yoksa en sağlam 7'lik konu "onerilir" olabilir; ama zayıf bir konuyla asla boşluk doldurma.
+Son günlerde paylaşılan konunun tekrarı "gerek-yok"tur.
 
 why: puanın gerekçesi, 3-4 kısa madde, mümkün olduğunca SAYILARLA (kaç bağımsız kaynak, resmi kaynak var mı,
 Hacker News puanı / GitHub yıldızı, odak uyumu, haftalık durum). Abartma: neden bomba olmadığını da söyle.
@@ -311,7 +336,7 @@ reason: Berat'a hitaben 1-2 cümle özet. best_time: önerilen saat aralığı (
 Çıktı: {"urgency":"kesin|onerilir|istege-bagli|gerek-yok","score":7,"reason":"...","why":["..."],"tip":"...","best_time":"..."}
 ${JSON_ONLY}`,
     user: `Bugün: ${today}
-Haftalık durum: son 7 günde ${cadence.sharedThisWeek} paylaşım (hedef 3-4) · son paylaşımdan bu yana ${cadence.daysSinceLast ?? 'hiç paylaşım yok'} gün
+Haftalık durum: son 7 günde ${cadence.sharedThisWeek} paylaşım (hedef 2-3, en az 2 gün arayla) · son paylaşımdan bu yana ${cadence.daysSinceLast ?? 'hiç paylaşım yok'} gün
 Aday konu: ${cluster.topic} (kategori: ${cluster.category}, odak uygunluğu: ${cluster.relevance}/3)
 Kaynaklar: ${cluster.sourceCount} farklı kaynak · güven: ${cluster.trust} · resmi kaynak: ${s.hasPrimary ? 'var' : 'yok'} · bağımsız medya: ${s.media ?? 0}
 Topluluk sinyali: Hacker News ${s.hn || 0} puan · GitHub ${s.github || 0} yıldız · Hugging Face ${s.hf || 0} · Reddit ${s.reddit || 0} topluluk
@@ -326,11 +351,12 @@ ${recent.length ? recent.map((r) => `- ${r.brief_date}: ${r.headline || '-'} (${
 ${linkedin}`,
   })
 
-  const urgency = URGENCY.includes(out.urgency) ? out.urgency : 'gerek-yok'
+  const score = Math.max(1, Math.min(10, Math.round(Number(out.score) || 1)))
+  const urgency = gateUrgency(out.urgency, score, cadence)
   return {
     urgency,
     decision: urgency === 'gerek-yok' ? 'paylasma' : 'paylas',
-    score: Math.max(1, Math.min(10, Math.round(Number(out.score) || 1))),
+    score,
     reason: out.reason || '',
     why: (Array.isArray(out.why) ? out.why : []).filter(Boolean).slice(0, 4),
     tip: out.tip || '',
@@ -410,16 +436,17 @@ export async function triage({ topics, recent, today, cadence, shared = [], read
     label: 'gündem editörü',
     maxTokens: 7000,
     system: `Sen Berat'ın LinkedIn büyüme stratejistisin. Berat, yapay zeka alanındaki güncel gelişmeleri kendi blog
-yazılarıyla anlatan, tanınan bir geliştirici sesi olmak istiyor. Haber sitesi değil: az ama nitelikli, düzenli paylaşım.
-Haftalık hedef 3-4 paylaşım, günde en fazla 1.
+yazılarıyla anlatan, tanınan bir geliştirici sesi olmak istiyor. Haber sitesi değil: az ama üst düzey paylaşım.
+2-3 günde bir, haftada 2-3 gönderi. Hedef, takipçilerin "bu adam kaliteli haber paylaşıyor" demesi; sıradan bir haberle boşluk
+doldurmak bu itibarı zedeler.
 
 ${FOCUS}
 
 Aciliyet dereceleri:
 - "kesin" (9-10): büyük bir laboratuvarın/aracın önemli sürümü ya da geliştiricilerin bugün konuştuğu gelişme; birden fazla
   bağımsız kaynak ve güçlü topluluk sinyali var. NADİRDİR: en fazla bir konuya ver, çoğu gün hiçbir konu "kesin" değildir.
-- "onerilir" (7-8): doğrulanmış, odakla uyumlu, geliştiricinin işine yarayan sağlam konu.
-- "istege-bagli" (5-6): fena değil ama sıradan.
+- "onerilir" (8; 7 yalnızca son paylaşımdan bu yana 4+ gün geçtiyse): doğrulanmış, geniş yankı uyandıran sağlam konu.
+- "istege-bagli" (5-7): fena değil ama üst düzey değil; Berat isterse paylaşır, bot önermez.
 - "gerek-yok" (1-4): odak dışı, tekrar ya da zayıf.
 Puan çıpaları (sıkı uygula). Belirleyici olan YANKI ve ETKİ: konu dünyada ya da Türkiye'de ne kadar konuşuluyor, kaç kişiyi
 etkiliyor? Berat'ın kişisel ilgi alanıyla örtüşmesi puanı belirlemez.
@@ -431,12 +458,12 @@ etkiliyor? Berat'ın kişisel ilgi alanıyla örtüşmesi puanı belirlemez.
 - 1-4: Yankısı yok, tekrar ya da zayıf.
 Takipçi testi: Berat'ı takip eden biri bunu akışında görünce "bunu kaçırmamam gerekiyordu, iyi ki gördüm" der mi, yoksa
 "yine rastgele bir repo" mu der? İkincisiyse en fazla 5. "Kesin" haftada bir bile çıkmayabilir; çıkmaması normaldir.
-Son günlerde büyük bir gelişme yoksa niş ama sağlam bir konu "onerilir" olabilir; sessiz dönemde de düzenli paylaşım sürmeli.
+Uzun süredir (4+ gün) paylaşım yoksa en sağlam 7'lik konu "onerilir" olabilir; ama zayıf bir konuyla asla boşluk doldurma.
 Tek kaynaklı ya da doğrulanamamış konu en fazla "istege-bagli" olabilir.
 "Paylaşıldı" sayılan tek şey Berat'ın paylaştığını onayladığı konulardır: onların tekrarı "gerek-yok".
 Sitede yazısı hazır olup Berat'ın henüz PAYLAŞMADIĞI bir konu elenmez: önemine göre puanla ve "ready" alanına o yazının
 başlığını AYNEN yaz; angle'da "Yazı hazır: LinkedIn'de paylaş" de. Hazır içerik yeni yazı gerektirmediği için değerlidir.
-Haftalık hedefin gerisindeysen sağlam bir konuyu bir derece yükseltebilirsin; bu hafta 4 paylaşım olduysa yalnızca "kesin" paylaşılır.
+Paylaşım temposu: son paylaşımdan bu yana 2 günden az geçtiyse ya da bu hafta 3 paylaşım olduysa yalnızca 9-10 puanlı konu paylaşılır.
 
 Görevin: listedeki HER konu için:
 - urgency ve rating (1-10)
@@ -454,7 +481,7 @@ ${CONTENT_RULES}
 Çıktı: {"topics":[{"i":0,"urgency":"onerilir","rating":7,"summary":"...","highlights":["..."],"lessons":["..."],"why":["..."],"angle":"...","ready":""}],"reason":"...","tip":"...","best_time":"..."}
 ${JSON_ONLY}`,
     user: `Bugün: ${today}
-Haftalık durum: son 7 günde ${cadence.sharedThisWeek} paylaşım (hedef 3-4) · son paylaşımdan bu yana ${cadence.daysSinceLast ?? 'hiç paylaşım yok'} gün
+Haftalık durum: son 7 günde ${cadence.sharedThisWeek} paylaşım (hedef 2-3, en az 2 gün arayla) · son paylaşımdan bu yana ${cadence.daysSinceLast ?? 'hiç paylaşım yok'} gün
 
 Konular:
 ${lines.join('\n')}
@@ -470,9 +497,10 @@ ${ready.length ? ready.map((t) => `- ${t}`).join('\n') : '- yok'}`,
   return {
     topics: topics.map((_, i) => {
       const t = byIndex.get(i) || {}
+      const rating = clampRating(t.rating)
       return {
-        urgency: URGENCY.includes(t.urgency) ? t.urgency : 'gerek-yok',
-        rating: clampRating(t.rating),
+        urgency: gateUrgency(t.urgency, rating, cadence),
+        rating,
         why: (Array.isArray(t.why) ? t.why : []).filter(Boolean).slice(0, 3),
         summary: typeof t.summary === 'string' ? t.summary.trim() : '',
         highlights: (Array.isArray(t.highlights) ? t.highlights : []).filter(Boolean).slice(0, 3),
@@ -542,10 +570,10 @@ export const LINKEDIN_RULES = [
   'Açılış: ilk cümle en çarpıcı somut bilgiyle başlıyor (rakam, ölçek, bir ilk); ürün ya da repo adıyla açılmıyor',
   'İlk iki satır: tek başına konuyu söylüyor ve "devamını gör"e bastıracak merakı uyandırıyor',
   'Maddeler: 2-3 madde, herkesin anlayacağı etkiler (ne yapıyor, kimin işine yarıyor, nasıl denenir); sürüm numarası, ortam değişkeni, platform listesi yok',
-  'Yorum: "Benim yorumum" net, savunulabilir bir görüş; çekingen uyarı yok; uydurma kişisel deneyim yok',
+  'Yorum: "Benim yorumum" net, savunulabilir bir görüş ve haberde yazmayan bir çıkarım taşıyor (ne değişiyor, kim kazanıyor); "ilginç gelişme" gibi boş yorum, çekingen uyarı ve uydurma kişisel deneyim yok',
   'Doğruluk: her bilgi doğrulanmış listede var; uydurma sayı, isim, özellik yok',
   'Dil: sade ve anlaşılır; teknik bilgisi olmayan biri de anlıyor; teknik terim yok ya da kısaca açıklanmış ("açık ağırlıklı" değil "açık kaynak"); kısa cümleler; çeviri kokan cümle, klişe ve abartı yok',
-  'Biçim: 80-140 kelime; sondan bir önceki satır yazıya yönlendiren tek cümle (":" ile biter); en sonda #YapayZeka dahil 3-4 hashtag',
+  'Biçim ve bulunabilirlik: 80-140 kelime; konunun anahtar terimleri ilk iki satırda geçiyor; sondan bir önceki satır yazıya yönlendiren tek cümle (":" ile biter); en sonda #YapayZeka, konunun ana terimi ve 1-2 geniş kitle etiketiyle 3-5 hashtag',
 ]
 
 export async function polishLinkedIn({ cluster, v, linkedin, model = WRITER_MODEL }) {
