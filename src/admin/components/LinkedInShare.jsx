@@ -3,6 +3,7 @@ import { Loader2, Send, Link2, ExternalLink, Copy, Check, AlertTriangle, CheckCi
 import { supabase } from '../../lib/supabase.js'
 import { serverApi } from '../lib/serverApi.js'
 import { LinkedinIcon } from '../../site/icons.jsx'
+import { withLink } from '../../lib/linkedinText.js'
 
 const LIMIT = 3000
 const SITE = 'https://berat-emek.com'
@@ -44,9 +45,12 @@ export default function LinkedInShare({ brief, index, content, onChanged }) {
   const [comment, setComment] = useState('')
   const [article, setArticle] = useState(null)
   const [withArticle, setWithArticle] = useState(true)
+  // 'image': kapak büyük görsel, bağlantı metinde · 'card': bağlantı kartı (LinkedIn görseli küçük gösterir)
+  const [format, setFormat] = useState('image')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const shared = content?.shared || (index < 0 && brief.stats?.linkedin) || null
+  const bigImage = Boolean(article?.cover) && format === 'image'
 
   useEffect(() => {
     setText(content?.linkedin || '')
@@ -84,17 +88,22 @@ export default function LinkedInShare({ brief, index, content, onChanged }) {
   }
 
   async function share() {
-    const note = article && withArticle ? `\n\n"${article.title}" yazısı sitede yayınlanacak; bağlantısı kapak görseliyle birlikte kart olarak eklenecek.` : ''
+    const note = !(article && withArticle)
+      ? ''
+      : bigImage
+        ? `\n\n"${article.title}" yazısı sitede yayınlanacak; kapak görseli gönderiye büyük görsel olarak eklenecek, yazının bağlantısı metne girecek.`
+        : `\n\n"${article.title}" yazısı sitede yayınlanacak; bağlantısı kapak görseliyle birlikte kart olarak eklenecek.`
     if (!window.confirm(`Bu metin LinkedIn profilinde herkese açık olarak paylaşılacak.${note}\n\nDevam edilsin mi?`)) return
     setBusy(true)
     setError(null)
     try {
       const out = await serverApi('/api/linkedin/share', {
         method: 'POST',
-        body: { text, comment, briefId: brief.id, index: index >= 0 ? index : undefined, withArticle },
+        body: { text, comment, briefId: brief.id, index: index >= 0 ? index : undefined, withArticle, format },
       })
       await onChanged()
       if (out.commentOk === false) setError('Gönderi paylaşıldı ama yorum eklenemedi; yorumu elle ekleyebilirsin.')
+      else if (bigImage && out.format === 'card') setError('LinkedIn görseli büyük olarak kabul etmedi; gönderi bağlantı kartıyla paylaşıldı.')
     } catch (e) {
       setError(e.message)
     } finally {
@@ -141,7 +150,8 @@ export default function LinkedInShare({ brief, index, content, onChanged }) {
 
   const daysLeft = status?.expiresAt ? Math.ceil((new Date(status.expiresAt) - Date.now()) / 864e5) : null
   const over = text.length > LIMIT
-  const copyValue = article && withArticle ? `${text}\n${article.url}` : text
+  // Elle paylaşırken: büyük görselde bağlantı metnin içinde (görseli "Görseli indir" ile ekle), kartta sonda
+  const copyValue = article && withArticle ? (bigImage ? withLink(text, article.url) : `${text}\n${article.url}`) : text
 
   return (
     <section className="admin-card li-share">
@@ -205,11 +215,30 @@ export default function LinkedInShare({ brief, index, content, onChanged }) {
           <span>
             <strong>{article.title}</strong>
             <em>
-              {article.published ? 'Yayında' : 'Taslak — paylaşınca yayınlanacak'} · kapak görseliyle bağlantı kartı ·{' '}
-              {article.url.replace('https://', '')}
+              {article.published ? 'Yayında' : 'Taslak — paylaşınca yayınlanacak'} ·{' '}
+              {bigImage ? 'büyük görsel, bağlantı metinde' : 'kapak görseliyle bağlantı kartı'} · {article.url.replace('https://', '')}
             </em>
           </span>
         </label>
+      )}
+
+      {article?.cover && withArticle && !shared && (
+        <div className="li-format" role="radiogroup" aria-label="Gönderi biçimi">
+          <label className={format === 'image' ? 'is-on' : ''}>
+            <input type="radio" name={`li-format-${index}`} checked={format === 'image'} onChange={() => setFormat('image')} />
+            <span>
+              <strong>Büyük görsel</strong>
+              <em>Kapak gönderinin görseli olur, yazının bağlantısı metne eklenir</em>
+            </span>
+          </label>
+          <label className={format === 'card' ? 'is-on' : ''}>
+            <input type="radio" name={`li-format-${index}`} checked={format === 'card'} onChange={() => setFormat('card')} />
+            <span>
+              <strong>Bağlantı kartı</strong>
+              <em>LinkedIn kapağı kartın içinde küçük gösterir</em>
+            </span>
+          </label>
+        </div>
       )}
 
       <label className="li-field">

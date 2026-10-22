@@ -1,8 +1,13 @@
 // POST /api/linkedin/share — admin'in onayladığı metni LinkedIn profilinde yayınlar.
-// Günlük özetin blog taslağı varsa önce yazıyı sitede yayınlar ve gönderiye yazının bağlantısını
-// kart olarak ekler (asıl amaç: ayrıntılar blogda, LinkedIn'de yorum + yönlendirme).
+// Günlük özetin blog taslağı varsa önce yazıyı sitede yayınlar ve gönderiye yazıyı ekler
+// (asıl amaç: ayrıntılar blogda, LinkedIn'de yorum + yönlendirme). İki biçim var:
+//   format 'image' (varsayılan): kapak büyük görsel olarak gönderinin kendisi olur, yazının adresi metne girer
+//   format 'card': bağlantı kartı; LinkedIn kapağı kartın içinde küçük önizleme olarak gösterir
 import { SITE_URL, json, requireAdmin, getAuth, isConnected, db, linkedinRest, escapeLittleText, uploadLinkedInImage } from '../_linkedin.js'
 import { shareableImage } from '../_image.js'
+import { withLink } from '../../src/lib/linkedinText.js'
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 export async function POST(request) {
   if (!(await requireAdmin(request))) return json({ error: 'Yetkisiz' }, 401)
@@ -16,6 +21,7 @@ export async function POST(request) {
   const text = String(input?.text || '').trim()
   const comment = String(input?.comment || '').trim()
   const withArticle = input?.withArticle !== false
+  const format = input?.format === 'card' ? 'card' : 'image'
   const briefId = /^[0-9a-f-]{36}$/i.test(input?.briefId || '') ? input.briefId : null
   if (!text) return json({ error: 'Gönderi metni boş' }, 400)
   if (text.length > 3000) return json({ error: 'LinkedIn gönderisi en fazla 3000 karakter olabilir' }, 400)
@@ -42,28 +48,48 @@ export async function POST(request) {
         })
       }
       article = { source: `${SITE_URL}/blog/${post.slug}`, title: post.title, description: (post.excerpt || '').slice(0, 250) }
-      // Kapak görseli kartın küçük resmi olur (yüklenemezse kart görselsiz gider)
+      // Kapak görseli: büyük biçimde gönderinin görseli, kart biçiminde kartın küçük resmi olur
       if (post.cover) {
-        const thumbnail = await uploadLinkedInImage(auth.access_token, auth.member_urn, await shareableImage(post.cover))
-        if (thumbnail) article.thumbnail = thumbnail
+        const image = await uploadLinkedInImage(auth.access_token, auth.member_urn, await shareableImage(post.cover))
+        if (image) article.thumbnail = image
       }
     }
   }
 
-  const body = (art) => ({
+  const body = ({ commentary, content }) => ({
     author: auth.member_urn,
-    commentary: escapeLittleText(text),
+    commentary: escapeLittleText(commentary),
     visibility: 'PUBLIC',
     distribution: { feedDistribution: 'MAIN_FEED', targetEntities: [], thirdPartyDistributionChannels: [] },
-    ...(art && { content: { article: art } }),
+    ...(content && { content }),
     lifecycleState: 'PUBLISHED',
     isReshareDisabledByAuthor: false,
   })
-  let post = await linkedinRest('posts', auth.access_token, body(article))
-  // Görsel henüz işlenmediyse ya da reddedildiyse kartı görselsiz yeniden dene
-  if (!post.res.ok && article?.thumbnail) {
-    const { thumbnail, ...rest } = article
-    post = await linkedinRest('posts', auth.access_token, body(rest))
+
+  // Denenecek biçimler sırayla: görsel yeni yüklendiyse LinkedIn'in işlemesi birkaç saniye sürebilir;
+  // görselli gönderi olmazsa küçük görselli karta, o da olmazsa görselsiz karta düşer.
+  const attempts = []
+  if (article?.thumbnail && format === 'image') {
+    const linked = withLink(text, article.source)
+    if (linked.length > 3000) return json({ error: 'Metin ve yazının bağlantısı birlikte 3000 karakteri geçiyor; metni biraz kısalt.' }, 400)
+    const media = { commentary: linked, content: { media: { id: article.thumbnail, altText: article.title.slice(0, 300) } }, format: 'image' }
+    attempts.push(media, { ...media, wait: 3000 })
+  }
+  if (article) {
+    if (article.thumbnail) attempts.push({ commentary: text, content: { article }, format: 'card' })
+    const { thumbnail, ...plain } = article
+    attempts.push({ commentary: text, content: { article: plain }, format: 'card' })
+  } else {
+    attempts.push({ commentary: text, format: 'text' })
+  }
+
+  let post
+  let used
+  for (const a of attempts) {
+    if (a.wait) await sleep(a.wait)
+    post = await linkedinRest('posts', auth.access_token, body(a))
+    used = a.format
+    if (post.res.ok) break
   }
   if (!post.res.ok) return json({ error: `LinkedIn paylaşımı reddetti (${post.res.status}): ${post.text.slice(0, 300)}` }, 502)
 
@@ -84,13 +110,13 @@ export async function POST(request) {
   if (brief) {
     try {
       const sharedAt = new Date().toISOString()
-      const stats = { ...(brief.stats || {}), linkedin: { url, urn, article: article?.source || null, sharedAt } }
-      if (topic?.content) topic.content.shared = { url, urn, article: article?.source || null, at: sharedAt, via: 'api' }
+      const stats = { ...(brief.stats || {}), linkedin: { url, urn, article: article?.source || null, format: used, sharedAt } }
+      if (topic?.content) topic.content.shared = { url, urn, article: article?.source || null, format: used, at: sharedAt, via: 'api' }
       await db(`daily_briefs?id=eq.${brief.id}`, { method: 'PATCH', body: { status: 'paylasildi', stats, ...(topic && { topics }) }, prefer: 'return=minimal' })
     } catch {
       // Paylaşım yapıldı; işaretleme başarısızsa panelden elle işaretlenebilir
     }
   }
 
-  return json({ ok: true, url, article: article?.source || null, commentOk })
+  return json({ ok: true, url, article: article?.source || null, format: used, commentOk })
 }
