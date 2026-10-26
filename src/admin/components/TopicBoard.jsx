@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Sparkles, Loader2, Check, ShieldCheck, ShieldAlert, AlertTriangle, ArrowRightLeft, Circle } from 'lucide-react'
 import { serverApi } from '../lib/serverApi.js'
+import { autoCover, isNoCredit } from '../lib/covers.js'
 import '../today-content.css'
 
 const URGENCY = {
@@ -19,21 +20,43 @@ const STEPS = [
   { key: 'verify', label: 'Kaynaklar okunuyor ve doğrulanıyor' },
   { key: 'write', label: 'Yazı ve LinkedIn metni yazılıyor' },
   { key: 'check', label: 'Doğrulanmış bilgilere karşı kontrol ediliyor' },
+  { key: 'cover', label: 'Konuya özel kapak görseli hazırlanıyor' }, // tarayıcıda: renkli görsel, olmazsa markalı kapak
 ]
 
 /** Günün gündemi: her konu için aciliyet, gerekçe ve tek tıkla içerik üretimi. */
 export default function TopicBoard({ brief, onChanged, focus, onOpen }) {
   const [run, setRun] = useState(null) // { index, step }
   const [errors, setErrors] = useState({})
+  const [notes, setNotes] = useState({}) // hata olmayan bilgi notları (ör. kapak markalı kapağa düştü)
   const topics = Array.isArray(brief.topics) ? brief.topics : []
 
   async function create(index) {
     setErrors((e) => ({ ...e, [index]: null }))
+    setNotes((n) => ({ ...n, [index]: null }))
     try {
-      for (const s of STEPS) {
+      let postId = null
+      for (const s of STEPS.filter((x) => x.key !== 'cover')) {
         setRun({ index, step: s.key })
         const out = await serverApi('/api/content/create', { method: 'POST', body: { briefId: brief.id, index, step: s.key } })
         if (out.ok === false) throw new Error(out.error || 'Adım tamamlanamadı')
+        if (out.postId) postId = out.postId
+      }
+      // Paylaşılacak içerik görselsiz kalmasın: renkli kapak dene, olmazsa ücretsiz markalı kapak
+      if (postId) {
+        setRun({ index, step: 'cover' })
+        try {
+          const c = await autoCover({ briefId: brief.id, index, postId })
+          if (c.kind === 'brand') {
+            setNotes((n) => ({
+              ...n,
+              [index]: isNoCredit(c.reason)
+                ? 'Renkli görsel için OpenRouter bakiyesi yetmedi (en az 1 $ gerekiyor); ücretsiz markalı kapak eklendi.'
+                : `Renkli görsel üretilemedi (${c.reason}); ücretsiz markalı kapak eklendi.`,
+            }))
+          }
+        } catch (e) {
+          setNotes((n) => ({ ...n, [index]: `İçerik hazır ama kapak eklenemedi: ${e.message}` }))
+        }
       }
       await onChanged()
       onOpen?.(index) // yeni içerik kendi sekmesinde açılsın
@@ -175,6 +198,7 @@ export default function TopicBoard({ brief, onChanged, focus, onOpen }) {
                   <AlertTriangle size={15} /> {errors[i]}
                 </div>
               )}
+              {notes[i] && <p className="muted-line">{notes[i]}</p>}
             </li>
           )
         })}

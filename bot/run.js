@@ -352,8 +352,9 @@ async function main() {
     }
   }
 
-  // Görsel bütçesi: konuya özel AI kapak (~0,07 $) yalnızca "kesin paylaş" günlerinde
-  await save(brief, draftPost, verdict.urgency === 'kesin' ? draft.image_prompt : null)
+  // Yazı yazıldıysa paylaşılacaktır: konuya özel renkli kapak (~0,07 $) denenir, olmazsa markalı kapak.
+  // (Önceden yalnızca son karar "kesin" kalırsa üretiliyordu; editör "paylaş"a düşürünce yazı şablon kapakla kalıyordu.)
+  await save(brief, draftPost, verdict.urgency !== 'gerek-yok' ? draft.image_prompt : null)
 
   const u = getUsage()
   log(`\n${LABEL[verdict.urgency]} (${verdict.score}/10) — ${verdict.reason}`)

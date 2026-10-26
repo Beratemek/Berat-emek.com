@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Wand2, ImagePlus, Loader2, Pencil, AlertTriangle, CheckCircle2, Image as ImageIcon } from 'lucide-react'
 import { supabase } from '../../lib/supabase.js'
 import { serverApi } from '../lib/serverApi.js'
-import { renderBrandCover } from '../lib/brandCover.js'
+import { saveCover as uploadCover, brandCover, isNoCredit } from '../lib/covers.js'
 import '../agents.css'
 import '../today-content.css'
 
@@ -13,29 +13,6 @@ const TARGETS = [
   { key: 'both', label: 'İkisi' },
 ]
 const EXAMPLES = ['Daha kısa ve net yaz', 'Girişi somut bir sayıyla başlat', 'Yorum kısmını daha keskin yap', 'Teknik terimleri sadeleştir']
-
-/** Görseli tarayıcıda yeniden kodlar (en fazla 1600 px genişlik). */
-function encode(dataUrl, type, quality, maxWidth = 1600) {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => {
-      const w = Math.min(maxWidth, img.naturalWidth)
-      const h = Math.round((img.naturalHeight * w) / img.naturalWidth)
-      const canvas = document.createElement('canvas')
-      canvas.width = w
-      canvas.height = h
-      const ctx = canvas.getContext('2d')
-      if (type === 'image/jpeg') {
-        ctx.fillStyle = '#ffffff' // JPEG saydamlık taşımaz
-        ctx.fillRect(0, 0, w, h)
-      }
-      ctx.drawImage(img, 0, 0, w, h)
-      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Görsel sıkıştırılamadı'))), type, quality)
-    }
-    img.onerror = () => reject(new Error('Görsel okunamadı'))
-    img.src = dataUrl
-  })
-}
 
 /** Bir içeriğin araçları: talimatla revize et, konuya özel kapak üret, editörde aç. */
 export default function ContentTools({ brief, index, content, onChanged }) {
@@ -78,20 +55,11 @@ export default function ContentTools({ brief, index, content, onChanged }) {
     }
   }
 
-  /** Görseli kapak olarak yükler: site için WebP (hafif), LinkedIn için aynı adla JPEG kopyası (LinkedIn WebP'yi güvenilir göstermiyor). */
+  /** Görseli kapak yapar ve karttaki önizlemeyi günceller. */
   async function saveCover(dataUrl, folder) {
-    const base = `${folder}/${post.slug.slice(0, 60)}-${Date.now().toString(36)}`
-    const [webp, jpg] = await Promise.all([encode(dataUrl, 'image/webp', 0.85), encode(dataUrl, 'image/jpeg', 0.86)])
-    const store = supabase.storage.from('covers')
-    const up = await store.upload(`${base}.webp`, webp, { contentType: 'image/webp', cacheControl: '31536000' })
-    if (up.error) throw up.error
-    const upJpg = await store.upload(`${base}.jpg`, jpg, { contentType: 'image/jpeg', cacheControl: '31536000' })
-    if (upJpg.error) throw upJpg.error
-    const url = store.getPublicUrl(`${base}.webp`).data.publicUrl
-    const { error } = await supabase.from('posts').update({ cover: url, cover_position: '50% 50%' }).eq('id', post.id)
-    if (error) throw error
+    const { url, info } = await uploadCover(post, dataUrl, folder)
     setPost((p) => ({ ...p, cover: url }))
-    return `site için ${Math.round(webp.size / 1024)} KB, LinkedIn için JPEG ${Math.round(jpg.size / 1024)} KB`
+    return info
   }
 
   async function makeCover() {
@@ -103,8 +71,7 @@ export default function ContentTools({ brief, index, content, onChanged }) {
       const out = await serverApi('/api/content/image', { method: 'POST', body: { briefId: brief.id, index } })
       setMsg(['ok', `Kapak eklendi (${await saveCover(out.image, 'ai')}).`])
     } catch (e) {
-      const noCredit = /1\.00 in balance|requires at least|402/.test(e.message)
-      setMsg(['err', noCredit ? 'OpenRouter, yapay zeka görseli için hesapta en az 1 $ bakiye istiyor. Bakiye yükleyene kadar "Markalı kapak" ücretsiz çalışır.' : e.message])
+      setMsg(['err', isNoCredit(e.message) ? 'OpenRouter, yapay zeka görseli için hesapta en az 1 $ bakiye istiyor. Bakiye yükleyene kadar "Markalı kapak" ücretsiz çalışır.' : e.message])
     } finally {
       setBusy(null)
     }
@@ -116,9 +83,9 @@ export default function ContentTools({ brief, index, content, onChanged }) {
     setBusy('brand')
     setMsg(null)
     try {
-      const date = new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())
-      const png = await renderBrandCover({ title: post.title, date })
-      setMsg(['ok', `Markalı kapak eklendi (${await saveCover(png, 'brand')}).`])
+      const { url, info } = await brandCover(post)
+      setPost((p) => ({ ...p, cover: url }))
+      setMsg(['ok', `Markalı kapak eklendi (${info}).`])
     } catch (e) {
       setMsg(['err', e.message])
     } finally {
