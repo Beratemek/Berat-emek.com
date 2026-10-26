@@ -213,20 +213,41 @@ export default function PostEditor() {
     }
   }
 
-  // Onaylanan notları yapay zeka yazının üzerinde uygular; sonuç editöre gelir, Kaydet'e basılana kadar kalıcı değildir
-  async function applyFixes() {
-    if (!editor || !review?.issues?.length) return
+  // Kayıtlı yazının başlığını, özetini ve içeriğini hemen kaydeder (yeni, hiç kaydedilmemiş yazıda bir şey yapmaz)
+  async function persist({ title, excerpt, doc }) {
+    if (isNew) return false
+    const { error } = await supabase.from('posts').update({ title, excerpt, content: doc, updated_at: new Date().toISOString() }).eq('id', id)
+    if (error) throw error
+    refresh()
+    return true
+  }
+
+  // Onaylanan notları yapay zeka yazının üzerinde uygular, taslağı kaydeder ve sonucu hemen yeniden kontrol eder.
+  // Kalan not çıkarsa "Kalanları da düzelt" ile bir tur daha; "Geri al" her zaman ilk hâle döner.
+  async function applyFixes(issues = review?.issues) {
+    if (!editor || !issues?.length) return
     setFixing(true)
-    const prev = { title: form.title, excerpt: form.excerpt, doc: editor.getJSON() }
+    const original = beforeFix || { title: form.title, excerpt: form.excerpt, doc: editor.getJSON() }
     try {
       const out = await serverApi('/api/agents/fix', {
         method: 'POST',
-        body: { title: form.title, excerpt: form.excerpt, kind: form.kind, doc: prev.doc, issues: review.issues },
+        body: { title: form.title, excerpt: form.excerpt, kind: form.kind, doc: editor.getJSON(), issues },
       })
       editor.commands.setContent(out.doc)
       setForm((f) => ({ ...f, title: out.title, excerpt: out.excerpt }))
-      setBeforeFix(prev)
-      setReview({ fixed: true, changes: out.changes || [] })
+      setBeforeFix(original)
+      const savedNow = await persist({ title: out.title, excerpt: out.excerpt, doc: out.doc })
+      if (savedNow) setSaved(true)
+      let recheck = null
+      try {
+        recheck = await serverApi('/api/agents/quality', {
+          method: 'POST',
+          body: { title: out.title, excerpt: out.excerpt, text: editor.getText(), kind: form.kind },
+        })
+      } catch {
+        // yeniden kontrol yapılamazsa düzeltme yine de geçerli
+      }
+      setReview({ fixed: true, saved: savedNow, changes: out.changes || [], recheck })
     } catch (e) {
       setReview((r) => ({ ...r, fixError: e.message }))
     } finally {
@@ -234,10 +255,15 @@ export default function PostEditor() {
     }
   }
 
-  function undoFixes() {
+  async function undoFixes() {
     if (!editor || !beforeFix) return
     editor.commands.setContent(beforeFix.doc)
     setForm((f) => ({ ...f, title: beforeFix.title, excerpt: beforeFix.excerpt }))
+    try {
+      await persist(beforeFix)
+    } catch (e) {
+      setErr(e.message)
+    }
     setBeforeFix(null)
     setReview(null)
   }
@@ -476,7 +502,9 @@ export default function PostEditor() {
           ) : review.fixed ? (
             <>
               <p className="review-summary">
-                Yazı editörde düzeltildi. Göz at; beğendiysen <strong>Kaydet</strong>'e bas, beğenmediysen geri al.
+                {review.saved
+                  ? 'Düzeltmeler yazıya uygulandı ve kaydedildi.'
+                  : <>Düzeltmeler editöre uygulandı; yeni yazı olduğu için kalıcı olması için <strong>Kaydet</strong>'e bas.</>}
               </p>
               {review.changes.length > 0 && (
                 <ul className="review-list">
@@ -488,14 +516,41 @@ export default function PostEditor() {
                   ))}
                 </ul>
               )}
+              {review.recheck && (
+                review.recheck.verdict === 'yayinlanabilir' && !review.recheck.issues?.some((i) => i.level !== 'oneri') ? (
+                  <p className="review-summary">
+                    <CheckCircle2 size={14} style={{ verticalAlign: '-2px' }} /> Yeniden kontrol edildi: yayınlanabilir.
+                  </p>
+                ) : (
+                  <>
+                    <p className="review-summary">Yeniden kontrolde kalan notlar:</p>
+                    <ul className="review-list">
+                      {review.recheck.issues?.map((i, k) => (
+                        <li key={k} className={`lvl-${i.level}`}>
+                          <span className="review-level">{i.level === 'kritik' ? 'Kritik' : i.level === 'uyari' ? 'Uyarı' : 'Öneri'}</span>
+                          <div>{i.text}</div>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )
+              )}
               <div className="review-actions">
-                <button type="button" className="btn btn-secondary btn-sm" onClick={undoFixes}>
-                  <Undo2 size={14} /> Geri al
-                </button>
-                <button type="button" className="btn btn-secondary btn-sm" onClick={aiReview} disabled={reviewing}>
-                  {reviewing ? <Loader2 size={14} className="spin" /> : <ShieldCheck size={14} />} Yeniden kontrol et
+                {review.recheck?.issues?.length > 0 && (
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => applyFixes(review.recheck.issues)} disabled={fixing}>
+                    {fixing ? <Loader2 size={14} className="spin" /> : <Wand2 size={14} />}
+                    {fixing ? 'Düzeltiliyor…' : 'Kalanları da düzelt'}
+                  </button>
+                )}
+                <button type="button" className="btn btn-secondary btn-sm" onClick={undoFixes} disabled={fixing}>
+                  <Undo2 size={14} /> Geri al (ilk hâline dön)
                 </button>
               </div>
+              {review.fixError && (
+                <p className="muted-line" style={{ color: 'var(--a-danger, #b42318)' }}>
+                  {review.fixError}
+                </p>
+              )}
             </>
           ) : (
             <>
@@ -517,11 +572,11 @@ export default function PostEditor() {
               )}
               {review.issues?.length > 0 && (
                 <div className="review-actions">
-                  <button type="button" className="btn btn-primary btn-sm" onClick={applyFixes} disabled={fixing || saving}>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => applyFixes()} disabled={fixing || saving}>
                     {fixing ? <Loader2 size={14} className="spin" /> : <Wand2 size={14} />}
-                    {fixing ? 'Düzeltiliyor… (20-40 sn)' : 'Düzeltmeleri uygula'}
+                    {fixing ? 'Düzeltiliyor ve kontrol ediliyor… (20-40 sn)' : 'Düzeltmeleri uygula'}
                   </button>
-                  <span className="muted-line">Yapay zeka notları yazının üzerinde düzeltir · yazı başı birkaç sent</span>
+                  <span className="muted-line">Notları yazının üzerinde düzeltir, kaydeder ve yeniden kontrol eder · yazı başı birkaç sent</span>
                 </div>
               )}
               {review.fixError && (

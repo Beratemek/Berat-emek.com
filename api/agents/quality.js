@@ -27,6 +27,7 @@ export async function POST(request) {
     const out = await askJSON({
       label: 'kalite kapısı',
       maxTokens: 3000,
+      temperature: 0, // aynı metin her kontrolde aynı notları alsın
       system: `Sen Berat Emek'in yayın öncesi kalite editörüsün. Metin Berat'ın kişisel sitesinde yayınlanacak.
 ${PERSONA}
 

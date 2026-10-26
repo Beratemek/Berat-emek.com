@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Wand2, ImagePlus, Loader2, Pencil, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { Wand2, ImagePlus, Loader2, Pencil, AlertTriangle, CheckCircle2, Image as ImageIcon } from 'lucide-react'
 import { supabase } from '../../lib/supabase.js'
 import { serverApi } from '../lib/serverApi.js'
+import { renderBrandCover } from '../lib/brandCover.js'
 import '../agents.css'
 import '../today-content.css'
 
@@ -42,7 +43,7 @@ export default function ContentTools({ brief, index, content, onChanged }) {
   const [post, setPost] = useState(null)
   const [instruction, setInstruction] = useState('')
   const [target, setTarget] = useState('both')
-  const [busy, setBusy] = useState(null) // 'revise' | 'image'
+  const [busy, setBusy] = useState(null) // 'revise' | 'image' | 'brand'
   const [msg, setMsg] = useState(null) // ['ok' | 'err', text]
   const canReviseBlog = Boolean(content?.blocks?.length)
 
@@ -77,6 +78,22 @@ export default function ContentTools({ brief, index, content, onChanged }) {
     }
   }
 
+  /** Görseli kapak olarak yükler: site için WebP (hafif), LinkedIn için aynı adla JPEG kopyası (LinkedIn WebP'yi güvenilir göstermiyor). */
+  async function saveCover(dataUrl, folder) {
+    const base = `${folder}/${post.slug.slice(0, 60)}-${Date.now().toString(36)}`
+    const [webp, jpg] = await Promise.all([encode(dataUrl, 'image/webp', 0.85), encode(dataUrl, 'image/jpeg', 0.86)])
+    const store = supabase.storage.from('covers')
+    const up = await store.upload(`${base}.webp`, webp, { contentType: 'image/webp', cacheControl: '31536000' })
+    if (up.error) throw up.error
+    const upJpg = await store.upload(`${base}.jpg`, jpg, { contentType: 'image/jpeg', cacheControl: '31536000' })
+    if (upJpg.error) throw upJpg.error
+    const url = store.getPublicUrl(`${base}.webp`).data.publicUrl
+    const { error } = await supabase.from('posts').update({ cover: url, cover_position: '50% 50%' }).eq('id', post.id)
+    if (error) throw error
+    setPost((p) => ({ ...p, cover: url }))
+    return `site için ${Math.round(webp.size / 1024)} KB, LinkedIn için JPEG ${Math.round(jpg.size / 1024)} KB`
+  }
+
   async function makeCover() {
     if (!post) return
     if (!window.confirm('Konuya özel kapak görseli üretilecek (yaklaşık 0,07 $). Devam edilsin mi?')) return
@@ -84,19 +101,24 @@ export default function ContentTools({ brief, index, content, onChanged }) {
     setMsg(null)
     try {
       const out = await serverApi('/api/content/image', { method: 'POST', body: { briefId: brief.id, index } })
-      const base = `ai/${post.slug.slice(0, 60)}-${Date.now().toString(36)}`
-      // Site için WebP (hafif), LinkedIn için aynı adla JPEG kopyası (LinkedIn WebP'yi güvenilir göstermiyor)
-      const [webp, jpg] = await Promise.all([encode(out.image, 'image/webp', 0.85), encode(out.image, 'image/jpeg', 0.86)])
-      const store = supabase.storage.from('covers')
-      const up = await store.upload(`${base}.webp`, webp, { contentType: 'image/webp', cacheControl: '31536000' })
-      if (up.error) throw up.error
-      const upJpg = await store.upload(`${base}.jpg`, jpg, { contentType: 'image/jpeg', cacheControl: '31536000' })
-      if (upJpg.error) throw upJpg.error
-      const url = store.getPublicUrl(`${base}.webp`).data.publicUrl
-      const { error } = await supabase.from('posts').update({ cover: url, cover_position: '50% 50%' }).eq('id', post.id)
-      if (error) throw error
-      setPost((p) => ({ ...p, cover: url }))
-      setMsg(['ok', `Kapak eklendi (site için ${Math.round(webp.size / 1024)} KB, LinkedIn için JPEG ${Math.round(jpg.size / 1024)} KB).`])
+      setMsg(['ok', `Kapak eklendi (${await saveCover(out.image, 'ai')}).`])
+    } catch (e) {
+      const noCredit = /1\.00 in balance|requires at least|402/.test(e.message)
+      setMsg(['err', noCredit ? 'OpenRouter, yapay zeka görseli için hesapta en az 1 $ bakiye istiyor. Bakiye yükleyene kadar "Markalı kapak" ücretsiz çalışır.' : e.message])
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  // Ücretsiz markalı kapak: başlık, ağ küresi ve imza tarayıcıda çizilir (yapay zeka ve bakiye gerekmez)
+  async function makeBrandCover() {
+    if (!post) return
+    setBusy('brand')
+    setMsg(null)
+    try {
+      const date = new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())
+      const png = await renderBrandCover({ title: post.title, date })
+      setMsg(['ok', `Markalı kapak eklendi (${await saveCover(png, 'brand')}).`])
     } catch (e) {
       setMsg(['err', e.message])
     } finally {
@@ -167,9 +189,12 @@ export default function ContentTools({ brief, index, content, onChanged }) {
           <div className={`ct-thumb${post?.cover ? '' : ' is-empty'}`} style={post?.cover ? { backgroundImage: `url(${post.cover})` } : undefined}>
             {!post?.cover && <span>Kapak yok · sitede otomatik desen görünür</span>}
           </div>
+          <button type="button" className="btn btn-secondary btn-sm" disabled={!post || Boolean(busy)} onClick={makeBrandCover} title="Başlık, ağ küresi ve imzayla sitenin renklerinde kapak; yapay zeka kullanmaz">
+            {busy === 'brand' ? <Loader2 size={14} className="spin" /> : <ImageIcon size={14} />} Markalı kapak · ücretsiz
+          </button>
           <button type="button" className="btn btn-secondary btn-sm" disabled={!post || Boolean(busy)} onClick={makeCover}>
             {busy === 'image' ? <Loader2 size={14} className="spin" /> : <ImagePlus size={14} />}{' '}
-            {post?.cover ? 'Yeni kapak üret' : 'Konuya özel kapak üret'} · ~0,07 $
+            {post?.cover ? 'Yeni yapay zeka kapağı' : 'Konuya özel kapak üret'} · ~0,07 $
           </button>
         </div>
       </div>

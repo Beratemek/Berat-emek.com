@@ -6,7 +6,7 @@ import { json, requireAdmin } from '../_linkedin.js'
 import { loadBrief, saveBrief, toCluster, activePatch } from '../_content.js'
 import { verifyCandidate, writeDraft, checkDraft, polishLinkedIn, sourceList } from '../../bot/agents.js'
 import { blocksToDoc, slugify } from '../../bot/tiptap.js'
-import { insertDraftPost } from '../../bot/db.js'
+import { insertDraftPost, rest } from '../../bot/db.js'
 import { getUsage } from '../../bot/llm.js'
 import { canUseAI, recordRun } from '../../bot/agentkit.js'
 import { BLOG_NOTE } from '../../bot/config.js'
@@ -58,7 +58,8 @@ export async function POST(request) {
 
     if (step === 'write') {
       if (!topic.verification?.verified) return json({ error: 'Önce doğrulama adımı tamamlanmalı' }, 400)
-      topic.work = { draft: await writeDraft(cluster, topic.verification) }
+      // Yarıda kalmış bir önceki çalıştırmanın taslak kimliği korunur (aynı konu için ikinci taslak açılmasın)
+      topic.work = { ...(topic.work?.post_id && { post_id: topic.work.post_id }), draft: await writeDraft(cluster, topic.verification) }
       await saveBrief(brief.id, { topics })
       return json({ ok: true })
     }
@@ -70,13 +71,28 @@ export async function POST(request) {
     // Son söz LinkedIn editöründe: Berat paylaşırken metne bakmasın diye 7 kurala göre denetleyip son hâlini yazar
     const polished = await polishLinkedIn({ cluster, v: topic.verification, linkedin: checked.linkedin }).catch(() => null)
     const sources = sourceList(cluster)
-    const row = await insertDraftPost({
+    const fields = {
       title: draft.blog.title,
-      slug: slugify(draft.blog.title),
       excerpt: draft.blog.excerpt || '',
       tags: (draft.blog.tags || []).slice(0, 4),
       content: blocksToDoc(checked.blocks, sources, BLOG_NOTE),
-    })
+    }
+    // Bu konunun zaten bir taslağı varsa (çift tıklama, yarıda kalan çalıştırma) yeni yazı açılmaz, aynı taslak güncellenir.
+    // Yayındaki bir yazıya dokunulmaz.
+    let row = null
+    const existingId = topic.content?.post_id || topic.work?.post_id
+    if (existingId) {
+      const [prev] = await rest(`posts?id=eq.${existingId}&select=id,published`).catch(() => [])
+      if (prev && !prev.published) {
+        await rest(`posts?id=eq.${prev.id}`, { method: 'PATCH', body: { ...fields, updated_at: new Date().toISOString() }, prefer: 'return=minimal' })
+        row = prev
+      }
+    }
+    if (!row) {
+      row = await insertDraftPost({ ...fields, slug: slugify(draft.blog.title) })
+      topic.work.post_id = row.id
+      await saveBrief(brief.id, { topics }) // kimlik hemen kaydedilir: bundan sonrası yarıda kalsa da tekrar denemede aynı taslak kullanılır
+    }
     topic.content = {
       post_id: row.id,
       title: draft.blog.title,
