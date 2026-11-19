@@ -33,6 +33,9 @@ export const PLAIN_LANGUAGE = `Sade dil (kesin): Okur, yapay zekayı merak eden 
 - Yerleşik Türkçesi olan İngilizce terimi Türkçe yaz ("benchmark" → "test", "deploy" → "yayına almak", "agent" → "yapay zeka asistanı/ajanı" ve ne yaptığını söyle). Ürün, komut ve marka adları aynen kalır.
 - "Açık ağırlıklı" deme; "açık kaynak" de (lisans biliniyorsa ekle: "MIT lisansıyla açık kaynak").
 - Soyut anlatma: gündelik bir benzetme ya da somut bir örnek ver.
+- Sade ama acemi değil: okurun zaten bildiği şeyleri (ChatGPT, API, model, "güçlü model / ucuz model" ayrımı) baştan anlatma.
+  Haberi ilk kez duyan biri gibi değil, alanı yakından takip eden biri gibi yaz: önceki sürümle, rakiplerle ve gidişatla bağ kur.
+  "X şirketi yeni model çıkardı" diye açma; haberin asıl ilginç noktasıyla aç.
 - "Sen" diye hitap et; birinci tekil şahıs, net görüş, sakin ve samimi.
 - Okurun kullanmayacağı ayrıntıları (ortam değişkeni, parametre listesi, sürüm ayrıntısı, saat dilimli tarih) yazma.`
 

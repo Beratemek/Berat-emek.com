@@ -572,7 +572,7 @@ export const LINKEDIN_RULES = [
   'Maddeler: 2-3 madde, herkesin anlayacağı etkiler (ne yapıyor, kimin işine yarıyor, nasıl denenir); sürüm numarası, ortam değişkeni, platform listesi yok',
   'Yorum: "Benim yorumum" net, savunulabilir bir görüş ve haberde yazmayan bir çıkarım taşıyor (ne değişiyor, kim kazanıyor); "ilginç gelişme" gibi boş yorum, çekingen uyarı ve uydurma kişisel deneyim yok',
   'Doğruluk: her bilgi doğrulanmış listede var; uydurma sayı, isim, özellik yok',
-  'Dil: sade ve anlaşılır; teknik bilgisi olmayan biri de anlıyor; teknik terim yok ya da kısaca açıklanmış ("açık ağırlıklı" değil "açık kaynak"); kısa cümleler; çeviri kokan cümle, klişe ve abartı yok',
+  'Dil: sade ve anlaşılır ama acemi değil; teknik terim yok ya da kısaca açıklanmış ("açık ağırlıklı" değil "açık kaynak"), ama okurun bildiği şeyler (ChatGPT, API, "güçlü/ucuz model") baştan anlatılmıyor; alanı takip eden birinin sesi; kısa cümleler; çeviri kokan cümle, klişe ve abartı yok',
   'Biçim ve bulunabilirlik: 80-140 kelime; konunun anahtar terimleri ilk iki satırda geçiyor; sondan bir önceki satır yazıya yönlendiren tek cümle (":" ile biter); en sonda #YapayZeka, konunun ana terimi ve 1-2 geniş kitle etiketiyle 3-5 hashtag',
 ]
 
